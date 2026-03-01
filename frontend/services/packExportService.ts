@@ -58,6 +58,83 @@ async function urlToBytes(url: string): Promise<Uint8Array> {
   return new Uint8Array(await res.arrayBuffer());
 }
 
+// ── Shorts Cuts ───────────────────────────────────────────────────────────────
+
+interface CropRect {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+interface CropPresetEntry {
+  keyframe: number;    // 1-indexed
+  img_w: number;
+  img_h: number;
+  zoom: number;
+  cut_a: CropRect;
+  cut_b: CropRect;
+}
+
+const SHORTS_MAX_ZOOM  = 1.25;
+const SHORTS_MIN_ROI_W = 600;
+
+/** CapCut cut sequence (frames at 30 fps) */
+const CUT_FULL_F = 11;   // ≈ 0.35 s
+const CUT_A_F    = 17;   // ≈ 0.55 s
+const CUT_B_F    = 14;   // ≈ 0.45 s
+
+/**
+ * 計算 Cut A（左上）與 Cut B（右下）的裁切矩形。
+ * 保持原始長寬比；zoom = imgW / roiW。
+ */
+function computeShortsCrops(
+  imgW: number,
+  imgH: number,
+): { a: CropRect; b: CropRect; zoom: number } {
+  const roiW = Math.max(SHORTS_MIN_ROI_W, Math.round(imgW / SHORTS_MAX_ZOOM));
+  const roiH = Math.round(roiW * imgH / imgW);
+  const zoom = imgW / roiW;
+  return {
+    a: { x: 0,           y: 0,           w: roiW, h: roiH },
+    b: { x: imgW - roiW, y: imgH - roiH, w: roiW, h: roiH },
+    zoom,
+  };
+}
+
+/** Uint8Array → HTMLImageElement（via Blob URL） */
+function loadImageEl(bytes: Uint8Array): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const blob = new Blob([bytes], { type: 'image/png' });
+    const url  = URL.createObjectURL(blob);
+    const img  = new Image();
+    img.onload  = () => { URL.revokeObjectURL(url); resolve(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Failed to load image')); };
+    img.src = url;
+  });
+}
+
+/** Canvas 裁切 → Uint8Array（PNG） */
+function cropImageEl(
+  img: HTMLImageElement,
+  crop: CropRect,
+  outW: number,
+  outH: number,
+): Promise<Uint8Array> {
+  return new Promise((resolve, reject) => {
+    const canvas = document.createElement('canvas');
+    canvas.width  = outW;
+    canvas.height = outH;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) { reject(new Error('No 2D context')); return; }
+    ctx.drawImage(img, crop.x, crop.y, crop.w, crop.h, 0, 0, outW, outH);
+    canvas.toBlob(blob => {
+      if (!blob) { reject(new Error('Canvas toBlob failed')); return; }
+      blob.arrayBuffer().then(ab => resolve(new Uint8Array(ab))).catch(reject);
+    }, 'image/png');
+  });
+}
+
 // ── CapCut Editing Guide ───────────────────────────────────────────────────────
 
 const FPS        = 30;
@@ -156,16 +233,19 @@ function subText(unit: ObservationUnit, topic: string, i: number): string {
 /**
  * 產生 EDITING_GUIDE_CAPCUT.txt 全文。
  * 段落數 = units.length（保證與 keyframes 一致）。
+ * cropPresets: Shorts 模式傳入，提供裁切時碼序列；其他模式不傳。
  */
 function buildCapcutGuide(
   topic: string,
   videoMode: string,
   units: ObservationUnit[],
   unitPlan: UnitPlanEntry[],
+  cropPresets?: CropPresetEntry[],
 ): string {
   const N           = units.length;
   const totalFrames = N * SEG_FRAMES;
   const bgm         = bgmLine(videoMode, totalFrames);
+  const isShorts    = videoMode === 'shorts';
 
   const H = '═'.repeat(57);
   const D = '─'.repeat(57);
@@ -189,8 +269,8 @@ function buildCapcutGuide(
   for (let i = 0; i < N; i++) {
     const u       = units[i];
     const base    = i * SEG_FRAMES;
-    const imgPad  = String(i + 1).padStart(3, '0');  // 圖檔仍 1-indexed 3位
-    const beat    = beatLabel(i, N);                  // sfxRec fallback 用
+    const imgPad  = String(i + 1).padStart(3, '0');
+    const beat    = beatLabel(i, N);
     const plan    = unitPlan[i];
     const unitIdx = String(i).padStart(2, '0');
     const kfId    = plan?.keyframe_id ?? (beat === 'HOOK' ? 'KF001' : beat === 'PAYOFF' ? 'KF003' : 'KF002');
@@ -200,9 +280,26 @@ function buildCapcutGuide(
     out.push(`  UNIT ${unitIdx}  [${beat}]  ${kfId}  ${varId}  ${u.phenomenon ?? ''}`);
     out.push(D);
     out.push('');
-    out.push(`  IMAGE         keyframe_${imgPad}.png`);
-    out.push(`  IMAGE IN      ${framesToTC(base)}`);
-    out.push(`  IMAGE OUT     ${framesToTC(base + SEG_FRAMES)}`);
+
+    // IMAGE block: Shorts uses cut timecode sequence; other modes use single full image
+    if (isShorts && cropPresets?.find(p => p.keyframe === i + 1)) {
+      const cutAIn  = base + CUT_FULL_F;
+      const cutBIn  = cutAIn + CUT_A_F;
+      const fullRtn = cutBIn + CUT_B_F;
+      out.push(`  IMAGE FULL    images/full/keyframe_${imgPad}.png`);
+      out.push(`  IMAGE CUT A   images/cuts/keyframe_${imgPad}_A.png`);
+      out.push(`  IMAGE CUT B   images/cuts/keyframe_${imgPad}_B.png`);
+      out.push(`  IMAGE IN      ${framesToTC(base)}`);
+      out.push(`  CUT A IN      ${framesToTC(cutAIn)}   (+${CUT_FULL_F}f / 0.35 s)`);
+      out.push(`  CUT B IN      ${framesToTC(cutBIn)}   (+${CUT_A_F}f / 0.55 s)`);
+      out.push(`  FULL RTN IN   ${framesToTC(fullRtn)}   (+${CUT_B_F}f / 0.45 s)`);
+      out.push(`  IMAGE OUT     ${framesToTC(base + SEG_FRAMES)}`);
+    } else {
+      out.push(`  IMAGE         keyframe_${imgPad}.png`);
+      out.push(`  IMAGE IN      ${framesToTC(base)}`);
+      out.push(`  IMAGE OUT     ${framesToTC(base + SEG_FRAMES)}`);
+    }
+
     out.push('');
     out.push(`  VO IN         ${framesToTC(base + 10)}`);
     out.push(`  VO OUT        ${framesToTC(base + 98)}`);
@@ -252,38 +349,69 @@ export interface ExportPackOptions {
  *
  * 輸出檔名：pack_<slug>_<YYYYMMDD_HHMMSS>_<mode>_<aspect>.zip
  * 解壓根目錄：pack_<slug>_<timestamp>/
+ *
+ * Shorts 模式額外輸出：
+ *   images/full/   原圖
+ *   images/cuts/   keyframe_###_A.png / _B.png
+ *   crop_presets.json
  */
 export async function exportPack(opts: ExportPackOptions): Promise<void> {
   const { topic, projectName, videoMode, aspectRatio, coverImageUrl, units, unitPlan = [], logs = [] } = opts;
 
-  const now       = new Date();
-  const slug      = slugify(projectName || topic);
-  const timestamp = fmtTimestamp(now);
-  const aspectSafe = aspectRatio.replace(':', 'x');   // "9:16" → "9x16"
-  const zipName   = `pack_${slug}_${timestamp}_${videoMode}_${aspectSafe}.zip`;
-  const rootDir   = `pack_${slug}_${timestamp}`;
+  const now        = new Date();
+  const slug       = slugify(projectName || topic);
+  const timestamp  = fmtTimestamp(now);
+  const aspectSafe = aspectRatio.replace(':', 'x');
+  const zipName    = `pack_${slug}_${timestamp}_${videoMode}_${aspectSafe}.zip`;
+  const rootDir    = `pack_${slug}_${timestamp}`;
+
+  const isShorts    = videoMode === 'shorts';
+  const imgRootPath = isShorts ? 'images/full' : 'images';
 
   const zip = new JSZip();
-  const imagesFolder = zip.folder(`${rootDir}/images`);
-  if (!imagesFolder) throw new Error('JSZip: 無法建立 images/ 資料夾');
+  const fullImgFolder = zip.folder(`${rootDir}/${imgRootPath}`);
+  if (!fullImgFolder) throw new Error('JSZip: 無法建立 images/ 資料夾');
+  const cutsFolder = isShorts ? zip.folder(`${rootDir}/images/cuts`) : null;
 
-  // ── 1. Cover ────────────────────────────────────────────────────────────────
-  imagesFolder.file('cover.png', await urlToBytes(coverImageUrl));
+  // ── 1. Cover ──────────────────────────────────────────────────────────────
+  fullImgFolder.file('cover.png', await urlToBytes(coverImageUrl));
 
-  // ── 2. Keyframes（只含有 imageUrl 的 units）────────────────────────────────
+  // ── 2. Keyframes（只含有 imageUrl 的 units）──────────────────────────────
   const readyUnits = units.filter(u => u.imageUrl);
 
-  const keyframesMeta: { id: number; path: string }[] = [];
+  const keyframesMeta:    { id: number; path: string }[]   = [];
   const imagePromptsMeta: { id: number; prompt: string }[] = [];
+  const cropPresetsList:  CropPresetEntry[]                 = [];
 
   for (let i = 0; i < readyUnits.length; i++) {
-    const unit = readyUnits[i];
-    const pad  = String(i + 1).padStart(3, '0');
+    const unit     = readyUnits[i];
+    const pad      = String(i + 1).padStart(3, '0');
     const filename = `keyframe_${pad}.png`;
 
-    imagesFolder.file(filename, await urlToBytes(unit.imageUrl!));
+    const imgBytes = await urlToBytes(unit.imageUrl!);
+    fullImgFolder.file(filename, imgBytes);
 
-    keyframesMeta.push({ id: i + 1, path: `images/${filename}` });
+    // Shorts only: generate cut A / cut B derivatives via Canvas API
+    if (isShorts && cutsFolder) {
+      const imgEl = await loadImageEl(imgBytes);
+      const { a, b, zoom } = computeShortsCrops(imgEl.naturalWidth, imgEl.naturalHeight);
+      const [aBytes, bBytes] = await Promise.all([
+        cropImageEl(imgEl, a, imgEl.naturalWidth, imgEl.naturalHeight),
+        cropImageEl(imgEl, b, imgEl.naturalWidth, imgEl.naturalHeight),
+      ]);
+      cutsFolder.file(`keyframe_${pad}_A.png`, aBytes);
+      cutsFolder.file(`keyframe_${pad}_B.png`, bBytes);
+      cropPresetsList.push({
+        keyframe: i + 1,
+        img_w: imgEl.naturalWidth,
+        img_h: imgEl.naturalHeight,
+        zoom,
+        cut_a: a,
+        cut_b: b,
+      });
+    }
+
+    keyframesMeta.push({ id: i + 1, path: `${imgRootPath}/${filename}` });
 
     const prompt = typeof unit.image_prompt === 'string'
       ? unit.image_prompt
@@ -291,7 +419,7 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
     imagePromptsMeta.push({ id: i + 1, prompt });
   }
 
-  // ── 3. meta.json ─────────────────────────────────────────────────────────────
+  // ── 3. meta.json ──────────────────────────────────────────────────────────
   const meta = {
     version: 'pack_meta_v1',
     project: {
@@ -302,11 +430,11 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
     render: {
       mode: videoMode,
       aspect_ratio: aspectRatio,
-      units_count: readyUnits.length,   // 與 keyframes 長度一致
+      units_count: readyUnits.length,
       created_at: now.toISOString(),
     },
     assets: {
-      cover: { path: 'images/cover.png' },
+      cover: { path: `${imgRootPath}/cover.png` },
       keyframes: keyframesMeta,
     },
     prompts: {
@@ -317,7 +445,36 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
   };
   zip.file(`${rootDir}/meta.json`, JSON.stringify(meta, null, 2));
 
-  // ── 4. README_START_HERE.txt ─────────────────────────────────────────────────
+  // ── 4. README_START_HERE.txt ──────────────────────────────────────────────
+  const structureLines = isShorts
+    ? [
+        `  ${imgRootPath}/cover.png               → 封面圖`,
+        ...keyframesMeta.map(k => `  ${k.path.padEnd(36)}→ Keyframe ${k.id} (原圖)`),
+        `  images/cuts/keyframe_###_A/B.png      → Shorts cut A / B  (各 ${cropPresetsList.length} 張)`,
+        '  crop_presets.json                      → 裁切座標 (crop_presets_v1)',
+      ]
+    : [
+        '  images/cover.png                        → 封面圖',
+        ...keyframesMeta.map(k => `  ${k.path.padEnd(40)}→ Keyframe ${k.id}`),
+      ];
+
+  const nextStepsLines = isShorts
+    ? [
+        '  1. 匯入 images/full/ 原圖與 images/cuts/ 衍生圖到 CapCut',
+        '  2. 依 EDITING_GUIDE_CAPCUT.txt IMAGE 時碼排列鏡頭切換',
+        '     FULL (0.35s) → CUT A (0.55s) → CUT B (0.45s) → FULL RTN',
+        '  3. Cut A/B 裁切座標見 crop_presets.json',
+        '  4. 旁白與字幕以各段 VO TEXT / SUB TEXT 為準',
+        '     （目前未輸出獨立 VO/SRT 檔）',
+      ]
+    : [
+        '  1. 匯入 images/ 到剪輯軟體（CapCut / Premiere / DaVinci Resolve）',
+        '  2. 依照 meta.json > assets.keyframes 排列鏡頭順序',
+        '  3. 開啟 EDITING_GUIDE_CAPCUT.txt，依時碼逐段剪輯',
+        '  4. 旁白與字幕以各段 VO TEXT / SUB TEXT 為準',
+        '     （目前未輸出獨立 VO/SRT 檔）',
+      ];
+
   const readmeLines = [
     `OBSERVATION PACK — ${projectName || topic}`,
     `Generated : ${now.toLocaleString()}`,
@@ -325,21 +482,14 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
     '',
     'STRUCTURE',
     '─────────',
-    '  images/cover.png                → 封面圖',
-    ...keyframesMeta.map(k =>
-      `  ${k.path.padEnd(36)}→ Keyframe ${k.id}`,
-    ),
+    ...structureLines,
     '  meta.json                        → 機器可讀元數據 (pack_meta_v1)',
     '  EDITING_GUIDE_CAPCUT.txt         → CapCut 剪輯指南 (30fps)',
     '  run_log.json                     → 本次生成日誌',
     '',
     'NEXT STEPS',
     '──────────',
-    '  1. 匯入 images/ 到剪輯軟體（CapCut / Premiere / DaVinci Resolve）',
-    '  2. 依照 meta.json > assets.keyframes 排列鏡頭順序',
-    '  3. 開啟 EDITING_GUIDE_CAPCUT.txt，依時碼逐段剪輯',
-    '  4. 旁白與字幕以各段 VO TEXT / SUB TEXT 為準',
-    '     （目前未輸出獨立 VO/SRT 檔）',
+    ...nextStepsLines,
     '',
     '─────────────────────────────────────────────',
     'Pack schema : pack_meta_v1',
@@ -347,24 +497,34 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
   ];
   zip.file(`${rootDir}/README_START_HERE.txt`, readmeLines.join('\n'));
 
-  // ── 5. EDITING_GUIDE_CAPCUT.txt ──────────────────────────────────────────────
+  // ── 5. EDITING_GUIDE_CAPCUT.txt ───────────────────────────────────────────
   zip.file(
     `${rootDir}/EDITING_GUIDE_CAPCUT.txt`,
-    buildCapcutGuide(topic, videoMode, readyUnits, unitPlan),
+    buildCapcutGuide(topic, videoMode, readyUnits, unitPlan, cropPresetsList),
   );
 
-  // ── 6. run_log.json ───────────────────────────────────────────────────────────
+  // ── 6. crop_presets.json（Shorts only）────────────────────────────────────
+  if (isShorts && cropPresetsList.length > 0) {
+    zip.file(`${rootDir}/crop_presets.json`, JSON.stringify({
+      version:   'crop_presets_v1',
+      max_zoom:  SHORTS_MAX_ZOOM,
+      min_roi_w: SHORTS_MIN_ROI_W,
+      presets:   cropPresetsList,
+    }, null, 2));
+  }
+
+  // ── 7. run_log.json ───────────────────────────────────────────────────────
   const runLog = {
-    generated_at : now.toISOString(),
-    video_mode   : videoMode,
-    aspect_ratio : aspectRatio,
-    units_total  : units.length,
+    generated_at:   now.toISOString(),
+    video_mode:     videoMode,
+    aspect_ratio:   aspectRatio,
+    units_total:    units.length,
     units_exported: readyUnits.length,
-    log_entries  : logs,
+    log_entries:    logs,
   };
   zip.file(`${rootDir}/run_log.json`, JSON.stringify(runLog, null, 2));
 
-  // ── 7. 產生 zip 並下載 ────────────────────────────────────────────────────────
+  // ── 8. 產生 zip 並下載 ────────────────────────────────────────────────────
   const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
   const blobUrl = URL.createObjectURL(blob);
   const a = document.createElement('a');
