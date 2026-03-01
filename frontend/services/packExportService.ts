@@ -68,16 +68,20 @@ interface CropRect {
 }
 
 interface CropPresetEntry {
-  keyframe: number;    // 1-indexed
+  keyframe: number;        // 1-indexed
   img_w: number;
   img_h: number;
   zoom: number;
-  cut_a: CropRect;
-  cut_b: CropRect;
+  cut_a: CropRect;         // center crop
+  cut_b: CropRect;         // highest-detail grid cell (or rule-of-thirds fallback)
+  cut_b_score: number;     // grayscale-variance score of winning cell
+  cut_b_fallback: boolean; // true when score < DETAIL_THRESHOLD → upper-third used
 }
 
 const SHORTS_MAX_ZOOM  = 1.25;
 const SHORTS_MIN_ROI_W = 600;
+const DETAIL_GRID      = 3;    // 3×3 grid scan
+const DETAIL_THRESHOLD = 150;  // variance below this → rule-of-thirds upper-third fallback
 
 /** CapCut cut sequence (frames at 30 fps) */
 const CUT_FULL_F = 11;   // ≈ 0.35 s
@@ -85,21 +89,106 @@ const CUT_A_F    = 17;   // ≈ 0.55 s
 const CUT_B_F    = 14;   // ≈ 0.45 s
 
 /**
- * 計算 Cut A（左上）與 Cut B（右下）的裁切矩形。
- * 保持原始長寬比；zoom = imgW / roiW。
+ * Compute grayscale variance for one grid cell — used as a detail / texture
+ * richness proxy. variance = E[x²] − E[x]²  (always ≥ 0).
  */
-function computeShortsCrops(
+function regionDetailScore(
+  ctx: CanvasRenderingContext2D,
+  x: number, y: number,
+  w: number, h: number,
+): number {
+  const data = ctx.getImageData(x, y, w, h).data;
+  const n    = data.length / 4;
+  let sum = 0, sumSq = 0;
+  for (let i = 0; i < data.length; i += 4) {
+    const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+    sum   += gray;
+    sumSq += gray * gray;
+  }
+  const mean = sum / n;
+  return sumSq / n - mean * mean;
+}
+
+/**
+ * Scan a DETAIL_GRID×DETAIL_GRID grid over the image; return the cell-centre
+ * with the highest detail score.
+ * Falls back to rule-of-thirds upper-third (cx=½W, cy=⅓H) when the winning
+ * score is below DETAIL_THRESHOLD (flat/featureless image).
+ */
+function findDetailCenter(
+  img: HTMLImageElement,
   imgW: number,
   imgH: number,
-): { a: CropRect; b: CropRect; zoom: number } {
+): { cx: number; cy: number; score: number; fallback: boolean } {
+  const canvas = document.createElement('canvas');
+  canvas.width  = imgW;
+  canvas.height = imgH;
+  const ctx = canvas.getContext('2d')!;
+  ctx.drawImage(img, 0, 0);
+
+  const cellW = Math.floor(imgW / DETAIL_GRID);
+  const cellH = Math.floor(imgH / DETAIL_GRID);
+
+  let bestScore = -1;
+  let bestCx    = Math.round(imgW / 2);
+  let bestCy    = Math.round(imgH / 3);
+
+  for (let gy = 0; gy < DETAIL_GRID; gy++) {
+    for (let gx = 0; gx < DETAIL_GRID; gx++) {
+      const rx    = gx * cellW;
+      const ry    = gy * cellH;
+      const score = regionDetailScore(ctx, rx, ry, cellW, cellH);
+      if (score > bestScore) {
+        bestScore = score;
+        bestCx    = Math.round(rx + cellW / 2);
+        bestCy    = Math.round(ry + cellH / 2);
+      }
+    }
+  }
+
+  if (bestScore < DETAIL_THRESHOLD) {
+    return { cx: Math.round(imgW / 2), cy: Math.round(imgH / 3), score: bestScore, fallback: true };
+  }
+  return { cx: bestCx, cy: bestCy, score: bestScore, fallback: false };
+}
+
+/**
+ * Compute crop rects for a loaded image:
+ *   Cut A — universal centre crop (safe framing for any subject)
+ *   Cut B — ROI centred on highest-detail grid cell; falls back to
+ *            rule-of-thirds upper-third when image is featureless
+ */
+function computeShortsCrops(img: HTMLImageElement): {
+  a: CropRect;
+  b: CropRect;
+  zoom: number;
+  cut_b_score: number;
+  cut_b_fallback: boolean;
+} {
+  const imgW = img.naturalWidth;
+  const imgH = img.naturalHeight;
   const roiW = Math.max(SHORTS_MIN_ROI_W, Math.round(imgW / SHORTS_MAX_ZOOM));
   const roiH = Math.round(roiW * imgH / imgW);
   const zoom = imgW / roiW;
-  return {
-    a: { x: 0,           y: 0,           w: roiW, h: roiH },
-    b: { x: imgW - roiW, y: imgH - roiH, w: roiW, h: roiH },
-    zoom,
+
+  // Cut A: centre
+  const a: CropRect = {
+    x: Math.max(0, Math.min(imgW - roiW, Math.round((imgW - roiW) / 2))),
+    y: Math.max(0, Math.min(imgH - roiH, Math.round((imgH - roiH) / 2))),
+    w: roiW,
+    h: roiH,
   };
+
+  // Cut B: highest-detail grid cell
+  const { cx: bCx, cy: bCy, score, fallback } = findDetailCenter(img, imgW, imgH);
+  const b: CropRect = {
+    x: Math.max(0, Math.min(imgW - roiW, Math.round(bCx - roiW / 2))),
+    y: Math.max(0, Math.min(imgH - roiH, Math.round(bCy - roiH / 2))),
+    w: roiW,
+    h: roiH,
+  };
+
+  return { a, b, zoom, cut_b_score: score, cut_b_fallback: fallback };
 }
 
 /** Uint8Array → HTMLImageElement（via Blob URL） */
@@ -394,7 +483,7 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
     // Shorts only: generate cut A / cut B derivatives via Canvas API
     if (isShorts && cutsFolder) {
       const imgEl = await loadImageEl(imgBytes);
-      const { a, b, zoom } = computeShortsCrops(imgEl.naturalWidth, imgEl.naturalHeight);
+      const { a, b, zoom, cut_b_score, cut_b_fallback } = computeShortsCrops(imgEl);
       const [aBytes, bBytes] = await Promise.all([
         cropImageEl(imgEl, a, imgEl.naturalWidth, imgEl.naturalHeight),
         cropImageEl(imgEl, b, imgEl.naturalWidth, imgEl.naturalHeight),
@@ -408,6 +497,8 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
         zoom,
         cut_a: a,
         cut_b: b,
+        cut_b_score: Math.round(cut_b_score * 10) / 10,
+        cut_b_fallback,
       });
     }
 
