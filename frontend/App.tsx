@@ -260,6 +260,7 @@ const App: React.FC = () => {
         aspectRatio,
         coverImageUrl: state.coverImageUrl,
         units: state.units,
+        unitPlan,
         logs,
       });
       addLog(`EXPORT_PACK: OK — pack_${slugify(topic)}_*.zip  (cover + ${readyCount} keyframes)`);

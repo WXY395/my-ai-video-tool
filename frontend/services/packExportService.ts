@@ -4,7 +4,7 @@
  */
 
 import JSZip from 'jszip';
-import { ObservationUnit } from '../types';
+import { ObservationUnit, UnitPlanEntry } from '../types';
 import { VideoMode, AspectRatio } from './geminiService';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -236,6 +236,8 @@ export interface ExportPackOptions {
   coverImageUrl: string;
   /** 只有 imageUrl 非空的 unit 才會被打進 zip */
   units: ObservationUnit[];
+  /** 結構計畫，寫入 meta.json > unit_plan */
+  unitPlan?: UnitPlanEntry[];
   /** Diagnostic log 列表，寫入 run_log.json */
   logs?: string[];
 }
@@ -247,7 +249,7 @@ export interface ExportPackOptions {
  * 解壓根目錄：pack_<slug>_<timestamp>/
  */
 export async function exportPack(opts: ExportPackOptions): Promise<void> {
-  const { topic, projectName, videoMode, aspectRatio, coverImageUrl, units, logs = [] } = opts;
+  const { topic, projectName, videoMode, aspectRatio, coverImageUrl, units, unitPlan = [], logs = [] } = opts;
 
   const now       = new Date();
   const slug      = slugify(projectName || topic);
@@ -306,6 +308,7 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
       topic_prompt: topic,
       image_prompts: imagePromptsMeta,
     },
+    unit_plan: unitPlan,
   };
   zip.file(`${rootDir}/meta.json`, JSON.stringify(meta, null, 2));
 
