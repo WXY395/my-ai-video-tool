@@ -322,6 +322,7 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
       `  ${k.path.padEnd(36)}→ Keyframe ${k.id}`,
     ),
     '  meta.json                        → 機器可讀元數據 (pack_meta_v1)',
+    '  EDITING_GUIDE_CAPCUT.txt         → CapCut 剪輯指南 (30fps)',
     '  run_log.json                     → 本次生成日誌',
     '',
     'NEXT STEPS',
