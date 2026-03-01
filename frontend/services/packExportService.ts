@@ -161,6 +161,7 @@ function buildCapcutGuide(
   topic: string,
   videoMode: string,
   units: ObservationUnit[],
+  unitPlan: UnitPlanEntry[],
 ): string {
   const N           = units.length;
   const totalFrames = N * SEG_FRAMES;
@@ -186,16 +187,20 @@ function buildCapcutGuide(
   ];
 
   for (let i = 0; i < N; i++) {
-    const u    = units[i];
-    const base = i * SEG_FRAMES;
-    const pad  = String(i + 1).padStart(3, '0');
-    const beat = beatLabel(i, N);
+    const u       = units[i];
+    const base    = i * SEG_FRAMES;
+    const imgPad  = String(i + 1).padStart(3, '0');  // 圖檔仍 1-indexed 3位
+    const beat    = beatLabel(i, N);                  // sfxRec fallback 用
+    const plan    = unitPlan[i];
+    const unitIdx = String(i).padStart(2, '0');
+    const kfId    = plan?.keyframe_id ?? (beat === 'HOOK' ? 'KF001' : beat === 'PAYOFF' ? 'KF003' : 'KF002');
+    const varId   = plan?.variant_id  ?? 'a';
 
     out.push(D);
-    out.push(`  SEGMENT ${pad}  [${beat}]  ${u.phenomenon ?? ''}`);
+    out.push(`  UNIT ${unitIdx}  [${beat}]  ${kfId}  ${varId}  ${u.phenomenon ?? ''}`);
     out.push(D);
     out.push('');
-    out.push(`  IMAGE         keyframe_${pad}.png`);
+    out.push(`  IMAGE         keyframe_${imgPad}.png`);
     out.push(`  IMAGE IN      ${framesToTC(base)}`);
     out.push(`  IMAGE OUT     ${framesToTC(base + SEG_FRAMES)}`);
     out.push('');
@@ -333,8 +338,8 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
     '  1. 匯入 images/ 到剪輯軟體（CapCut / Premiere / DaVinci Resolve）',
     '  2. 依照 meta.json > assets.keyframes 排列鏡頭順序',
     '  3. 開啟 EDITING_GUIDE_CAPCUT.txt，依時碼逐段剪輯',
-    '  4. 參考各 unit 的 voice_over_zh 錄製旁白',
-    '  5. 字幕以 subtitle_zh 為準，不與旁白重疊',
+    '  4. 旁白與字幕以各段 VO TEXT / SUB TEXT 為準',
+    '     （目前未輸出獨立 VO/SRT 檔）',
     '',
     '─────────────────────────────────────────────',
     'Pack schema : pack_meta_v1',
@@ -345,7 +350,7 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
   // ── 5. EDITING_GUIDE_CAPCUT.txt ──────────────────────────────────────────────
   zip.file(
     `${rootDir}/EDITING_GUIDE_CAPCUT.txt`,
-    buildCapcutGuide(topic, videoMode, readyUnits),
+    buildCapcutGuide(topic, videoMode, readyUnits, unitPlan),
   );
 
   // ── 6. run_log.json ───────────────────────────────────────────────────────────
