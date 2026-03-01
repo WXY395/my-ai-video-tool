@@ -10,8 +10,8 @@ import {
   type AspectRatio,
   type CostEstimateResult
 } from './services/geminiService';
-import { ObservationUnit, ObservationConfig, VisualDensity, InformationFocus, GuidanceLevel, ImageIntent, ReferencePlane, ScaleCue, VisualContinuity } from './types';
-import { PACING_PROFILES, formatDurationRange, assignBeats } from './config/pacingProfiles';
+import { ObservationUnit, ObservationConfig, UnitPlanEntry, VisualDensity, InformationFocus, GuidanceLevel, ImageIntent, ReferencePlane, ScaleCue, VisualContinuity } from './types';
+import { PACING_PROFILES, formatDurationRange, assignBeats, buildUnitPlan } from './config/pacingProfiles';
 import { exportPack, slugify } from './services/packExportService';
 
 // ── beat 色票 ─────────────────────────────────────────────────────────────────
@@ -20,6 +20,27 @@ const BEAT_CONFIG = {
   body:   { label: 'BODY',   color: 'text-zinc-400',   border: 'border-zinc-700',      bg: 'bg-zinc-800/20'  },
   payoff: { label: 'PAYOFF', color: 'text-emerald-400',border: 'border-emerald-500/30',bg: 'bg-emerald-500/8' },
 } as const;
+
+// ── UnitPlan Badge ────────────────────────────────────────────────────────────
+const BEAT_BADGE_STYLE: Record<UnitPlanEntry['beat'], string> = {
+  hook:   'text-orange-400 border-orange-500/30 bg-orange-500/10',
+  body:   'text-zinc-500   border-zinc-700      bg-zinc-800/20',
+  payoff: 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10',
+};
+
+const UnitPlanBadge: React.FC<{ entry: UnitPlanEntry | undefined }> = ({ entry }) => {
+  if (!entry) return null;
+  return (
+    <div className="flex items-center gap-1.5 px-1">
+      <span className={`text-[8px] mono font-black px-1.5 py-0.5 rounded border ${BEAT_BADGE_STYLE[entry.beat]}`}>
+        {entry.beat.toUpperCase()}
+      </span>
+      <span className="text-[8px] mono text-zinc-600">{entry.keyframe_id}</span>
+      <span className="text-[8px] mono text-zinc-700">·</span>
+      <span className="text-[8px] mono text-zinc-500 font-bold">{entry.variant_id}</span>
+    </div>
+  );
+};
 
 // ── Placeholder card（mock，無真實資料）────────────────────────────────────────
 const PlaceholderCard: React.FC<{
@@ -250,9 +271,10 @@ const App: React.FC = () => {
   };
 
   // Deck 顯示邏輯
-  const hasUnits = state.units.length > 0;
+  const hasUnits      = state.units.length > 0;
   const deckUnitCount = hasUnits ? state.units.length : profile.unit_range[0];
-  const deckBeats = assignBeats(profile.beats, deckUnitCount);
+  const deckBeats     = assignBeats(profile.beats, deckUnitCount);
+  const unitPlan      = buildUnitPlan(videoMode, profile, deckUnitCount);
 
   return (
     <div className="h-screen flex flex-col bg-zinc-950 text-zinc-300 overflow-hidden">
@@ -542,30 +564,37 @@ const App: React.FC = () => {
               )}
 
               {/* 真實觀測單元 */}
-              {hasUnits && state.units.map(unit => (
-                <ObservationUnitCard
-                  key={unit.id}
-                  unit={unit}
-                  onGenerateImage={handleGenerateImage}
-                  aspectRatio={aspectRatio}
-                />
+              {hasUnits && state.units.map((unit, i) => (
+                <div key={unit.id} className="flex flex-col gap-1">
+                  <UnitPlanBadge entry={unitPlan[i]} />
+                  <ObservationUnitCard
+                    unit={unit}
+                    onGenerateImage={handleGenerateImage}
+                    aspectRatio={aspectRatio}
+                  />
+                </div>
               ))}
 
               {/* 生成中 skeleton */}
               {state.isProcessing && Array.from({ length: profile.unit_range[0] }).map((_, i) => (
-                <div key={`skel-${i}`} className="aspect-[9/22] bg-zinc-900/10 border border-dashed border-zinc-800 rounded flex items-center justify-center animate-pulse">
-                  <Loader2 className="w-8 h-8 text-zinc-800 animate-spin" />
+                <div key={`skel-${i}`} className="flex flex-col gap-1">
+                  <UnitPlanBadge entry={unitPlan[i]} />
+                  <div className="aspect-[9/22] bg-zinc-900/10 border border-dashed border-zinc-800 rounded flex items-center justify-center animate-pulse">
+                    <Loader2 className="w-8 h-8 text-zinc-800 animate-spin" />
+                  </div>
                 </div>
               ))}
 
               {/* Placeholder cards（空狀態，依 profile.unit_range[0] 渲染） */}
               {!hasUnits && !state.isProcessing && Array.from({ length: profile.unit_range[0] }).map((_, i) => (
-                <PlaceholderCard
-                  key={`ph-${i}`}
-                  index={i}
-                  beat={deckBeats[i] ?? 'body'}
-                  aspectRatio={aspectRatio}
-                />
+                <div key={`ph-${i}`} className="flex flex-col gap-1">
+                  <UnitPlanBadge entry={unitPlan[i]} />
+                  <PlaceholderCard
+                    index={i}
+                    beat={deckBeats[i] ?? 'body'}
+                    aspectRatio={aspectRatio}
+                  />
+                </div>
               ))}
             </div>
           </div>

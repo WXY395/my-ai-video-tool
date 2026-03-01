@@ -108,6 +108,17 @@ export interface ExportPackage {
   seo: SEOMetadata;
 }
 
+// ===== Unit Plan =====
+
+export interface UnitPlanEntry {
+  index: number;
+  beat: 'hook' | 'body' | 'payoff';
+  /** KF001=Hook, KF002=Body, KF003=Payoff */
+  keyframe_id: 'KF001' | 'KF002' | 'KF003';
+  /** 同一 keyframe_id 內的順序標記，'a'/'b'/'c'... */
+  variant_id: string;
+}
+
 // ===== 應用狀態 =====
 
 export interface AssetGenerationState {

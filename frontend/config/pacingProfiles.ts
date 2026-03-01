@@ -1,4 +1,4 @@
-import { PacingProfile } from '../types';
+import { PacingProfile, UnitPlanEntry } from '../types';
 import { VideoMode } from '../services/geminiService';
 
 /**
@@ -47,6 +47,37 @@ export function formatDurationRange([min, max]: [number, number]): string {
     return `${m}min`;
   };
   return `${fmt(min)} – ${fmt(max)}`;
+}
+
+/**
+ * 為每個 unit slot 產生結構化 plan：
+ * - index 0          → beat=hook,   keyframe_id=KF001
+ * - index count-1    → beat=payoff, keyframe_id=KF003
+ * - 其餘             → beat=body,   keyframe_id=KF002
+ * - variant_id 在同一 keyframe_id 內依序為 'a','b','c',...
+ */
+export function buildUnitPlan(
+  _videoMode: string,
+  _profile: PacingProfile,
+  count: number,
+): UnitPlanEntry[] {
+  const counters: Partial<Record<'KF001' | 'KF002' | 'KF003', number>> = {};
+
+  return Array.from({ length: count }, (_, i) => {
+    const beat: UnitPlanEntry['beat'] =
+      i === 0           ? 'hook'   :
+      i === count - 1   ? 'payoff' : 'body';
+
+    const keyframe_id: UnitPlanEntry['keyframe_id'] =
+      beat === 'hook'   ? 'KF001' :
+      beat === 'payoff' ? 'KF003' : 'KF002';
+
+    const n = counters[keyframe_id] ?? 0;
+    counters[keyframe_id] = n + 1;
+    const variant_id = String.fromCharCode(97 + n); // a, b, c, ...
+
+    return { index: i, beat, keyframe_id, variant_id };
+  });
 }
 
 /** 依照 beats 比例，為每個 unit slot 指派 beat 標籤 */
