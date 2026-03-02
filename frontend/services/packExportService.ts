@@ -88,6 +88,15 @@ const DIVERSITY_OVERLAP_MAX    = 0.6;   // max allowed intersection(A,B)/area(B)
 const DIVERSITY_DIST_MIN_RATIO = 0.15; // min centre-to-centre distance / roiW
 
 /**
+ * Step 2-B feature flag.
+ * false (default) — skip images/cuts/*, crop_presets.json, and cut timecode
+ *   sequence in EDITING_GUIDE; guide references images/full/* only.
+ * true  — enable full Shorts cuts pipeline (re-enable after Step 2-C QA).
+ * Crop code is NOT removed; only gated by this flag.
+ */
+const ENABLE_SHORTS_CUTS = false;
+
+/**
  * BODY (KF002) variant_goal — mutually exclusive shot-type directives.
  * a = wide/establishing  |  b = close-up/macro  |  c = conceptual/symbolic
  */
@@ -553,7 +562,7 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
   const zip = new JSZip();
   const fullImgFolder = zip.folder(`${rootDir}/${imgRootPath}`);
   if (!fullImgFolder) throw new Error('JSZip: 無法建立 images/ 資料夾');
-  const cutsFolder = isShorts ? zip.folder(`${rootDir}/images/cuts`) : null;
+  const cutsFolder = (isShorts && ENABLE_SHORTS_CUTS) ? zip.folder(`${rootDir}/images/cuts`) : null;
 
   // ── 1. Cover ──────────────────────────────────────────────────────────────
   fullImgFolder.file('cover.png', await urlToBytes(coverImageUrl));
@@ -640,8 +649,10 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
     ? [
         `  ${imgRootPath}/cover.png               → 封面圖`,
         ...keyframesMeta.map(k => `  ${k.path.padEnd(36)}→ Keyframe ${k.id} (原圖)`),
-        `  images/cuts/keyframe_###_A/B.png      → Shorts cut A / B  (各 ${cropPresetsList.length} 張)`,
-        '  crop_presets.json                      → 裁切座標 (crop_presets_v1)',
+        ...(ENABLE_SHORTS_CUTS ? [
+          `  images/cuts/keyframe_###_A/B.png      → Shorts cut A / B  (各 ${cropPresetsList.length} 張)`,
+          '  crop_presets.json                      → 裁切座標 (crop_presets_v1)',
+        ] : []),
       ]
     : [
         '  images/cover.png                        → 封面圖',
@@ -649,14 +660,21 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
       ];
 
   const nextStepsLines = isShorts
-    ? [
-        '  1. 匯入 images/full/ 原圖與 images/cuts/ 衍生圖到 CapCut',
-        '  2. 依 EDITING_GUIDE_CAPCUT.txt IMAGE 時碼排列鏡頭切換',
-        '     FULL (0.35s) → CUT A (0.55s) → CUT B (0.45s) → FULL RTN',
-        '  3. Cut A/B 裁切座標見 crop_presets.json',
-        '  4. 旁白與字幕以各段 VO TEXT / SUB TEXT 為準',
-        '     （目前未輸出獨立 VO/SRT 檔）',
-      ]
+    ? ENABLE_SHORTS_CUTS
+      ? [
+          '  1. 匯入 images/full/ 原圖與 images/cuts/ 衍生圖到 CapCut',
+          '  2. 依 EDITING_GUIDE_CAPCUT.txt IMAGE 時碼排列鏡頭切換',
+          '     FULL (0.35s) → CUT A (0.55s) → CUT B (0.45s) → FULL RTN',
+          '  3. Cut A/B 裁切座標見 crop_presets.json',
+          '  4. 旁白與字幕以各段 VO TEXT / SUB TEXT 為準',
+          '     （目前未輸出獨立 VO/SRT 檔）',
+        ]
+      : [
+          '  1. 匯入 images/full/ 原圖到 CapCut',
+          '  2. 依 EDITING_GUIDE_CAPCUT.txt 逐段剪輯（Full image sequence）',
+          '  3. 旁白與字幕以各段 VO TEXT / SUB TEXT 為準',
+          '     （目前未輸出獨立 VO/SRT 檔）',
+        ]
     : [
         '  1. 匯入 images/ 到剪輯軟體（CapCut / Premiere / DaVinci Resolve）',
         '  2. 依照 meta.json > assets.keyframes 排列鏡頭順序',
