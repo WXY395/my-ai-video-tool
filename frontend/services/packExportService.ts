@@ -75,13 +75,17 @@ interface CropPresetEntry {
   cut_a: CropRect;         // center crop
   cut_b: CropRect;         // highest-detail grid cell (or rule-of-thirds fallback)
   cut_b_score: number;     // grayscale-variance score of winning cell
-  cut_b_fallback: boolean; // true when score < DETAIL_THRESHOLD → upper-third used
+  cut_b_fallback: boolean; // true when rule-of-thirds fallback was used
+  overlap_ratio: number;   // intersection(A,B)/area(B) — should be ≤ DIVERSITY_OVERLAP_MAX
+  b_choice_rank: number;   // 1=top cell, 2=2nd, 3=3rd, 0=rule-of-thirds fallback
 }
 
 const SHORTS_MAX_ZOOM  = 1.25;
 const SHORTS_MIN_ROI_W = 600;
 const DETAIL_GRID      = 3;    // 3×3 grid scan
 const DETAIL_THRESHOLD = 150;  // variance below this → rule-of-thirds upper-third fallback
+const DIVERSITY_OVERLAP_MAX    = 0.6;   // max allowed intersection(A,B)/area(B)
+const DIVERSITY_DIST_MIN_RATIO = 0.15; // min centre-to-centre distance / roiW
 
 /** CapCut cut sequence (frames at 30 fps) */
 const CUT_FULL_F = 11;   // ≈ 0.35 s
@@ -109,17 +113,31 @@ function regionDetailScore(
   return sumSq / n - mean * mean;
 }
 
+/** Intersection-over-B-area ratio (0–1). Same-size rects → pure overlap fraction. */
+function overlapRatio(a: CropRect, b: CropRect): number {
+  const ix = Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x));
+  const iy = Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y));
+  return (ix * iy) / (b.w * b.h);
+}
+
+/** Euclidean distance between rect centres. */
+function centerDist(a: CropRect, b: CropRect): number {
+  const dx = (a.x + a.w / 2) - (b.x + b.w / 2);
+  const dy = (a.y + a.h / 2) - (b.y + b.h / 2);
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+interface GridCell { cx: number; cy: number; score: number }
+
 /**
- * Scan a DETAIL_GRID×DETAIL_GRID grid over the image; return the cell-centre
- * with the highest detail score.
- * Falls back to rule-of-thirds upper-third (cx=½W, cy=⅓H) when the winning
- * score is below DETAIL_THRESHOLD (flat/featureless image).
+ * Scan DETAIL_GRID×DETAIL_GRID grid; return all cells sorted by score desc.
+ * Used by computeShortsCrops to try rank-1 → rank-2 → rank-3 for Cut B.
  */
-function findDetailCenter(
+function rankGridCells(
   img: HTMLImageElement,
   imgW: number,
   imgH: number,
-): { cx: number; cy: number; score: number; fallback: boolean } {
+): GridCell[] {
   const canvas = document.createElement('canvas');
   canvas.width  = imgW;
   canvas.height = imgH;
@@ -128,35 +146,31 @@ function findDetailCenter(
 
   const cellW = Math.floor(imgW / DETAIL_GRID);
   const cellH = Math.floor(imgH / DETAIL_GRID);
-
-  let bestScore = -1;
-  let bestCx    = Math.round(imgW / 2);
-  let bestCy    = Math.round(imgH / 3);
+  const cells: GridCell[] = [];
 
   for (let gy = 0; gy < DETAIL_GRID; gy++) {
     for (let gx = 0; gx < DETAIL_GRID; gx++) {
-      const rx    = gx * cellW;
-      const ry    = gy * cellH;
-      const score = regionDetailScore(ctx, rx, ry, cellW, cellH);
-      if (score > bestScore) {
-        bestScore = score;
-        bestCx    = Math.round(rx + cellW / 2);
-        bestCy    = Math.round(ry + cellH / 2);
-      }
+      const rx = gx * cellW;
+      const ry = gy * cellH;
+      cells.push({
+        cx: Math.round(rx + cellW / 2),
+        cy: Math.round(ry + cellH / 2),
+        score: regionDetailScore(ctx, rx, ry, cellW, cellH),
+      });
     }
   }
-
-  if (bestScore < DETAIL_THRESHOLD) {
-    return { cx: Math.round(imgW / 2), cy: Math.round(imgH / 3), score: bestScore, fallback: true };
-  }
-  return { cx: bestCx, cy: bestCy, score: bestScore, fallback: false };
+  cells.sort((p, q) => q.score - p.score);
+  return cells;
 }
 
 /**
  * Compute crop rects for a loaded image:
  *   Cut A — universal centre crop (safe framing for any subject)
- *   Cut B — ROI centred on highest-detail grid cell; falls back to
- *            rule-of-thirds upper-third when image is featureless
+ *   Cut B — highest-detail grid cell that is sufficiently diverse from A:
+ *              overlap(A,B)/area(B) ≤ DIVERSITY_OVERLAP_MAX  AND
+ *              centre_dist(A,B) ≥ roiW × DIVERSITY_DIST_MIN_RATIO
+ *            Tries rank-1 → rank-2 → rank-3; falls back to rule-of-thirds
+ *            upper-third (cx=½W, cy=⅓H) if all three fail OR image is flat.
  */
 function computeShortsCrops(img: HTMLImageElement): {
   a: CropRect;
@@ -164,6 +178,8 @@ function computeShortsCrops(img: HTMLImageElement): {
   zoom: number;
   cut_b_score: number;
   cut_b_fallback: boolean;
+  overlap_ratio: number;
+  b_choice_rank: number;
 } {
   const imgW = img.naturalWidth;
   const imgH = img.naturalHeight;
@@ -179,16 +195,57 @@ function computeShortsCrops(img: HTMLImageElement): {
     h: roiH,
   };
 
-  // Cut B: highest-detail grid cell
-  const { cx: bCx, cy: bCy, score, fallback } = findDetailCenter(img, imgW, imgH);
-  const b: CropRect = {
-    x: Math.max(0, Math.min(imgW - roiW, Math.round(bCx - roiW / 2))),
-    y: Math.max(0, Math.min(imgH - roiH, Math.round(bCy - roiH / 2))),
-    w: roiW,
-    h: roiH,
-  };
+  const distMin = roiW * DIVERSITY_DIST_MIN_RATIO;
+  const ranked  = rankGridCells(img, imgW, imgH);
+  const topScore = ranked[0]?.score ?? 0;
 
-  return { a, b, zoom, cut_b_score: score, cut_b_fallback: fallback };
+  // Cut B: try top-3 ranked cells; pick first that passes diversity check
+  let b: CropRect | null = null;
+  let chosenScore  = topScore;
+  let chosenRank   = 0;   // 0 = rule-of-thirds fallback
+  let chosenOverlap = 0;
+
+  if (topScore >= DETAIL_THRESHOLD) {
+    const MAX_TRY = Math.min(3, ranked.length);
+    for (let r = 0; r < MAX_TRY; r++) {
+      const cell = ranked[r];
+      const candidate: CropRect = {
+        x: Math.max(0, Math.min(imgW - roiW, Math.round(cell.cx - roiW / 2))),
+        y: Math.max(0, Math.min(imgH - roiH, Math.round(cell.cy - roiH / 2))),
+        w: roiW,
+        h: roiH,
+      };
+      const ov   = overlapRatio(a, candidate);
+      const dist = centerDist(a, candidate);
+      if (ov <= DIVERSITY_OVERLAP_MAX && dist >= distMin) {
+        b            = candidate;
+        chosenScore  = cell.score;
+        chosenRank   = r + 1;
+        chosenOverlap = ov;
+        break;
+      }
+    }
+  }
+
+  // Fallback: rule-of-thirds upper-third
+  if (!b) {
+    const fbX = Math.max(0, Math.min(imgW - roiW, Math.round(imgW / 2 - roiW / 2)));
+    const fbY = Math.max(0, Math.min(imgH - roiH, Math.round(imgH / 3 - roiH / 2)));
+    b = { x: fbX, y: fbY, w: roiW, h: roiH };
+    chosenScore   = topScore;
+    chosenRank    = 0;
+    chosenOverlap = overlapRatio(a, b);
+  }
+
+  return {
+    a,
+    b,
+    zoom,
+    cut_b_score:    Math.round(chosenScore * 10) / 10,
+    cut_b_fallback: chosenRank === 0,
+    overlap_ratio:  Math.round(chosenOverlap * 1000) / 1000,
+    b_choice_rank:  chosenRank,
+  };
 }
 
 /** Uint8Array → HTMLImageElement（via Blob URL） */
@@ -483,7 +540,7 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
     // Shorts only: generate cut A / cut B derivatives via Canvas API
     if (isShorts && cutsFolder) {
       const imgEl = await loadImageEl(imgBytes);
-      const { a, b, zoom, cut_b_score, cut_b_fallback } = computeShortsCrops(imgEl);
+      const { a, b, zoom, cut_b_score, cut_b_fallback, overlap_ratio, b_choice_rank } = computeShortsCrops(imgEl);
       const [aBytes, bBytes] = await Promise.all([
         cropImageEl(imgEl, a, imgEl.naturalWidth, imgEl.naturalHeight),
         cropImageEl(imgEl, b, imgEl.naturalWidth, imgEl.naturalHeight),
@@ -497,8 +554,10 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
         zoom,
         cut_a: a,
         cut_b: b,
-        cut_b_score: Math.round(cut_b_score * 10) / 10,
+        cut_b_score,
         cut_b_fallback,
+        overlap_ratio,
+        b_choice_rank,
       });
     }
 
