@@ -56,12 +56,15 @@ export function formatDurationRange([min, max]: [number, number]): string {
  * - 其餘             → beat=body,   keyframe_id=KF002
  * - variant_id 在同一 keyframe_id 內依序為 'a','b','c',...
  */
+const BODY_VARIANT_GOALS = ['a', 'b', 'c'] as const;
+
 export function buildUnitPlan(
   _videoMode: string,
   _profile: PacingProfile,
   count: number,
 ): UnitPlanEntry[] {
   const counters: Partial<Record<'KF001' | 'KF002' | 'KF003', number>> = {};
+  let bodyVariantIdx = 0;
 
   return Array.from({ length: count }, (_, i) => {
     const beat: UnitPlanEntry['beat'] =
@@ -76,7 +79,10 @@ export function buildUnitPlan(
     counters[keyframe_id] = n + 1;
     const variant_id = String.fromCharCode(97 + n); // a, b, c, ...
 
-    return { index: i, beat, keyframe_id, variant_id };
+    const variant_goal: UnitPlanEntry['variant_goal'] =
+      beat === 'body' ? BODY_VARIANT_GOALS[bodyVariantIdx++ % 3] : undefined;
+
+    return { index: i, beat, keyframe_id, variant_id, ...(variant_goal && { variant_goal }) };
   });
 }
 

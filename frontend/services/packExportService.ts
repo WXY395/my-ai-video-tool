@@ -87,6 +87,17 @@ const DETAIL_THRESHOLD = 150;  // variance below this → rule-of-thirds upper-t
 const DIVERSITY_OVERLAP_MAX    = 0.6;   // max allowed intersection(A,B)/area(B)
 const DIVERSITY_DIST_MIN_RATIO = 0.15; // min centre-to-centre distance / roiW
 
+/**
+ * BODY (KF002) variant_goal → FLUX prompt suffix.
+ * Appended to the unit's image_prompt when writing imagePromptsMeta.
+ * a = wide establishing shot  |  b = close-up detail  |  c = conceptual angle
+ */
+const VARIANT_GOAL_TEMPLATES: Record<'a' | 'b' | 'c', string> = {
+  a: ', wide establishing shot, full subject in frame, environmental context visible',
+  b: ', extreme close-up, macro detail, key mechanism highlighted, texture emphasis',
+  c: ', conceptual visualization, symbolic metaphor angle, dynamic creative composition',
+};
+
 /** CapCut cut sequence (frames at 30 fps) */
 const CUT_FULL_F = 11;   // ≈ 0.35 s
 const CUT_A_F    = 17;   // ≈ 0.55 s
@@ -563,10 +574,13 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
 
     keyframesMeta.push({ id: i + 1, path: `${imgRootPath}/${filename}` });
 
-    const prompt = typeof unit.image_prompt === 'string'
+    const rawPrompt = typeof unit.image_prompt === 'string'
       ? unit.image_prompt
       : (unit.image_prompt?.prompt ?? '');
-    imagePromptsMeta.push({ id: i + 1, prompt });
+    const planEntry = unitPlan[i];
+    const goalSuffix =
+      planEntry?.variant_goal ? VARIANT_GOAL_TEMPLATES[planEntry.variant_goal] : '';
+    imagePromptsMeta.push({ id: i + 1, prompt: rawPrompt + goalSuffix });
   }
 
   // ── 3. meta.json ──────────────────────────────────────────────────────────

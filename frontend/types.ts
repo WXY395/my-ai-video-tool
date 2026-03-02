@@ -117,6 +117,8 @@ export interface UnitPlanEntry {
   keyframe_id: 'KF001' | 'KF002' | 'KF003';
   /** 同一 keyframe_id 內的順序標記，'a'/'b'/'c'... */
   variant_id: string;
+  /** BODY(KF002) 的視覺目標，循環 a→b→c；KF001/KF003 不設此欄 */
+  variant_goal?: 'a' | 'b' | 'c';
 }
 
 // ===== 應用狀態 =====
