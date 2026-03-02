@@ -97,31 +97,53 @@ const DIVERSITY_DIST_MIN_RATIO = 0.15; // min centre-to-centre distance / roiW
 const ENABLE_SHORTS_CUTS = false;
 
 /**
- * BODY (KF002) variant_goal — mutually exclusive shot-type directives.
- * a = wide/establishing  |  b = close-up/macro  |  c = conceptual/symbolic
+ * BODY (KF002) variant_goal — evidence-type, mutually exclusive visual goals.
+ * a = MACRO_TEXTURE       : surface grain / microstructure detail
+ * b = OUTLINE_CONTRADICTION: silhouette that defies expectation
+ * c = MATERIAL_MISMATCH  : substance that appears wrong
+ *
+ * Banned globally: wide establishing / full subject / environment /
+ *   conceptual / metaphor / symbolic / motion graphics
+ * Applied ONLY to KF002 entries; KF001 / KF003 / others are untouched.
  */
 const VARIANT_GOAL_TEMPLATES: Record<'a' | 'b' | 'c', string> = {
-  a: 'wide establishing shot, full subject in frame, environmental context visible',
-  b: 'extreme close-up, macro detail, key mechanism highlighted, texture emphasis',
-  c: 'conceptual visualization, symbolic metaphor angle, dynamic creative composition',
-};
-
-/** Terms stripped from the base prompt per variant_goal to prevent contradictions. */
-const STRIP_WIDE  = ['wide establishing shot', 'wide shot', 'establishing shot',
-                     'full subject in frame', 'environmental context visible', 'full scene'];
-const STRIP_CLOSE = ['extreme close-up', 'close-up', 'macro detail', 'macro',
-                     'key mechanism highlighted', 'texture emphasis'];
-const STRIP_CONC  = ['conceptual visualization', 'symbolic metaphor angle',
-                     'dynamic creative composition'];
-const VARIANT_STRIP_TERMS: Record<'a' | 'b' | 'c', string[]> = {
-  a: [...STRIP_CLOSE, ...STRIP_CONC],
-  b: [...STRIP_WIDE,  ...STRIP_CONC],
-  c: [...STRIP_WIDE,  ...STRIP_CLOSE],
+  a: 'MACRO_TEXTURE, macro texture surface detail, material grain visible, extreme close-up of surface texture',
+  b: 'OUTLINE_CONTRADICTION, unexpected silhouette shape, outline defies expectation, structural boundary surprise',
+  c: 'MATERIAL_MISMATCH, material composition appears wrong, unexpected surface substance, tactile visual surprise',
 };
 
 /**
- * Strip any existing VARIANT_GOAL marker and conflicting shot-type terms from
- * `prompt`, then append `VARIANT_GOAL: {template}` for the chosen goal.
+ * Terms globally banned from all variant prompts — always stripped from the
+ * base prompt before injection, regardless of which goal is applied.
+ */
+const STRIP_BANNED = [
+  // Wide / establishing framing
+  'wide establishing shot', 'wide shot', 'establishing shot',
+  'full subject in frame', 'environmental context visible', 'full scene',
+  // Abstract / narrative language
+  'conceptual visualization', 'symbolic metaphor angle', 'dynamic creative composition',
+  'conceptual', 'metaphor', 'symbolic',
+  // Motion graphics
+  'motion graphics',
+  // Legacy template remnants from previous version
+  'extreme close-up', 'close-up', 'macro detail', 'key mechanism highlighted', 'texture emphasis',
+];
+
+/** Per-goal: also strip the other two goals' marker words (idempotent re-export). */
+const STRIP_MACRO_TERMS    = ['MACRO_TEXTURE', 'macro texture surface detail', 'material grain visible'];
+const STRIP_OUTLINE_TERMS  = ['OUTLINE_CONTRADICTION', 'unexpected silhouette shape', 'outline defies expectation'];
+const STRIP_MATERIAL_TERMS = ['MATERIAL_MISMATCH', 'material composition appears wrong', 'unexpected surface substance'];
+
+const VARIANT_STRIP_TERMS: Record<'a' | 'b' | 'c', string[]> = {
+  a: [...STRIP_BANNED, ...STRIP_OUTLINE_TERMS,  ...STRIP_MATERIAL_TERMS],
+  b: [...STRIP_BANNED, ...STRIP_MACRO_TERMS,    ...STRIP_MATERIAL_TERMS],
+  c: [...STRIP_BANNED, ...STRIP_MACRO_TERMS,    ...STRIP_OUTLINE_TERMS],
+};
+
+/**
+ * Strip any existing VARIANT_GOAL marker + all banned/conflicting terms from
+ * `prompt`, then append `VARIANT_GOAL: {template}`.
+ * Only called for KF002 entries — guard is at the call site.
  */
 function applyVariantGoal(prompt: string, goal: 'a' | 'b' | 'c'): string {
   let s = prompt.replace(/,?\s*VARIANT_GOAL:[^\n]*/gi, '').trim();
@@ -612,7 +634,8 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
       ? unit.image_prompt
       : (unit.image_prompt?.prompt ?? '');
     const planEntry = unitPlan[i];
-    const augmented = planEntry?.variant_goal
+    // KF002 (Body) only — KF001/KF003/any other keyframe must not receive VARIANT_GOAL
+    const augmented = (planEntry?.keyframe_id === 'KF002' && planEntry.variant_goal)
       ? applyVariantGoal(rawPrompt, planEntry.variant_goal)
       : rawPrompt;
     imagePromptsMeta.push({ id: i + 1, prompt: augmented });
