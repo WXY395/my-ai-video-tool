@@ -4,6 +4,7 @@
  */
 
 import { ObservationUnit, ObservationConfig } from '../types';
+import { DEV_SHORTS_UNIT_OVERRIDE } from '../config/pacingProfiles';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
@@ -182,7 +183,9 @@ export async function generateObservationUnits(
       },
       body: JSON.stringify({
         rawInput: notes,
-        unitCount: config.unitCount,
+        unitCount: (videoMode === 'shorts' && DEV_SHORTS_UNIT_OVERRIDE !== null)
+          ? DEV_SHORTS_UNIT_OVERRIDE
+          : config.unitCount,
         video_mode: videoMode,
         aspect_ratio: aspectRatio,
         duration_minutes: durationMinutes,

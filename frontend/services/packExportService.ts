@@ -88,15 +88,40 @@ const DIVERSITY_OVERLAP_MAX    = 0.6;   // max allowed intersection(A,B)/area(B)
 const DIVERSITY_DIST_MIN_RATIO = 0.15; // min centre-to-centre distance / roiW
 
 /**
- * BODY (KF002) variant_goal → FLUX prompt suffix.
- * Appended to the unit's image_prompt when writing imagePromptsMeta.
- * a = wide establishing shot  |  b = close-up detail  |  c = conceptual angle
+ * BODY (KF002) variant_goal — mutually exclusive shot-type directives.
+ * a = wide/establishing  |  b = close-up/macro  |  c = conceptual/symbolic
  */
 const VARIANT_GOAL_TEMPLATES: Record<'a' | 'b' | 'c', string> = {
-  a: ', wide establishing shot, full subject in frame, environmental context visible',
-  b: ', extreme close-up, macro detail, key mechanism highlighted, texture emphasis',
-  c: ', conceptual visualization, symbolic metaphor angle, dynamic creative composition',
+  a: 'wide establishing shot, full subject in frame, environmental context visible',
+  b: 'extreme close-up, macro detail, key mechanism highlighted, texture emphasis',
+  c: 'conceptual visualization, symbolic metaphor angle, dynamic creative composition',
 };
+
+/** Terms stripped from the base prompt per variant_goal to prevent contradictions. */
+const STRIP_WIDE  = ['wide establishing shot', 'wide shot', 'establishing shot',
+                     'full subject in frame', 'environmental context visible', 'full scene'];
+const STRIP_CLOSE = ['extreme close-up', 'close-up', 'macro detail', 'macro',
+                     'key mechanism highlighted', 'texture emphasis'];
+const STRIP_CONC  = ['conceptual visualization', 'symbolic metaphor angle',
+                     'dynamic creative composition'];
+const VARIANT_STRIP_TERMS: Record<'a' | 'b' | 'c', string[]> = {
+  a: [...STRIP_CLOSE, ...STRIP_CONC],
+  b: [...STRIP_WIDE,  ...STRIP_CONC],
+  c: [...STRIP_WIDE,  ...STRIP_CLOSE],
+};
+
+/**
+ * Strip any existing VARIANT_GOAL marker and conflicting shot-type terms from
+ * `prompt`, then append `VARIANT_GOAL: {template}` for the chosen goal.
+ */
+function applyVariantGoal(prompt: string, goal: 'a' | 'b' | 'c'): string {
+  let s = prompt.replace(/,?\s*VARIANT_GOAL:[^\n]*/gi, '').trim();
+  for (const term of VARIANT_STRIP_TERMS[goal]) {
+    s = s.replace(new RegExp(',?\\s*' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '');
+  }
+  s = s.replace(/,(\s*,)+/g, ',').trim().replace(/,\s*$/, '').replace(/^,\s*/, '');
+  return `${s}, VARIANT_GOAL: ${VARIANT_GOAL_TEMPLATES[goal]}`;
+}
 
 /** CapCut cut sequence (frames at 30 fps) */
 const CUT_FULL_F = 11;   // ≈ 0.35 s
@@ -578,9 +603,10 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
       ? unit.image_prompt
       : (unit.image_prompt?.prompt ?? '');
     const planEntry = unitPlan[i];
-    const goalSuffix =
-      planEntry?.variant_goal ? VARIANT_GOAL_TEMPLATES[planEntry.variant_goal] : '';
-    imagePromptsMeta.push({ id: i + 1, prompt: rawPrompt + goalSuffix });
+    const augmented = planEntry?.variant_goal
+      ? applyVariantGoal(rawPrompt, planEntry.variant_goal)
+      : rawPrompt;
+    imagePromptsMeta.push({ id: i + 1, prompt: augmented });
   }
 
   // ── 3. meta.json ──────────────────────────────────────────────────────────

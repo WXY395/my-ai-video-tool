@@ -2,6 +2,13 @@ import { PacingProfile, UnitPlanEntry } from '../types';
 import { VideoMode } from '../services/geminiService';
 
 /**
+ * DEV ONLY — override Shorts unit count for variant_goal a→b→c regression test.
+ * 5 = hook(1) + body(3) + payoff(1); confirms all three variant goals appear.
+ * Set to null to restore normal profile-driven behaviour.
+ */
+export const DEV_SHORTS_UNIT_OVERRIDE: number | null = 5;
+
+/**
  * 三種步調 Profile，對應 VideoMode。
  * target_duration_range 單位：秒
  * beats 為佔比（加總 = 1）
