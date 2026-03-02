@@ -26,39 +26,109 @@ router = APIRouter(
 )
 
 
+# ── Cover quality thresholds ──────────────────────────────────────────────────
+COVER_MIN_BRIGHTNESS = 45   # avg luminance 0-255; below → too dark
+COVER_MIN_VARIANCE   = 300  # pixel variance; below → no visible subject (flat/obscured)
+
+
 def _build_cover_prompt(topic: str, aspect_ratio: str) -> tuple[str, str]:
     """
-    建立能勾起觀眾好奇心的封面 prompt。
+    封面 prompt：主體可辨識（clarity ≥ 70%），
+    懸念靠邊光／局部陰影而非大面積黑場遮擋主體。
 
-    策略：
-    - 直接以主題為主體，保持相關性
-    - 極端特寫／非預期角度，只露出一部分，留下懸念
-    - 戲劇性明暗對比（chiaroscuro），強烈光源製造張力
-    - 讓觀眾感到「我想看更多」，但看不透全局
+    構圖規則：
+    - 主體臉 / 眼 / 關鍵器官佔畫面 40-60%
+    - 背景簡化（bokeh）但保留景深
+    - 神秘感來自單側邊光 + 局部投影，不可用黑場覆蓋主體
     """
+    orientation = (
+        'portrait vertical orientation'
+        if aspect_ratio == '9:16'
+        else 'landscape horizontal widescreen orientation'
+    )
     prompt = (
         f"{topic}, "
-        f"extreme macro close-up of the most unexpected hidden detail, "
-        f"dramatic chiaroscuro lighting, single strong spotlight, "
-        f"deep rich shadows covering most of frame, "
-        f"one sharp highlight revealing just enough to intrigue, "
-        f"unusual angle viewer has never seen before, "
-        f"tight cropped composition — subject partially out of frame, "
-        f"vibrant saturated accent color against near-black background, "
-        f"cinematic thumbnail that makes viewer desperately want to know more, "
-        f"ultra sharp focus on the one key detail, shallow depth of field, "
-        f"{aspect_ratio} format, "
-        f"{'portrait vertical orientation' if aspect_ratio == '9:16' else 'landscape horizontal widescreen orientation'}, "
-        f"no people, no hands, no fingers, no face, no text, no watermark, no logo"
+        f"extreme macro close-up, subject clearly identifiable at 70% clarity, "
+        f"face or key organ fills 40-60% of frame, razor-sharp focus on subject, "
+        f"dramatic single-side rim lighting and edge light — subject well-lit and recognizable, "
+        f"partial shadow falls behind subject adding depth, NOT obscuring subject itself, "
+        f"simplified bokeh background with cinematic depth-of-field, "
+        f"vibrant saturated accent color, mysterious mood through selective lighting, "
+        f"cinematic thumbnail quality, "
+        f"{aspect_ratio} format, {orientation}, "
+        f"no people, no hands, no fingers, no text, no watermark, no logo"
     )
     negative = (
         "people, person, human, face, hands, fingers, body parts, "
-        "boring generic composition, flat lighting, overexposed wash, "
-        "blurry, low quality, stock photo look, "
-        "wide shot that shows everything, obvious predictable angle, "
+        "large dark shadow obscuring subject, black overlay on subject, silhouette only, "
+        "unrecognizable blobs, subject hidden behind darkness, deep shadows covering subject, "
+        "flat boring lighting, overexposed wash, blurry, low quality, "
         "text, watermark, logo, signature"
     )
     return prompt, negative
+
+
+def _build_cover_prompt_retry(topic: str, aspect_ratio: str) -> tuple[str, str]:
+    """
+    重試用 prompt：明確要求高亮度、主體可見。
+    在第一張封面亮度不足或細節不可辨識時使用（僅限封面、僅重試一次）。
+    """
+    orientation = (
+        'portrait vertical orientation'
+        if aspect_ratio == '9:16'
+        else 'landscape horizontal widescreen orientation'
+    )
+    prompt = (
+        f"{topic}, "
+        f"macro close-up photograph, subject clearly visible and well-exposed, "
+        f"subject occupies 50% of frame in sharp focus, "
+        f"bright directional lighting with warm golden rim light on edges, "
+        f"high average brightness — no underexposed regions on subject, "
+        f"simplified bokeh background with scenic depth, "
+        f"vibrant colors, professional nature photography quality, "
+        f"{aspect_ratio} format, {orientation}, "
+        f"no people, no hands, no fingers, no text, no watermark, no logo"
+    )
+    negative = (
+        "people, person, human, face, hands, fingers, body parts, "
+        "dark shadow, black background, low-key underexposed lighting, "
+        "silhouette, obscured subject, blurry, low quality, "
+        "text, watermark, logo, signature"
+    )
+    return prompt, negative
+
+
+async def _check_cover_quality(url: str) -> tuple[float, float]:
+    """
+    Fetch the generated cover and compute (avg_brightness, pixel_variance)
+    on a 64×64 grayscale downsample.
+
+    avg_brightness : 0-255 mean luminance (low → too dark)
+    pixel_variance : grayscale variance  (low → flat / no visible subject)
+
+    Returns (128.0, 9999.0) — a neutral passing score — if httpx or
+    Pillow are not installed, so the retry is never triggered spuriously.
+    """
+    try:
+        import httpx
+        from PIL import Image
+        import io
+
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            r = await client.get(url)
+            r.raise_for_status()
+
+        img = Image.open(io.BytesIO(r.content)).convert('L')
+        img_small = img.resize((64, 64))
+        pixels = list(img_small.getdata())
+        n = len(pixels)
+        mean = sum(pixels) / n
+        variance = sum((p - mean) ** 2 for p in pixels) / n
+        return mean, variance
+
+    except Exception as e:
+        logger.warning(f"🔍 封面品質檢查跳過: {e}")
+        return 128.0, 9999.0  # neutral — treat as pass
 
 
 @router.post(
@@ -120,23 +190,45 @@ async def generate_observation_units(request: ObservationNotesInput):
         
         logger.info(f"💰 成本預估: ${cost_estimate.total_cost} ({image_count} 張 × ${cost_estimate.cost_per_image})")
         
-        # 生成封面圖（主題相關，懸念構圖，勾起好奇心）
-        cover_url = None
+        # 生成封面圖（主體可辨識 ≥70%，邊光+局部陰影，40-60% 構圖）
+        cover_url  = None
+        cover_meta = {"retry": False, "brightness": None, "variance": None}
         try:
             topic = request.notes.strip()
             cover_prompt, enhanced_negative = _build_cover_prompt(topic, request.aspect_ratio.value)
-
             logger.info(f"🎨 封面 Prompt: {cover_prompt[:120]}...")
-            
+
             cover_url = await img_service.generate_image(
                 prompt=cover_prompt,
                 negative_prompt=enhanced_negative,
                 aspect_ratio=request.aspect_ratio.value,
                 model=model_used
             )
-            
             logger.info(f"✅ 封面生成成功: {cover_url}")
-            
+
+            # ── 品質檢查：亮度 + 細節方差（僅封面，最多重試 1 次）────────────
+            brightness, variance = await _check_cover_quality(cover_url)
+            cover_meta["brightness"] = round(brightness, 1)
+            cover_meta["variance"]   = round(variance, 1)
+            logger.info(f"🔍 封面品質  亮度={brightness:.1f}  方差={variance:.1f}")
+
+            if brightness < COVER_MIN_BRIGHTNESS or variance < COVER_MIN_VARIANCE:
+                logger.warning(
+                    f"⚠️ 封面品質不足（亮度={brightness:.1f} < {COVER_MIN_BRIGHTNESS} "
+                    f"或方差={variance:.1f} < {COVER_MIN_VARIANCE}），自動重試一次..."
+                )
+                retry_prompt, retry_negative = _build_cover_prompt_retry(
+                    topic, request.aspect_ratio.value
+                )
+                cover_url = await img_service.generate_image(
+                    prompt=retry_prompt,
+                    negative_prompt=retry_negative,
+                    aspect_ratio=request.aspect_ratio.value,
+                    model=model_used
+                )
+                cover_meta["retry"] = True
+                logger.info(f"✅ 封面重試成功: {cover_url}")
+
         except Exception as e:
             logger.warning(f"⚠️ 封面生成失敗: {e}")
             cover_url = None
@@ -160,11 +252,13 @@ async def generate_observation_units(request: ObservationNotesInput):
                 },
                 "result": {
                     "units_generated": len(units),
-                    "cover_url": cover_url,
+                    "cover_url":     cover_url,
+                    "cover_quality": cover_meta,
                     "keyframes_only": True,  # 標記這是關鍵幀模式
                     "post_production_required": True,  # 需要後製運鏡
                 },
-                "cover_url": cover_url,
+                "cover_url":     cover_url,
+                "cover_quality": cover_meta,
                 "cost": {
                     "image_count": cost_estimate.image_count,
                     "total_cost_usd": cost_estimate.total_cost,
