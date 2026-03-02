@@ -104,8 +104,8 @@ class ObservationUnit(BaseModel):
     mechanism: str = Field(..., description="機制說明（副標題）", max_length=70)
     
     # 語音與字幕
-    voice_over_zh: str = Field(..., description="中文旁白（觀測者紀錄人格，口語有溫度，≤12字）", max_length=12)
-    subtitle_zh: str = Field(..., description="中文字幕視覺錨點（意境昇華，≤5字）", max_length=5)
+    voice_over_zh: str = Field(..., description="中文旁白（TTS 7.0字/秒；max=floor((unit_sec-1.0)*7.0)字，不得跨幕）", max_length=50)
+    subtitle_zh: str = Field(..., description="中文字幕（由旁白濃縮，≤12字）", max_length=12)
     
     # 視覺與圖片
     visual_description: str = Field(..., description="視覺場景描述", max_length=150)
