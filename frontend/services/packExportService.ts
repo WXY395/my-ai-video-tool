@@ -634,11 +634,13 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
       ? unit.image_prompt
       : (unit.image_prompt?.prompt ?? '');
     const planEntry = unitPlan[i];
-    // KF002 (Body) only — KF001/KF003/any other keyframe must not receive VARIANT_GOAL
-    const augmented = (planEntry?.keyframe_id === 'KF002' && planEntry.variant_goal)
+    const promptId  = i + 1;
+    // VARIANT_GOAL injected ONLY when promptId === 2 (the canonical KF002 slot).
+    // id:1 (hook) / id:3…N (subsequent body or payoff) receive rawPrompt unchanged.
+    const augmented = (promptId === 2 && planEntry?.variant_goal)
       ? applyVariantGoal(rawPrompt, planEntry.variant_goal)
       : rawPrompt;
-    imagePromptsMeta.push({ id: i + 1, prompt: augmented });
+    imagePromptsMeta.push({ id: promptId, prompt: augmented });
   }
 
   // ── 3. meta.json ──────────────────────────────────────────────────────────
