@@ -4,6 +4,7 @@
 支援 Shorts + 長片模式，含成本預估
 """
 import logging
+import re
 from fastapi import APIRouter, HTTPException, status
 from datetime import datetime
 
@@ -30,15 +31,60 @@ router = APIRouter(
 COVER_MIN_BRIGHTNESS = 45   # avg luminance 0-255; below → too dark
 COVER_MIN_VARIANCE   = 300  # pixel variance; below → no visible subject (flat/obscured)
 
+# ── KF001 anchor extraction ───────────────────────────────────────────────────
+# Regex matching style / lighting / format / quality segments to skip.
+# Subject noun segments (e.g. "Egyptian pyramids", "dragonfly wing") pass through.
+_ANCHOR_SKIP_RE = re.compile(
+    r'\b('
+    r'chiaroscuro|dramatic|moody|low[- ]key|dark\s+atmosphere|dark\s+shadow|'
+    r'deep\s+shadow|silhouette|noir|underexposed|cinematic|'
+    r'professional\s+photography|high\s+quality|sharp\s+focus|'
+    r'vibrant\s+colou?r|bokeh|depth.of.field|wide.angle|'
+    r'portrait\s+format|vertical\s+composition|landscape\s+format|'
+    r'horizontal\s+dynamics|no\s+people|no\s+hands|no\s+fingers|'
+    r'no\s+text|no\s+watermark|no\s+logo|watermark|signature|'
+    r'\d+:\d+\s+format|\d+:\d+\s+aspect|portrait\s+vertical|'
+    r'landscape\s+horizontal|widescreen|orientation|rim\s+light|'
+    r'key\s+light|macro\s+close.up|focal\s+point|thumbnail|'
+    r'aspect\s+ratio|output\s+format|output\s+quality|'
+    r'well.exposed|readable\s+silhouette|clear\s+focal'
+    r')\b',
+    re.IGNORECASE,
+)
 
-def _build_cover_prompt(topic: str, aspect_ratio: str) -> tuple[str, str]:
+
+def _extract_cover_anchor(kf001_prompt: str) -> str:
+    """
+    Extract the subject-noun anchor from a KF001 image_prompt string.
+
+    Splits by comma, skips segments that contain style/lighting/format/quality
+    terms, and returns the first 1-3 clean descriptive segments joined by ', '.
+    Falls back to '' if nothing survives filtering.
+    """
+    keep: list[str] = []
+    for seg in kf001_prompt.split(','):
+        seg = seg.strip()
+        if not seg or len(seg) < 4:
+            continue
+        if _ANCHOR_SKIP_RE.search(seg):
+            continue
+        keep.append(seg)
+        if len(keep) >= 3:
+            break
+    return ', '.join(keep)
+
+
+def _build_cover_prompt(topic: str, aspect_ratio: str,
+                         kf001_anchor: str | None = None,
+                         cover_seed: int | None = None) -> tuple[str, str]:
     """
     封面 prompt：主體清楚可辨（subject clearly visible），
     神秘感靠邊光＋局部投影實現，不得用黑場遮蓋主體。
 
     構圖規則：
+    - kf001_anchor（KF001 主體描述片段）作為封面主體錨點
     - 主體關鍵部位佔畫面 40-60%，輪廓清晰可讀（readable silhouette）
-    - 亮邊光（bright rim light）打亮輪廓，確保主體在暗背景下仍可辨識
+    - well-exposed subject, bright rim/key light, clear focal point
     - 高細節焦點（high micro detail focal point）在主體最具特徵的部位
     - 背景簡化（bokeh）但保留景深；陰影只落在背景，不覆蓋主體本身
     """
@@ -47,15 +93,17 @@ def _build_cover_prompt(topic: str, aspect_ratio: str) -> tuple[str, str]:
         if aspect_ratio == '9:16'
         else 'landscape horizontal widescreen orientation'
     )
+    # Use KF001 anchor if available (preserves key subject nouns), else fall back to topic
+    subject_desc = kf001_anchor if kf001_anchor else topic
     prompt = (
-        f"{topic}, "
+        f"{subject_desc}, "
         f"extreme macro close-up, subject clearly visible and identifiable, "
         f"key organ or feature fills 40-60% of frame in razor-sharp focus, "
-        f"bright rim light outlining subject edges — readable silhouette against background, "
+        f"well-exposed subject, bright rim/key light, readable silhouette, clear focal point, "
         f"high micro detail focal point on most distinctive feature, "
         f"partial shadow depth behind subject only — subject itself fully lit and recognizable, "
         f"simplified bokeh background with cinematic depth-of-field, "
-        f"vibrant saturated accent color, mysterious mood through selective edge lighting, "
+        f"vibrant saturated accent color, mysterious mood through scale paradox and selective edge lighting, "
         f"cinematic thumbnail quality, "
         f"{aspect_ratio} format, {orientation}, "
         f"no people, no hands, no fingers, no text, no watermark, no logo"
@@ -64,14 +112,16 @@ def _build_cover_prompt(topic: str, aspect_ratio: str) -> tuple[str, str]:
         "people, person, human, face, hands, fingers, body parts, "
         "full black background, black overlay on subject, dark silhouette only, "
         "subject hidden in darkness, deep shadows covering subject, unrecognizable blobs, "
-        "low key underexposed lighting, subject completely obscured, "
+        "dramatic chiaroscuro lighting, low key underexposed lighting, subject completely obscured, "
         "flat boring lighting, overexposed wash, blurry, low quality, "
         "text, watermark, logo, signature"
     )
     return prompt, negative
 
 
-def _build_cover_prompt_retry(topic: str, aspect_ratio: str) -> tuple[str, str]:
+def _build_cover_prompt_retry(topic: str, aspect_ratio: str,
+                               kf001_anchor: str | None = None,
+                               cover_seed: int | None = None) -> tuple[str, str]:
     """
     重試用 prompt：強制高亮度 + 主體可辨識。
     在第一張封面亮度不足或主體不可辨識時使用（僅限封面、僅重試一次）。
@@ -81,10 +131,12 @@ def _build_cover_prompt_retry(topic: str, aspect_ratio: str) -> tuple[str, str]:
         if aspect_ratio == '9:16'
         else 'landscape horizontal widescreen orientation'
     )
+    subject_desc = kf001_anchor if kf001_anchor else topic
     prompt = (
-        f"{topic}, "
+        f"{subject_desc}, "
         f"macro close-up photograph, subject clearly visible and well-exposed, "
         f"subject occupies 50% of frame in razor-sharp focus, "
+        f"well-exposed subject, bright rim/key light, readable silhouette, clear focal point, "
         f"bright warm rim light on subject edges — readable silhouette guaranteed, "
         f"high micro detail focal point on key feature, high average brightness, "
         f"no underexposed or shadow-covered regions on subject itself, "
@@ -95,9 +147,9 @@ def _build_cover_prompt_retry(topic: str, aspect_ratio: str) -> tuple[str, str]:
     )
     negative = (
         "people, person, human, face, hands, fingers, body parts, "
-        "full black background, dark shadow on subject, low-key underexposed lighting, "
-        "subject silhouette only, obscured subject, blurry, low quality, "
-        "text, watermark, logo, signature"
+        "full black background, dark shadow on subject, dramatic chiaroscuro lighting, "
+        "low-key underexposed lighting, subject silhouette only, obscured subject, "
+        "blurry, low quality, text, watermark, logo, signature"
     )
     return prompt, negative
 
@@ -181,7 +233,25 @@ async def generate_observation_units(request: ObservationNotesInput):
         )
         
         logger.info(f"✅ 成功生成 {len(units)} 個觀測單元")
-        
+
+        # ── 提取 KF001 anchor（封面主體錨點）───────────────────────────────
+        kf001_anchor: str | None = None
+        if units:
+            ip = getattr(units[0], 'image_prompt', None)
+            if isinstance(ip, dict):
+                raw_kf1 = ip.get('prompt', '')
+            elif isinstance(ip, str):
+                raw_kf1 = ip
+            else:
+                raw_kf1 = str(ip) if ip is not None else ''
+            if raw_kf1:
+                kf001_anchor = _extract_cover_anchor(raw_kf1) or None
+                logger.info(f"🔑 KF001 anchor: {str(kf001_anchor)[:80]}")
+
+        # Deterministic seed from topic hash (for reproducibility; aids debugging)
+        cover_seed = abs(hash(request.notes.strip())) % (2 ** 32)
+        logger.info(f"🎲 cover_seed={cover_seed}")
+
         # 計算成本預估
         model_used = "flux-schnell"  # 預設使用最便宜的模型
         image_count = len(units) + 1  # 單元 + 封面
@@ -196,17 +266,23 @@ async def generate_observation_units(request: ObservationNotesInput):
         
         # 生成封面圖（主體可辨識 ≥70%，邊光+局部陰影，40-60% 構圖）
         cover_url  = None
-        cover_meta = {"retry": False, "brightness": None, "variance": None}
+        cover_meta = {"retry": False, "brightness": None, "variance": None,
+                      "cover_anchor_used": None, "cover_seed": cover_seed}
         try:
             topic = request.notes.strip()
-            cover_prompt, enhanced_negative = _build_cover_prompt(topic, request.aspect_ratio.value)
+            cover_meta["cover_anchor_used"] = kf001_anchor or topic
+            cover_prompt, enhanced_negative = _build_cover_prompt(
+                topic, request.aspect_ratio.value,
+                kf001_anchor=kf001_anchor, cover_seed=cover_seed
+            )
             logger.info(f"🎨 封面 Prompt: {cover_prompt[:120]}...")
 
             cover_url = await img_service.generate_image(
                 prompt=cover_prompt,
                 negative_prompt=enhanced_negative,
                 aspect_ratio=request.aspect_ratio.value,
-                model=model_used
+                model=model_used,
+                seed=cover_seed,
             )
             logger.info(f"✅ 封面生成成功: {cover_url}")
 
@@ -222,13 +298,15 @@ async def generate_observation_units(request: ObservationNotesInput):
                     f"或方差={variance:.1f} < {COVER_MIN_VARIANCE}），自動重試一次..."
                 )
                 retry_prompt, retry_negative = _build_cover_prompt_retry(
-                    topic, request.aspect_ratio.value
+                    topic, request.aspect_ratio.value,
+                    kf001_anchor=kf001_anchor, cover_seed=cover_seed
                 )
                 cover_url = await img_service.generate_image(
                     prompt=retry_prompt,
                     negative_prompt=retry_negative,
                     aspect_ratio=request.aspect_ratio.value,
-                    model=model_used
+                    model=model_used,
+                    seed=cover_seed,
                 )
                 cover_meta["retry"] = True
                 logger.info(f"✅ 封面重試成功: {cover_url}")

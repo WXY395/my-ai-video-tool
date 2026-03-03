@@ -200,7 +200,8 @@ class ImageService:
         aspect_ratio: Literal["9:16", "16:9", "1:1"] = "9:16",
         model: str = "flux-schnell",
         output_quality: int = 95,
-        avoid_hands: bool = True
+        avoid_hands: bool = True,
+        seed: int | None = None
     ) -> str:
         """
         生成圖片（升級版，支援多種比例）
@@ -251,7 +252,9 @@ class ImageService:
                     "output_quality": output_quality,
                     "num_inference_steps": 4,
                 }
-            
+                if seed is not None:
+                    generation_params["seed"] = seed
+
             elif model == "flux-dev":
                 model_id = "black-forest-labs/flux-dev"
                 generation_params = {
@@ -262,7 +265,9 @@ class ImageService:
                     "output_quality": output_quality,
                     "num_inference_steps": 28,
                 }
-            
+                if seed is not None:
+                    generation_params["seed"] = seed
+
             elif model == "flux-1.1-pro":
                 model_id = "black-forest-labs/flux-1.1-pro"
                 generation_params = {
@@ -272,7 +277,9 @@ class ImageService:
                     "output_quality": output_quality,
                     "safety_tolerance": 2,
                 }
-            
+                if seed is not None:
+                    generation_params["seed"] = seed
+
             else:
                 # 預設使用 Schnell
                 model_id = "black-forest-labs/flux-schnell"
@@ -285,6 +292,8 @@ class ImageService:
                     "output_quality": output_quality,
                     "num_inference_steps": 4,
                 }
+                if seed is not None:
+                    generation_params["seed"] = seed
             
             # 呼叫 Replicate（async，90秒逾時）
             logger.info(f"📡 呼叫 Replicate API（逾時: 90秒）...")
