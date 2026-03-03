@@ -166,54 +166,82 @@ const VARIANT_LIBRARIES: Record<VariantMode, Record<'a' | 'b' | 'c' | 'd', strin
   },
 };
 
-/**
- * Terms globally banned from ALL variant prompts — stripped from base before injection.
- * Idempotent: also covers all previous hardcoded template remnants.
- */
-const STRIP_BANNED = [
-  // Wide / establishing / aerial framing
-  'wide establishing shot', 'wide shot', 'establishing shot',
-  'wide pond', 'aerial view', 'drone shot', 'drone view',
-  'full subject in frame', 'environmental context visible', 'full scene',
-  // Abstract / narrative language
-  'conceptual visualization', 'symbolic metaphor angle', 'dynamic creative composition',
-  'abstract visualization', 'conceptual', 'metaphor', 'symbolic', 'abstract',
-  // Motion graphics
-  'motion graphics',
-  // Off-topic domains
-  'food', 'dish', 'meal', 'restaurant', 'cuisine',
-  'neural signal', 'neural network', 'neuron',
-  // TOPIC_BANNED_TERMS already applied by sanitizeImagePrompt; listed again for belt-and-suspenders
-  ...TOPIC_BANNED_TERMS,
-  // Legacy hardcoded template remnants from all previous versions
-  'extreme close-up', 'close-up', 'macro detail', 'key mechanism highlighted', 'texture emphasis',
-  'macro texture surface detail', 'material grain visible',
-  'unexpected silhouette shape', 'outline defies expectation',
-  'material composition appears wrong', 'unexpected surface substance',
-  'MACRO_TEXTURE', 'OUTLINE_CONTRADICTION', 'MATERIAL_MISMATCH', 'SCATTER_PATTERN',
-  'WING_MICRO_TEXTURE', 'COMPOUND_EYE_MICRO', 'WING_EDGE_CONTOUR', 'SURFACE_MATERIAL_MISMATCH',
-  'dragonfly wing membrane micro texture', 'dragonfly compound eye facet detail',
-  'dragonfly wing trailing-edge contour anomaly',
-];
+// ── KF001 anchor + body/cover prompt builders ────────────────────────────────
 
 /**
- * Strip any existing VARIANT_GOAL marker + all STRIP_BANNED terms from prompt,
- * then inject the mode+goal template with {TOPIC_SUBJECT} filled in.
- * Only called for KF002 entries — guard is at the call site.
+ * Regex matching style / lighting / format / quality / framing terms.
+ * Used to skip non-subject segments when extracting the KF001 anchor.
+ * No `g` flag — safe to call `.test()` multiple times without lastIndex drift.
  */
-function applyVariantGoal(
-  prompt: string,
+const ANCHOR_SKIP_RE =
+  /chiaroscuro|dramatic|moody|low[\s-]key|dark\s+atmosphere|dark\s+shadow|deep\s+shadow|silhouette|noir|underexposed|cinematic|professional\s+photography|high\s+quality|sharp\s+focus|vibrant\s+colou?r|bokeh|depth[.-]of[.-]field|wide[- ]angle|portrait\s+format|vertical\s+composition|landscape\s+format|horizontal\s+dynamics|no\s+(people|hands|fingers|text|watermark|logo)|watermark|signature|\d+:\d+\s+(format|aspect)|portrait\s+vertical|landscape\s+horizontal|widescreen|orientation|rim\s+light|key\s+light|(extreme\s+)?macro\s+close.up|focal\s+point|thumbnail|aspect\s+ratio|well.exposed|readable\s+silhouette|clear\s+focal|photorealistic\s+macro\s+photography|wide\s+establishing|establishing\s+shot|wide\s+shot|aerial\s+view|drone\s+(shot|view)|full\s+scene/i;
+
+/**
+ * Extract up to `maxSegments` subject/visual noun segments from a KF001 image_prompt.
+ * Skips style, lighting, format, quality, and framing terms; keeps descriptive nouns
+ * (e.g. "dragonfly compound eye, faceted dome structure, iridescent surface").
+ * Returns '' when nothing passes — caller should fall back to topic.
+ */
+function extractKf001Anchor(prompt: string, maxSegments = 4): string {
+  const keep: string[] = [];
+  for (const seg of prompt.split(',')) {
+    const s = seg.trim();
+    if (!s || s.length < 4) continue;
+    if (ANCHOR_SKIP_RE.test(s)) continue;
+    keep.push(s);
+    if (keep.length >= maxSegments) break;
+  }
+  return keep.join(', ');
+}
+
+/**
+ * Build a body (KF002) prompt from the shared KF001 subject anchor + variant-goal suffix.
+ *
+ * ALL body units use the SAME kf002Base (= KF001 anchor), so they stay on the same
+ * subject + environment.  Only the observation-task suffix (goal a/b/c/d) differs:
+ *   a = micro surface texture
+ *   b = structural / boundary detail
+ *   c = optical property / anomaly
+ *   d = material / compositional contrast
+ *
+ * sanitizeImagePrompt is applied internally to strip any TOPIC_BANNED_TERMS.
+ */
+function buildBodyPrompt(
+  kf002Base: string,
   goal: 'a' | 'b' | 'c' | 'd',
   mode: VariantMode,
   topicSubject: string,
 ): string {
-  let s = prompt.replace(/,?\s*VARIANT_GOAL:[^\n]*/gi, '').trim();
-  for (const term of STRIP_BANNED) {
-    s = s.replace(new RegExp(',?\\s*' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '');
-  }
-  s = s.replace(/,(\s*,)+/g, ',').trim().replace(/,\s*$/, '').replace(/^,\s*/, '');
   const template = VARIANT_LIBRARIES[mode][goal].replace(/\{TOPIC_SUBJECT\}/g, topicSubject);
-  return `${s}, VARIANT_GOAL: ${template}`;
+  return sanitizeImagePrompt(`${kf002Base}, VARIANT_GOAL: ${template}`);
+}
+
+/**
+ * Build a representative cover prompt for meta.json > prompts.cover_prompt.
+ * Mirrors the backend _build_cover_prompt logic: uses KF001 anchor as subject_desc,
+ * enforces "well-exposed subject, bright rim/key light, readable silhouette, clear focal point".
+ */
+function buildCoverPromptMeta(
+  kf001Anchor: string,
+  fallbackTopic: string,
+  aspectRatio: string,
+): string {
+  const subject     = kf001Anchor || fallbackTopic;
+  const orientation = aspectRatio === '9:16'
+    ? 'portrait vertical orientation'
+    : 'landscape horizontal widescreen orientation';
+  return [
+    subject,
+    'extreme macro close-up, subject clearly visible and identifiable',
+    'well-exposed subject, bright rim/key light, readable silhouette, clear focal point',
+    'high micro detail focal point on most distinctive feature',
+    'partial shadow depth behind subject only — subject fully lit and recognizable',
+    'simplified bokeh background with cinematic depth-of-field',
+    'vibrant saturated accent color, mysterious mood through scale paradox and selective edge lighting',
+    'cinematic thumbnail quality',
+    `${aspectRatio} format, ${orientation}`,
+    'no people, no hands, no fingers, no text, no watermark, no logo',
+  ].join(', ');
 }
 
 /** CapCut cut sequence (frames at 30 fps) */
@@ -698,6 +726,18 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
   const imgRootPath = isShorts ? 'images/full' : 'images';
   const variantMode = selectVariantMode(topic); // BIO | OBJECT | PHENOM
 
+  // ── KF001 anchor: extract subject+environment nouns from first unit ────────
+  // All KF002 (body) prompts are built from this shared base → same subject.
+  const kf001RawPrompt = (() => {
+    const u = units[0]; // index 0 is always KF001 (hook)
+    if (!u) return '';
+    const ip = u.image_prompt;
+    return typeof ip === 'string' ? ip : (ip?.prompt ?? '');
+  })();
+  const kf001Anchor   = extractKf001Anchor(kf001RawPrompt) || topic;
+  const kf002Base     = kf001Anchor;  // shared subject base for ALL body units
+  const coverPromptMeta = buildCoverPromptMeta(kf001Anchor, topic, aspectRatio);
+
   const zip = new JSZip();
   const fullImgFolder = zip.folder(`${rootDir}/${imgRootPath}`);
   if (!fullImgFolder) throw new Error('JSZip: 無法建立 images/ 資料夾');
@@ -752,13 +792,13 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
       : (unit.image_prompt?.prompt ?? '');
     const planEntry = unitPlan[i];
     const promptId  = i + 1;
-    // VARIANT_GOAL injected for every KF002 (Body) unit based on its variant_goal.
-    // KF001 (hook) and KF003 (payoff) have no variant_goal → rawPrompt unchanged.
-    const withGoal = (planEntry?.keyframe_id === 'KF002' && planEntry.variant_goal)
-      ? applyVariantGoal(rawPrompt, planEntry.variant_goal, variantMode, topic)
-      : rawPrompt;
-    // sanitizeImagePrompt strips topic-banned terms from ALL prompts (topic pollution guard).
-    imagePromptsMeta.push({ id: promptId, prompt: sanitizeImagePrompt(withGoal) });
+    // KF002 (body): build from shared kf002Base anchor + goal-specific observation suffix.
+    //   → ALL body units stay on the same subject+environment; only task changes (a/b/c/d).
+    // KF001/KF003: use unit's own rawPrompt (sanitized for topic-banned terms only).
+    const finalPrompt = (planEntry?.keyframe_id === 'KF002' && planEntry.variant_goal)
+      ? buildBodyPrompt(kf002Base, planEntry.variant_goal, variantMode, topic)
+      : sanitizeImagePrompt(rawPrompt);
+    imagePromptsMeta.push({ id: promptId, prompt: finalPrompt });
   }
 
   // ── 3. meta.json ──────────────────────────────────────────────────────────
@@ -780,7 +820,9 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
       keyframes: keyframesMeta,
     },
     prompts: {
-      topic_prompt: topic,
+      topic_prompt:  topic,
+      cover_prompt:  coverPromptMeta,   // mirrors backend _build_cover_prompt; uses KF001 anchor
+      kf001_anchor:  kf001Anchor,       // extracted subject+environment nouns for audit/debug
       image_prompts: imagePromptsMeta,
     },
     unit_plan:    unitPlan,
