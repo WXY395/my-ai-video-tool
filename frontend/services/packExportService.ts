@@ -97,24 +97,28 @@ const DIVERSITY_DIST_MIN_RATIO = 0.15; // min centre-to-centre distance / roiW
 const ENABLE_SHORTS_CUTS = false;
 
 /**
- * BODY (KF002) variant_goal — evidence-type, mutually exclusive visual goals.
- * a = MACRO_TEXTURE       : surface grain / microstructure detail
- * b = OUTLINE_CONTRADICTION: silhouette that defies expectation
- * c = MATERIAL_MISMATCH  : substance that appears wrong
+ * BODY (KF002) variant_goal — same subject (human eye lens / crystallin protein
+ * deposits, microscopic real-photo style), only lens task changes per variant.
  *
- * Banned globally: wide establishing / full subject / environment /
- *   conceptual / metaphor / symbolic / motion graphics
+ * a = MACRO_TEXTURE        : fiber / protein texture in lens cortex
+ * b = OUTLINE_CONTRADICTION: crack / boundary / unreasonable contour
+ * c = MATERIAL_MISMATCH    : refraction / specular / opacity inconsistency
+ * d = SCATTER_PATTERN      : light scattering texture within crystallin layer
+ *
+ * Banned globally: food/dish, neural signal, abstract visualization,
+ *   symbolic/metaphor, motion graphics, wide establishing, full subject.
  * Applied ONLY to KF002 entries; KF001 / KF003 / others are untouched.
  */
-const VARIANT_GOAL_TEMPLATES: Record<'a' | 'b' | 'c', string> = {
-  a: 'MACRO_TEXTURE, macro texture surface detail, material grain visible, extreme close-up of surface texture',
-  b: 'OUTLINE_CONTRADICTION, unexpected silhouette shape, outline defies expectation, structural boundary surprise',
-  c: 'MATERIAL_MISMATCH, material composition appears wrong, unexpected surface substance, tactile visual surprise',
+const VARIANT_GOAL_TEMPLATES: Record<'a' | 'b' | 'c' | 'd', string> = {
+  a: 'MACRO_TEXTURE, crystallin fiber texture detail, protein strand microstructure, extreme close-up of lens cortex surface, photorealistic microscopy style',
+  b: 'OUTLINE_CONTRADICTION, crystallin layer boundary crack, unreasonable edge contour in lens cortex, structural border mismatch, photorealistic microscopy style',
+  c: 'MATERIAL_MISMATCH, refraction anomaly in crystallin deposit, specular highlight inconsistency, lens cortex optical aberration, photorealistic microscopy style',
+  d: 'SCATTER_PATTERN, light scattering texture within crystallin layer, diffusion halo pattern, lens cortex light dispersion, photorealistic microscopy style',
 };
 
 /**
- * Terms globally banned from all variant prompts — always stripped from the
- * base prompt before injection, regardless of which goal is applied.
+ * Terms globally banned from ALL variant prompts — stripped from base before injection.
+ * Prevents off-topic domains and abstract language regardless of which goal is applied.
  */
 const STRIP_BANNED = [
   // Wide / establishing framing
@@ -122,22 +126,30 @@ const STRIP_BANNED = [
   'full subject in frame', 'environmental context visible', 'full scene',
   // Abstract / narrative language
   'conceptual visualization', 'symbolic metaphor angle', 'dynamic creative composition',
-  'conceptual', 'metaphor', 'symbolic',
-  // Motion graphics
+  'abstract visualization', 'conceptual', 'metaphor', 'symbolic', 'abstract',
+  // Motion graphics / non-photographic
   'motion graphics',
-  // Legacy template remnants from previous version
+  // Off-topic domains
+  'food', 'dish', 'meal', 'restaurant', 'cuisine',
+  'neural signal', 'neural network', 'neuron',
+  // Legacy template remnants (idempotent cleanup for re-export)
   'extreme close-up', 'close-up', 'macro detail', 'key mechanism highlighted', 'texture emphasis',
+  'macro texture surface detail', 'material grain visible',
+  'unexpected silhouette shape', 'outline defies expectation',
+  'material composition appears wrong', 'unexpected surface substance',
 ];
 
-/** Per-goal: also strip the other two goals' marker words (idempotent re-export). */
-const STRIP_MACRO_TERMS    = ['MACRO_TEXTURE', 'macro texture surface detail', 'material grain visible'];
-const STRIP_OUTLINE_TERMS  = ['OUTLINE_CONTRADICTION', 'unexpected silhouette shape', 'outline defies expectation'];
-const STRIP_MATERIAL_TERMS = ['MATERIAL_MISMATCH', 'material composition appears wrong', 'unexpected surface substance'];
+/** Per-goal marker words — strip all other goals' terms for idempotent re-export. */
+const STRIP_MACRO_TERMS    = ['MACRO_TEXTURE',    'crystallin fiber texture detail',    'protein strand microstructure'];
+const STRIP_OUTLINE_TERMS  = ['OUTLINE_CONTRADICTION', 'crystallin layer boundary crack', 'unreasonable edge contour in lens cortex'];
+const STRIP_MATERIAL_TERMS = ['MATERIAL_MISMATCH', 'refraction anomaly in crystallin',  'specular highlight inconsistency'];
+const STRIP_SCATTER_TERMS  = ['SCATTER_PATTERN',  'light scattering texture within crystallin layer', 'diffusion halo pattern'];
 
-const VARIANT_STRIP_TERMS: Record<'a' | 'b' | 'c', string[]> = {
-  a: [...STRIP_BANNED, ...STRIP_OUTLINE_TERMS,  ...STRIP_MATERIAL_TERMS],
-  b: [...STRIP_BANNED, ...STRIP_MACRO_TERMS,    ...STRIP_MATERIAL_TERMS],
-  c: [...STRIP_BANNED, ...STRIP_MACRO_TERMS,    ...STRIP_OUTLINE_TERMS],
+const VARIANT_STRIP_TERMS: Record<'a' | 'b' | 'c' | 'd', string[]> = {
+  a: [...STRIP_BANNED, ...STRIP_OUTLINE_TERMS,  ...STRIP_MATERIAL_TERMS, ...STRIP_SCATTER_TERMS],
+  b: [...STRIP_BANNED, ...STRIP_MACRO_TERMS,    ...STRIP_MATERIAL_TERMS, ...STRIP_SCATTER_TERMS],
+  c: [...STRIP_BANNED, ...STRIP_MACRO_TERMS,    ...STRIP_OUTLINE_TERMS,  ...STRIP_SCATTER_TERMS],
+  d: [...STRIP_BANNED, ...STRIP_MACRO_TERMS,    ...STRIP_OUTLINE_TERMS,  ...STRIP_MATERIAL_TERMS],
 };
 
 /**
@@ -145,7 +157,7 @@ const VARIANT_STRIP_TERMS: Record<'a' | 'b' | 'c', string[]> = {
  * `prompt`, then append `VARIANT_GOAL: {template}`.
  * Only called for KF002 entries — guard is at the call site.
  */
-function applyVariantGoal(prompt: string, goal: 'a' | 'b' | 'c'): string {
+function applyVariantGoal(prompt: string, goal: 'a' | 'b' | 'c' | 'd'): string {
   let s = prompt.replace(/,?\s*VARIANT_GOAL:[^\n]*/gi, '').trim();
   for (const term of VARIANT_STRIP_TERMS[goal]) {
     s = s.replace(new RegExp(',?\\s*' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '');

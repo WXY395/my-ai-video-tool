@@ -63,7 +63,7 @@ export function formatDurationRange([min, max]: [number, number]): string {
  * - 其餘             → beat=body,   keyframe_id=KF002
  * - variant_id 在同一 keyframe_id 內依序為 'a','b','c',...
  */
-const BODY_VARIANT_GOALS = ['a', 'b', 'c'] as const;
+const BODY_VARIANT_GOALS = ['a', 'b', 'c', 'd'] as const;
 
 export function buildUnitPlan(
   _videoMode: string,
