@@ -354,6 +354,10 @@ const FPS        = 30;
 const SEG_SEC    = 5;
 const SEG_FRAMES = SEG_SEC * FPS; // 150 frames
 
+/** Chinese reading rate used to derive per-segment char limits (incl. punctuation). */
+const VO_CPS  = 4.5;  // chars/sec — natural VO reading rate
+const SUB_CPS = 2.2;  // chars/sec — subtitle display rate
+
 /** 總 frames → HH:MM:SS:FF（30fps） */
 function framesToTC(f: number): string {
   const p  = (n: number) => String(n).padStart(2, '0');
@@ -433,14 +437,53 @@ function voText(unit: ObservationUnit, topic: string, i: number): string {
   if (unit.voice_over_zh) return unit.voice_over_zh;
   const core = topic.slice(0, 10);
   const txt  = `${core}，第${i + 1}段`;
-  return (txt.length >= 8 ? txt : txt + '觀測說明').slice(0, 18);
+  return txt.length >= 8 ? txt : txt + '觀測說明';
+  // NOTE: no fixed char limit here — semanticCompress() enforces the dynamic limit
 }
 
 function subText(unit: ObservationUnit, topic: string, i: number): string {
   if (unit.subtitle_zh) return unit.subtitle_zh;
   const core = topic.slice(0, 5);
   const txt  = `${core}${i + 1}`;
-  return (txt.length >= 3 ? txt : txt + '摘要').slice(0, 8);
+  return txt.length >= 3 ? txt : txt + '摘要';
+  // NOTE: no fixed char limit here — semanticCompress() enforces the dynamic limit
+}
+
+/**
+ * Truncate `text` to `maxChars` at the last complete sentence or clause boundary.
+ * Priority: 。！？ > ，、 > hard cut (last resort, flagged as truncated).
+ * Returns { text, truncated } so the caller can annotate the guide.
+ */
+function semanticCompress(
+  text: string,
+  maxChars: number,
+): { text: string; truncated: boolean } {
+  if (text.length <= maxChars) return { text, truncated: false };
+  const slice = text.slice(0, maxChars);
+  // Full-sentence boundary
+  const sentEnd = Math.max(
+    slice.lastIndexOf('。'), slice.lastIndexOf('！'), slice.lastIndexOf('？'),
+  );
+  if (sentEnd > 0) return { text: slice.slice(0, sentEnd + 1), truncated: true };
+  // Clause boundary
+  const clauseEnd = Math.max(slice.lastIndexOf('，'), slice.lastIndexOf('、'));
+  if (clauseEnd > 0) return { text: slice.slice(0, clauseEnd + 1), truncated: true };
+  // Hard-cut fallback
+  return { text: slice, truncated: true };
+}
+
+/**
+ * Returns a warning string when `text` shares no Chinese bigram with
+ * `topic + phenomenon` — likely off-topic or hallucination bleed.
+ * Returns null when at least one bigram matches (consistent content).
+ */
+function topicGuardWarn(text: string, topic: string, phenomenon: string): string | null {
+  const keySource = (topic + phenomenon).replace(/[^\u4e00-\u9fff]/g, '');
+  if (keySource.length < 2) return null;
+  for (let j = 0; j < keySource.length - 1; j++) {
+    if (text.includes(keySource.slice(j, j + 2))) return null;
+  }
+  return '⚠ TOPIC_GUARD: may contain off-topic content — review';
 }
 
 /**
@@ -476,6 +519,7 @@ function buildCapcutGuide(
     '  VO   +00:00:00:10 → +00:00:03:08',
     '  SUB  +00:00:00:15 → +00:00:02:23',
     '  SFX  +00:00:02:20 → +00:00:03:00',
+    `  字數限制  VO ≤ ${Math.floor(SEG_SEC * VO_CPS)} 字 (4.5 CPS × ${SEG_SEC}s)  |  SUB ≤ ${Math.floor(SEG_SEC * SUB_CPS)} 字 (2.2 CPS × ${SEG_SEC}s)`,
     '',
   ];
 
@@ -513,14 +557,24 @@ function buildCapcutGuide(
       out.push(`  IMAGE OUT     ${framesToTC(base + SEG_FRAMES)}`);
     }
 
+    // ── VO / SUB — dynamic char limits, semantic compression, topic guard ──
+    const voMax  = Math.floor(SEG_SEC * VO_CPS);   // e.g. floor(5×4.5)=22
+    const subMax = Math.floor(SEG_SEC * SUB_CPS);  // e.g. floor(5×2.2)=11
+    const { text: voFinal,  truncated: voTrunc  } = semanticCompress(voText(u, topic, i),  voMax);
+    const { text: subFinal, truncated: subTrunc } = semanticCompress(subText(u, topic, i), subMax);
+    const voWarn  = topicGuardWarn(voFinal,  topic, u.phenomenon ?? '');
+    const subWarn = topicGuardWarn(subFinal, topic, u.phenomenon ?? '');
+
     out.push('');
     out.push(`  VO IN         ${framesToTC(base + 10)}`);
     out.push(`  VO OUT        ${framesToTC(base + 98)}`);
-    out.push(`  VO TEXT       ${voText(u, topic, i)}`);
+    out.push(`  VO TEXT       ${voFinal}${voTrunc ? '  [COMPRESSED]' : ''}${voWarn ? `  ${voWarn}` : ''}`);
+    out.push(`  VO LIMIT      ${voMax} chars (${SEG_SEC}s × ${VO_CPS} CPS)  |  actual: ${voFinal.length}`);
     out.push('');
     out.push(`  SUB IN        ${framesToTC(base + 15)}`);
     out.push(`  SUB OUT       ${framesToTC(base + 83)}`);
-    out.push(`  SUB TEXT      ${subText(u, topic, i)}`);
+    out.push(`  SUB TEXT      ${subFinal}${subTrunc ? '  [COMPRESSED]' : ''}${subWarn ? `  ${subWarn}` : ''}`);
+    out.push(`  SUB LIMIT     ${subMax} chars (${SEG_SEC}s × ${SUB_CPS} CPS)  |  actual: ${subFinal.length}`);
     out.push('');
     out.push(`  SFX IN        ${framesToTC(base + 80)}`);
     out.push(`  SFX OUT       ${framesToTC(base + 90)}`);
