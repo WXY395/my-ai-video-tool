@@ -119,76 +119,101 @@ function sanitizeImagePrompt(prompt: string): string {
   return s.replace(/,(\s*,)+/g, ',').trim().replace(/,\s*$/, '').replace(/^,\s*/, '');
 }
 
+// ── Variant-mode library ───────────────────────────────────────────────────
+
+type VariantMode = 'BIO' | 'OBJECT' | 'PHENOM';
+
 /**
- * BODY (KF002) variant_goal — TOPIC_ANCHOR: dragonfly (same individual / same body part).
- * Only the lens task changes; subject and scene are locked to one dragonfly.
- *
- * a = WING_MICRO_TEXTURE      : wing membrane vein micro texture
- * b = COMPOUND_EYE_MICRO      : compound eye facet detail
- * c = WING_EDGE_CONTOUR       : wing trailing-edge contour anomaly
- * d = SURFACE_MATERIAL_MISMATCH: iridescent material inconsistency on wing / eye
- *
- * Banned: wide pond, drone/aerial, abstract visualization, metaphor,
- *   motion graphics, and all TOPIC_BANNED_TERMS above.
- * Applied ONLY to KF002 entries; KF001 / KF003 / others are untouched.
+ * Topic keyword rules → VariantMode.
+ * Matches Chinese and English keywords; defaults to BIO.
  */
-const VARIANT_GOAL_TEMPLATES: Record<'a' | 'b' | 'c' | 'd', string> = {
-  a: 'WING_MICRO_TEXTURE, dragonfly wing membrane micro texture, iridescent vein pattern close-up, extreme macro of wing surface, photorealistic macro photography',
-  b: 'COMPOUND_EYE_MICRO, dragonfly compound eye facet detail, ommatidium micro texture, extreme macro of compound eye surface, photorealistic macro photography',
-  c: 'WING_EDGE_CONTOUR, dragonfly wing trailing-edge contour anomaly, irregular wing margin boundary detail, micro-scale edge structure, photorealistic macro photography',
-  d: 'SURFACE_MATERIAL_MISMATCH, iridescent material inconsistency on dragonfly wing surface, micro-scale surface optical contrast, photorealistic macro photography',
+function selectVariantMode(topic: string): VariantMode {
+  const t = topic.toLowerCase();
+  if (/生物|昆蟲|蟲|蜻蜓|蝴蝶|蜘蛛|甲蟲|蜜蜂|螞蟻|植物|苔蘚|蕨|細菌|微生物|動物|鳥|魚|藻|真菌|孢子|細胞|組織|皮膚|羽毛|鱗片|角質|insect|dragonfly|butterfly|spider|beetle|bee|ant|plant|moss|fern|bacteria|microbe|animal|bird|fish|algae|fungi|spore|cell|tissue|skin|feather|scale|chitin/.test(t)) return 'BIO';
+  if (/晶體|礦物|金屬|玻璃|陶瓷|塑膠|纖維|岩石|砂|土壤|木材|紙|合金|聚合物|crystal|mineral|metal|glass|ceramic|plastic|fiber|stone|rock|sand|soil|wood|paper|alloy|polymer|composite|textile|concrete/.test(t)) return 'OBJECT';
+  if (/光|火|水|霧|雲|電|化學|氣泡|物理|光學|折射|繞射|反射|泡|煙|塵|水滴|氣流|聲波|磁場|電場|light|fire|water|fog|cloud|electric|chemical|bubble|physics|optical|refract|diffract|reflect|smoke|dust|droplet|airflow|wave|magnetic|plasma/.test(t)) return 'PHENOM';
+  return 'BIO';
+}
+
+/**
+ * Three variant-mode libraries. {TOPIC_SUBJECT} is replaced with the
+ * actual topic string at inject time — no topic is hardcoded here.
+ *
+ * Each mode shares the same four observation tasks (a/b/c/d):
+ *   a = micro surface texture
+ *   b = structural / boundary detail
+ *   c = optical property / anomaly
+ *   d = material / compositional contrast
+ */
+const VARIANT_LIBRARIES: Record<VariantMode, Record<'a' | 'b' | 'c' | 'd', string>> = {
+  BIO: {
+    a: 'BIO_SURFACE_TEXTURE, {TOPIC_SUBJECT} surface micro texture, biological membrane or cuticle detail, extreme macro close-up, photorealistic macro photography',
+    b: 'BIO_BOUNDARY_DETAIL, {TOPIC_SUBJECT} structural boundary, joint or vein edge contour, micro-scale border anomaly, photorealistic macro photography',
+    c: 'BIO_OPTICAL_PROPERTY, {TOPIC_SUBJECT} iridescent or refractive surface anomaly, micro-scale optical contrast, specular highlight, photorealistic macro photography',
+    d: 'BIO_MATERIAL_CONTRAST, {TOPIC_SUBJECT} adjacent tissue material contrast, micro-scale surface heterogeneity, photorealistic macro photography',
+  },
+  OBJECT: {
+    a: 'OBJ_GRAIN_TEXTURE, {TOPIC_SUBJECT} surface grain and micro texture, material crystal or lattice detail, extreme macro close-up, photorealistic macro photography',
+    b: 'OBJ_FRACTURE_BOUNDARY, {TOPIC_SUBJECT} edge fracture or cleavage boundary, structural break micro detail, photorealistic macro photography',
+    c: 'OBJ_SPECULAR_ANOMALY, {TOPIC_SUBJECT} specular highlight inconsistency, surface refraction or gloss contrast, micro-scale optical aberration, photorealistic macro photography',
+    d: 'OBJ_LAYER_CONTRAST, {TOPIC_SUBJECT} material layer contrast, surface vs subsurface strata difference, micro-scale composition, photorealistic macro photography',
+  },
+  PHENOM: {
+    a: 'PHN_MICRO_TEXTURE, {TOPIC_SUBJECT} fine micro texture within phenomenon, structural detail at micro scale, extreme macro close-up, photorealistic macro photography',
+    b: 'PHN_EDGE_BOUNDARY, {TOPIC_SUBJECT} phenomenon boundary transition, micro-scale interface detail, sharp phase contrast, photorealistic macro photography',
+    c: 'PHN_OPTICAL_EFFECT, {TOPIC_SUBJECT} optical effect within phenomenon, light interaction micro detail, interference or diffraction pattern, photorealistic macro photography',
+    d: 'PHN_MATERIAL_CONTRAST, {TOPIC_SUBJECT} material or phase contrast, micro-scale compositional difference within phenomenon, photorealistic macro photography',
+  },
 };
 
 /**
  * Terms globally banned from ALL variant prompts — stripped from base before injection.
+ * Idempotent: also covers all previous hardcoded template remnants.
  */
 const STRIP_BANNED = [
-  // Wide / establishing / aerial framing (off-subject)
+  // Wide / establishing / aerial framing
   'wide establishing shot', 'wide shot', 'establishing shot',
   'wide pond', 'aerial view', 'drone shot', 'drone view',
   'full subject in frame', 'environmental context visible', 'full scene',
   // Abstract / narrative language
   'conceptual visualization', 'symbolic metaphor angle', 'dynamic creative composition',
   'abstract visualization', 'conceptual', 'metaphor', 'symbolic', 'abstract',
-  // Motion graphics / non-photographic
+  // Motion graphics
   'motion graphics',
-  // Off-topic domains (food, neural, eye/lens leftovers)
+  // Off-topic domains
   'food', 'dish', 'meal', 'restaurant', 'cuisine',
   'neural signal', 'neural network', 'neuron',
+  // TOPIC_BANNED_TERMS already applied by sanitizeImagePrompt; listed again for belt-and-suspenders
   ...TOPIC_BANNED_TERMS,
-  // Legacy template remnants (idempotent cleanup)
+  // Legacy hardcoded template remnants from all previous versions
   'extreme close-up', 'close-up', 'macro detail', 'key mechanism highlighted', 'texture emphasis',
   'macro texture surface detail', 'material grain visible',
   'unexpected silhouette shape', 'outline defies expectation',
   'material composition appears wrong', 'unexpected surface substance',
   'MACRO_TEXTURE', 'OUTLINE_CONTRADICTION', 'MATERIAL_MISMATCH', 'SCATTER_PATTERN',
+  'WING_MICRO_TEXTURE', 'COMPOUND_EYE_MICRO', 'WING_EDGE_CONTOUR', 'SURFACE_MATERIAL_MISMATCH',
+  'dragonfly wing membrane micro texture', 'dragonfly compound eye facet detail',
+  'dragonfly wing trailing-edge contour anomaly',
 ];
 
-/** Per-goal marker words — strip all other goals' terms for idempotent re-export. */
-const STRIP_WING_TEXTURE  = ['WING_MICRO_TEXTURE',  'dragonfly wing membrane micro texture',  'iridescent vein pattern close-up'];
-const STRIP_EYE_TEXTURE   = ['COMPOUND_EYE_MICRO',  'dragonfly compound eye facet detail',     'ommatidium micro texture'];
-const STRIP_WING_EDGE     = ['WING_EDGE_CONTOUR',   'dragonfly wing trailing-edge contour anomaly', 'irregular wing margin boundary detail'];
-const STRIP_SURFACE_MAT   = ['SURFACE_MATERIAL_MISMATCH', 'iridescent material inconsistency on dragonfly wing surface', 'micro-scale surface optical contrast'];
-
-const VARIANT_STRIP_TERMS: Record<'a' | 'b' | 'c' | 'd', string[]> = {
-  a: [...STRIP_BANNED, ...STRIP_EYE_TEXTURE,  ...STRIP_WING_EDGE,    ...STRIP_SURFACE_MAT],
-  b: [...STRIP_BANNED, ...STRIP_WING_TEXTURE, ...STRIP_WING_EDGE,    ...STRIP_SURFACE_MAT],
-  c: [...STRIP_BANNED, ...STRIP_WING_TEXTURE, ...STRIP_EYE_TEXTURE,  ...STRIP_SURFACE_MAT],
-  d: [...STRIP_BANNED, ...STRIP_WING_TEXTURE, ...STRIP_EYE_TEXTURE,  ...STRIP_WING_EDGE],
-};
-
 /**
- * Strip any existing VARIANT_GOAL marker + all banned/conflicting terms from
- * `prompt`, then append `VARIANT_GOAL: {template}`.
+ * Strip any existing VARIANT_GOAL marker + all STRIP_BANNED terms from prompt,
+ * then inject the mode+goal template with {TOPIC_SUBJECT} filled in.
  * Only called for KF002 entries — guard is at the call site.
  */
-function applyVariantGoal(prompt: string, goal: 'a' | 'b' | 'c' | 'd'): string {
+function applyVariantGoal(
+  prompt: string,
+  goal: 'a' | 'b' | 'c' | 'd',
+  mode: VariantMode,
+  topicSubject: string,
+): string {
   let s = prompt.replace(/,?\s*VARIANT_GOAL:[^\n]*/gi, '').trim();
-  for (const term of VARIANT_STRIP_TERMS[goal]) {
+  for (const term of STRIP_BANNED) {
     s = s.replace(new RegExp(',?\\s*' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '');
   }
   s = s.replace(/,(\s*,)+/g, ',').trim().replace(/,\s*$/, '').replace(/^,\s*/, '');
-  return `${s}, VARIANT_GOAL: ${VARIANT_GOAL_TEMPLATES[goal]}`;
+  const template = VARIANT_LIBRARIES[mode][goal].replace(/\{TOPIC_SUBJECT\}/g, topicSubject);
+  return `${s}, VARIANT_GOAL: ${template}`;
 }
 
 /** CapCut cut sequence (frames at 30 fps) */
@@ -671,6 +696,7 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
 
   const isShorts    = videoMode === 'shorts';
   const imgRootPath = isShorts ? 'images/full' : 'images';
+  const variantMode = selectVariantMode(topic); // BIO | OBJECT | PHENOM
 
   const zip = new JSZip();
   const fullImgFolder = zip.folder(`${rootDir}/${imgRootPath}`);
@@ -729,7 +755,7 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
     // VARIANT_GOAL injected for every KF002 (Body) unit based on its variant_goal.
     // KF001 (hook) and KF003 (payoff) have no variant_goal → rawPrompt unchanged.
     const withGoal = (planEntry?.keyframe_id === 'KF002' && planEntry.variant_goal)
-      ? applyVariantGoal(rawPrompt, planEntry.variant_goal)
+      ? applyVariantGoal(rawPrompt, planEntry.variant_goal, variantMode, topic)
       : rawPrompt;
     // sanitizeImagePrompt strips topic-banned terms from ALL prompts (topic pollution guard).
     imagePromptsMeta.push({ id: promptId, prompt: sanitizeImagePrompt(withGoal) });
@@ -757,7 +783,8 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
       topic_prompt: topic,
       image_prompts: imagePromptsMeta,
     },
-    unit_plan: unitPlan,
+    unit_plan:    unitPlan,
+    variant_mode: variantMode,   // BIO | OBJECT | PHENOM — determined from topic keywords
   };
   zip.file(`${rootDir}/meta.json`, JSON.stringify(meta, null, 2));
 
