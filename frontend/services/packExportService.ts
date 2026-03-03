@@ -97,59 +97,84 @@ const DIVERSITY_DIST_MIN_RATIO = 0.15; // min centre-to-centre distance / roiW
 const ENABLE_SHORTS_CUTS = false;
 
 /**
- * BODY (KF002) variant_goal — same subject (human eye lens / crystallin protein
- * deposits, microscopic real-photo style), only lens task changes per variant.
+ * Terms leaked from previous sessions (eye/lens topic) that must be stripped
+ * from ALL prompts before writing to meta.json, regardless of goal.
+ */
+const TOPIC_BANNED_TERMS = [
+  'crystallin', 'lens cortex', 'cataract', 'protein strand',
+  'refraction anomaly', 'optical aberration', 'photorealistic microscopy style',
+  'crystallin fiber', 'crystallin layer', 'crystallin deposit',
+  'lens deposit', 'cortex surface', 'microscopy style',
+];
+
+/**
+ * Strip TOPIC_BANNED_TERMS from any prompt.
+ * Applied to all image_prompts (cover, KF001, KF002, KF003) before writing to meta.json.
+ */
+function sanitizeImagePrompt(prompt: string): string {
+  let s = prompt;
+  for (const term of TOPIC_BANNED_TERMS) {
+    s = s.replace(new RegExp(',?\\s*' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '');
+  }
+  return s.replace(/,(\s*,)+/g, ',').trim().replace(/,\s*$/, '').replace(/^,\s*/, '');
+}
+
+/**
+ * BODY (KF002) variant_goal — TOPIC_ANCHOR: dragonfly (same individual / same body part).
+ * Only the lens task changes; subject and scene are locked to one dragonfly.
  *
- * a = MACRO_TEXTURE        : fiber / protein texture in lens cortex
- * b = OUTLINE_CONTRADICTION: crack / boundary / unreasonable contour
- * c = MATERIAL_MISMATCH    : refraction / specular / opacity inconsistency
- * d = SCATTER_PATTERN      : light scattering texture within crystallin layer
+ * a = WING_MICRO_TEXTURE      : wing membrane vein micro texture
+ * b = COMPOUND_EYE_MICRO      : compound eye facet detail
+ * c = WING_EDGE_CONTOUR       : wing trailing-edge contour anomaly
+ * d = SURFACE_MATERIAL_MISMATCH: iridescent material inconsistency on wing / eye
  *
- * Banned globally: food/dish, neural signal, abstract visualization,
- *   symbolic/metaphor, motion graphics, wide establishing, full subject.
+ * Banned: wide pond, drone/aerial, abstract visualization, metaphor,
+ *   motion graphics, and all TOPIC_BANNED_TERMS above.
  * Applied ONLY to KF002 entries; KF001 / KF003 / others are untouched.
  */
 const VARIANT_GOAL_TEMPLATES: Record<'a' | 'b' | 'c' | 'd', string> = {
-  a: 'MACRO_TEXTURE, crystallin fiber texture detail, protein strand microstructure, extreme close-up of lens cortex surface, photorealistic microscopy style',
-  b: 'OUTLINE_CONTRADICTION, crystallin layer boundary crack, unreasonable edge contour in lens cortex, structural border mismatch, photorealistic microscopy style',
-  c: 'MATERIAL_MISMATCH, refraction anomaly in crystallin deposit, specular highlight inconsistency, lens cortex optical aberration, photorealistic microscopy style',
-  d: 'SCATTER_PATTERN, light scattering texture within crystallin layer, diffusion halo pattern, lens cortex light dispersion, photorealistic microscopy style',
+  a: 'WING_MICRO_TEXTURE, dragonfly wing membrane micro texture, iridescent vein pattern close-up, extreme macro of wing surface, photorealistic macro photography',
+  b: 'COMPOUND_EYE_MICRO, dragonfly compound eye facet detail, ommatidium micro texture, extreme macro of compound eye surface, photorealistic macro photography',
+  c: 'WING_EDGE_CONTOUR, dragonfly wing trailing-edge contour anomaly, irregular wing margin boundary detail, micro-scale edge structure, photorealistic macro photography',
+  d: 'SURFACE_MATERIAL_MISMATCH, iridescent material inconsistency on dragonfly wing surface, micro-scale surface optical contrast, photorealistic macro photography',
 };
 
 /**
  * Terms globally banned from ALL variant prompts — stripped from base before injection.
- * Prevents off-topic domains and abstract language regardless of which goal is applied.
  */
 const STRIP_BANNED = [
-  // Wide / establishing framing
+  // Wide / establishing / aerial framing (off-subject)
   'wide establishing shot', 'wide shot', 'establishing shot',
+  'wide pond', 'aerial view', 'drone shot', 'drone view',
   'full subject in frame', 'environmental context visible', 'full scene',
   // Abstract / narrative language
   'conceptual visualization', 'symbolic metaphor angle', 'dynamic creative composition',
   'abstract visualization', 'conceptual', 'metaphor', 'symbolic', 'abstract',
   // Motion graphics / non-photographic
   'motion graphics',
-  // Off-topic domains
+  // Off-topic domains (food, neural, eye/lens leftovers)
   'food', 'dish', 'meal', 'restaurant', 'cuisine',
   'neural signal', 'neural network', 'neuron',
-  // Legacy template remnants (idempotent cleanup for re-export)
+  ...TOPIC_BANNED_TERMS,
+  // Legacy template remnants (idempotent cleanup)
   'extreme close-up', 'close-up', 'macro detail', 'key mechanism highlighted', 'texture emphasis',
   'macro texture surface detail', 'material grain visible',
   'unexpected silhouette shape', 'outline defies expectation',
   'material composition appears wrong', 'unexpected surface substance',
+  'MACRO_TEXTURE', 'OUTLINE_CONTRADICTION', 'MATERIAL_MISMATCH', 'SCATTER_PATTERN',
 ];
 
 /** Per-goal marker words — strip all other goals' terms for idempotent re-export. */
-const STRIP_MACRO_TERMS    = ['MACRO_TEXTURE',    'crystallin fiber texture detail',    'protein strand microstructure'];
-const STRIP_OUTLINE_TERMS  = ['OUTLINE_CONTRADICTION', 'crystallin layer boundary crack', 'unreasonable edge contour in lens cortex'];
-const STRIP_MATERIAL_TERMS = ['MATERIAL_MISMATCH', 'refraction anomaly in crystallin',  'specular highlight inconsistency'];
-const STRIP_SCATTER_TERMS  = ['SCATTER_PATTERN',  'light scattering texture within crystallin layer', 'diffusion halo pattern'];
+const STRIP_WING_TEXTURE  = ['WING_MICRO_TEXTURE',  'dragonfly wing membrane micro texture',  'iridescent vein pattern close-up'];
+const STRIP_EYE_TEXTURE   = ['COMPOUND_EYE_MICRO',  'dragonfly compound eye facet detail',     'ommatidium micro texture'];
+const STRIP_WING_EDGE     = ['WING_EDGE_CONTOUR',   'dragonfly wing trailing-edge contour anomaly', 'irregular wing margin boundary detail'];
+const STRIP_SURFACE_MAT   = ['SURFACE_MATERIAL_MISMATCH', 'iridescent material inconsistency on dragonfly wing surface', 'micro-scale surface optical contrast'];
 
 const VARIANT_STRIP_TERMS: Record<'a' | 'b' | 'c' | 'd', string[]> = {
-  a: [...STRIP_BANNED, ...STRIP_OUTLINE_TERMS,  ...STRIP_MATERIAL_TERMS, ...STRIP_SCATTER_TERMS],
-  b: [...STRIP_BANNED, ...STRIP_MACRO_TERMS,    ...STRIP_MATERIAL_TERMS, ...STRIP_SCATTER_TERMS],
-  c: [...STRIP_BANNED, ...STRIP_MACRO_TERMS,    ...STRIP_OUTLINE_TERMS,  ...STRIP_SCATTER_TERMS],
-  d: [...STRIP_BANNED, ...STRIP_MACRO_TERMS,    ...STRIP_OUTLINE_TERMS,  ...STRIP_MATERIAL_TERMS],
+  a: [...STRIP_BANNED, ...STRIP_EYE_TEXTURE,  ...STRIP_WING_EDGE,    ...STRIP_SURFACE_MAT],
+  b: [...STRIP_BANNED, ...STRIP_WING_TEXTURE, ...STRIP_WING_EDGE,    ...STRIP_SURFACE_MAT],
+  c: [...STRIP_BANNED, ...STRIP_WING_TEXTURE, ...STRIP_EYE_TEXTURE,  ...STRIP_SURFACE_MAT],
+  d: [...STRIP_BANNED, ...STRIP_WING_TEXTURE, ...STRIP_EYE_TEXTURE,  ...STRIP_WING_EDGE],
 };
 
 /**
@@ -703,10 +728,11 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
     const promptId  = i + 1;
     // VARIANT_GOAL injected for every KF002 (Body) unit based on its variant_goal.
     // KF001 (hook) and KF003 (payoff) have no variant_goal → rawPrompt unchanged.
-    const augmented = (planEntry?.keyframe_id === 'KF002' && planEntry.variant_goal)
+    const withGoal = (planEntry?.keyframe_id === 'KF002' && planEntry.variant_goal)
       ? applyVariantGoal(rawPrompt, planEntry.variant_goal)
       : rawPrompt;
-    imagePromptsMeta.push({ id: promptId, prompt: augmented });
+    // sanitizeImagePrompt strips topic-banned terms from ALL prompts (topic pollution guard).
+    imagePromptsMeta.push({ id: promptId, prompt: sanitizeImagePrompt(withGoal) });
   }
 
   // ── 3. meta.json ──────────────────────────────────────────────────────────

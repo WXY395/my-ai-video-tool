@@ -33,13 +33,14 @@ COVER_MIN_VARIANCE   = 300  # pixel variance; below → no visible subject (flat
 
 def _build_cover_prompt(topic: str, aspect_ratio: str) -> tuple[str, str]:
     """
-    封面 prompt：主體可辨識（clarity ≥ 70%），
-    懸念靠邊光／局部陰影而非大面積黑場遮擋主體。
+    封面 prompt：主體清楚可辨（subject clearly visible），
+    神秘感靠邊光＋局部投影實現，不得用黑場遮蓋主體。
 
     構圖規則：
-    - 主體臉 / 眼 / 關鍵器官佔畫面 40-60%
-    - 背景簡化（bokeh）但保留景深
-    - 神秘感來自單側邊光 + 局部投影，不可用黑場覆蓋主體
+    - 主體關鍵部位佔畫面 40-60%，輪廓清晰可讀（readable silhouette）
+    - 亮邊光（bright rim light）打亮輪廓，確保主體在暗背景下仍可辨識
+    - 高細節焦點（high micro detail focal point）在主體最具特徵的部位
+    - 背景簡化（bokeh）但保留景深；陰影只落在背景，不覆蓋主體本身
     """
     orientation = (
         'portrait vertical orientation'
@@ -48,20 +49,22 @@ def _build_cover_prompt(topic: str, aspect_ratio: str) -> tuple[str, str]:
     )
     prompt = (
         f"{topic}, "
-        f"extreme macro close-up, subject clearly identifiable at 70% clarity, "
-        f"face or key organ fills 40-60% of frame, razor-sharp focus on subject, "
-        f"dramatic single-side rim lighting and edge light — subject well-lit and recognizable, "
-        f"partial shadow falls behind subject adding depth, NOT obscuring subject itself, "
+        f"extreme macro close-up, subject clearly visible and identifiable, "
+        f"key organ or feature fills 40-60% of frame in razor-sharp focus, "
+        f"bright rim light outlining subject edges — readable silhouette against background, "
+        f"high micro detail focal point on most distinctive feature, "
+        f"partial shadow depth behind subject only — subject itself fully lit and recognizable, "
         f"simplified bokeh background with cinematic depth-of-field, "
-        f"vibrant saturated accent color, mysterious mood through selective lighting, "
+        f"vibrant saturated accent color, mysterious mood through selective edge lighting, "
         f"cinematic thumbnail quality, "
         f"{aspect_ratio} format, {orientation}, "
         f"no people, no hands, no fingers, no text, no watermark, no logo"
     )
     negative = (
         "people, person, human, face, hands, fingers, body parts, "
-        "large dark shadow obscuring subject, black overlay on subject, silhouette only, "
-        "unrecognizable blobs, subject hidden behind darkness, deep shadows covering subject, "
+        "full black background, black overlay on subject, dark silhouette only, "
+        "subject hidden in darkness, deep shadows covering subject, unrecognizable blobs, "
+        "low key underexposed lighting, subject completely obscured, "
         "flat boring lighting, overexposed wash, blurry, low quality, "
         "text, watermark, logo, signature"
     )
@@ -70,8 +73,8 @@ def _build_cover_prompt(topic: str, aspect_ratio: str) -> tuple[str, str]:
 
 def _build_cover_prompt_retry(topic: str, aspect_ratio: str) -> tuple[str, str]:
     """
-    重試用 prompt：明確要求高亮度、主體可見。
-    在第一張封面亮度不足或細節不可辨識時使用（僅限封面、僅重試一次）。
+    重試用 prompt：強制高亮度 + 主體可辨識。
+    在第一張封面亮度不足或主體不可辨識時使用（僅限封面、僅重試一次）。
     """
     orientation = (
         'portrait vertical orientation'
@@ -81,9 +84,10 @@ def _build_cover_prompt_retry(topic: str, aspect_ratio: str) -> tuple[str, str]:
     prompt = (
         f"{topic}, "
         f"macro close-up photograph, subject clearly visible and well-exposed, "
-        f"subject occupies 50% of frame in sharp focus, "
-        f"bright directional lighting with warm golden rim light on edges, "
-        f"high average brightness — no underexposed regions on subject, "
+        f"subject occupies 50% of frame in razor-sharp focus, "
+        f"bright warm rim light on subject edges — readable silhouette guaranteed, "
+        f"high micro detail focal point on key feature, high average brightness, "
+        f"no underexposed or shadow-covered regions on subject itself, "
         f"simplified bokeh background with scenic depth, "
         f"vibrant colors, professional nature photography quality, "
         f"{aspect_ratio} format, {orientation}, "
@@ -91,8 +95,8 @@ def _build_cover_prompt_retry(topic: str, aspect_ratio: str) -> tuple[str, str]:
     )
     negative = (
         "people, person, human, face, hands, fingers, body parts, "
-        "dark shadow, black background, low-key underexposed lighting, "
-        "silhouette, obscured subject, blurry, low quality, "
+        "full black background, dark shadow on subject, low-key underexposed lighting, "
+        "subject silhouette only, obscured subject, blurry, low quality, "
         "text, watermark, logo, signature"
     )
     return prompt, negative
