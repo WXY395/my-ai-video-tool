@@ -635,9 +635,9 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
       : (unit.image_prompt?.prompt ?? '');
     const planEntry = unitPlan[i];
     const promptId  = i + 1;
-    // VARIANT_GOAL injected ONLY when promptId === 2 (the canonical KF002 slot).
-    // id:1 (hook) / id:3…N (subsequent body or payoff) receive rawPrompt unchanged.
-    const augmented = (promptId === 2 && planEntry?.variant_goal)
+    // VARIANT_GOAL injected for every KF002 (Body) unit based on its variant_goal.
+    // KF001 (hook) and KF003 (payoff) have no variant_goal → rawPrompt unchanged.
+    const augmented = (planEntry?.keyframe_id === 'KF002' && planEntry.variant_goal)
       ? applyVariantGoal(rawPrompt, planEntry.variant_goal)
       : rawPrompt;
     imagePromptsMeta.push({ id: promptId, prompt: augmented });
