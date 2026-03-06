@@ -5,9 +5,12 @@
 使用 FLUX Schnell（可擴展到其他模型）
 """
 import os
+import re
 import logging
 import asyncio
+import random
 import replicate
+from datetime import datetime
 from typing import Literal
 
 logging.basicConfig(level=logging.INFO)
@@ -19,24 +22,76 @@ class ImageService:
     
     # 模型定價（美元/張）
     MODEL_PRICING = {
-        "flux-schnell": 0.003,
-        "flux-dev": 0.025,
-        "flux-1.1-pro": 0.04,
+        "flux-schnell":  0.003,
+        "flux-dev":      0.025,
+        "flux-1.1-pro":  0.04,
+        "nano-banana-2": 0.025,   # V33.9: maps to flux-dev billing tier
     }
-    
+
+    # V33.9 — Nano Banana 2 premium model identifier (Scene_Index <= 1)
+    NANO_BANANA_2 = "nano-banana-2"
+
+    # V33.9 Nocturia Medical Theme — Global Color System
+    MIDNIGHT_BLUE  = "#0B1F3A"   # 夜間、睡眠主色
+    CLINICAL_TEAL  = "#1A9FAA"   # 腎臟、泌尿系統
+    BIO_AMBER      = "#F4A122"   # 逼尿肌應力警示
+    SOFT_LAVENDER  = "#8B7FC7"   # AVP 神經荷爾蒙路徑
+    ARCHIVAL_CREAM = "#F5F0E8"   # 存檔掃描底紙色
+
     def __init__(self):
         """初始化服務"""
         self.api_token = os.getenv("REPLICATE_API_TOKEN")
         if not self.api_token:
             logger.warning("REPLICATE_API_TOKEN not found, image generation will fail")
-        
+
         # 設定 API token
         if self.api_token:
             os.environ["REPLICATE_API_TOKEN"] = self.api_token
-        
+
         # 預設使用 FLUX Schnell（成本最低）
         self.default_model = "flux-schnell"
-    
+        logger.info("[V33.9_MEDICAL_INIT] - Nocturia theme engine active.")
+
+    # V33.9 Scene-Index routing table
+    # Scene_Index 0 (Cover) and 1 (Unit_001) → Nano Banana 2 (flux-dev tier, medical labels)
+    # Scene_Index >= 2                        → flux-schnell (cost-efficient)
+    _SCENE_MODEL_MAP: dict[str, str] = {"premium": "nano-banana-2", "standard": "flux-schnell"}
+
+    def select_model_for_scene(self, scene_index: int) -> str:
+        """V33.9 dispatcher: Scene_Index <= 1 → Nano Banana 2, others → flux-schnell."""
+        selected = self._SCENE_MODEL_MAP["premium"] if scene_index <= 1 else self._SCENE_MODEL_MAP["standard"]
+        logger.info(f"[V33.9_ROUTER] scene_index={scene_index} → model={selected}")
+        return selected
+
+    def select_model_for_unit(self, tier: int | None = None, is_cover: bool = False) -> str:
+        """V33.0 dispatcher (legacy): route tier:1 or cover images to premium model."""
+        if is_cover or tier == 1:
+            selected = "flux-dev"
+        else:
+            selected = "flux-schnell"
+        logger.info(f"[V33_ROUTER_LEGACY] tier={tier} is_cover={is_cover} → model={selected}")
+        return selected
+
+    def _inject_medical_labels(self, scene_index: int) -> str:
+        """
+        V33.9 Medical Label Injector — returns archival scan tag + medical badge string
+        based on scene position. Scene_Index <= 1 receives premium Nocturia medical labels.
+        """
+        if scene_index == 0:
+            return (
+                f"[MEDICAL LABEL: Nocturnal Polyuria · AVP Deficiency · Sleep Disruption], "
+                f"archival scan texture, film grain overlay, aged medical chart paper background, "
+                f"deep midnight blue {self.MIDNIGHT_BLUE} and clinical teal {self.CLINICAL_TEAL} palette"
+            )
+        elif scene_index == 1:
+            return (
+                f"[MEDICAL LABEL: Nocturia · Night-time Voids · Detrusor Overactivity], "
+                f"archival scan texture, subtle paper grain, clinical chart aesthetic, "
+                f"bio-amber {self.BIO_AMBER} stress indicators, soft lavender {self.SOFT_LAVENDER} hormone pathway"
+            )
+        else:
+            return f"clinical documentation style, medical illustration aesthetic"
+
     def get_model_cost(self, model: str = "flux-schnell") -> float:
         """
         獲取模型單價
@@ -116,21 +171,92 @@ class ImageService:
             增強後的 prompt
         """
         quality_keywords = [
-            "professional photography",
+            "archival scan quality",    # V32.0: replaces "professional photography" (portrait cue)
             "high quality",
             "sharp focus",
-            "cinematic lighting",
-            "vibrant colors",
+            "bright even lighting",     # replaces "cinematic lighting" (avoids dark/moody bias)
+            "vivid saturated colors",
         ]
-        
+
         # 檢查是否已有品質關鍵字
         has_quality = any(kw in prompt.lower() for kw in ["professional", "high quality", "cinematic"])
-        
+
         if not has_quality:
             prompt = f"{prompt}, {', '.join(quality_keywords)}"
-        
+
         return prompt
+
+    def _add_topic_guard_terms(self, prompt: str) -> str:
+        """
+        Append FLUX-compatible subject-clarity avoidance terms to the positive prompt.
+
+        FLUX ignores negative_prompt (API silently discards it). To prevent the model
+        from generating abstract bokeh / random organic macro textures / unrelated foliage,
+        we must state avoidance in the positive prompt.
+
+        Only appended once — skips if terms already present (e.g. cover prompts that
+        already include _AVOID via _build_cover_prompt_v2).
+        """
+        if "avoid abstract bokeh" in prompt.lower() or "avoid random organic" in prompt.lower():
+            return prompt  # Already guarded (e.g. from _build_cover_prompt_v2)
+        return (
+            f"{prompt}, "
+            f"sharp identifiable subject, "
+            f"avoid abstract bokeh, avoid random organic shapes, "
+            f"avoid unrelated flowers or foliage"
+        )
     
+    def _cull_biological_terms(self, prompt: str) -> str:
+        """
+        V33.9 Medical Cull — final term purge + medical theme injection.
+        Called as the LAST step before prompt is sent to Replicate.
+
+        Replaces portrait/industrial artifacts with medical illustration equivalents.
+        \b guards preserve "surface", "interface", "artifact", etc.
+        "portrait" bare word is NOT replaced — required for 9:16 FLUX orientation.
+        """
+        # ── Exact-phrase map (most specific first) ────────────────────────────
+        _PHRASE_MAP: list[tuple[str, str]] = [
+            ("professional photography",        "archival scan documentation"),
+            ("documentary photography",         "archival scan documentation"),
+            ("portrait photography",            "archival scan documentation"),
+            ("cinematic thumbnail quality",     "archival scan quality"),
+            ("bright studio rim light",         "diffused clinical examination light"),
+            ("bright rim/key light",            "diffused clinical examination light"),
+            ("rim light",                       "diffused archival light"),
+            ("silhouette outline",              ""),
+            ("readable silhouette",             "anatomical diagram outline"),
+            ("high-key well-lit surface",       "clean clinical background"),
+            ("detailed close-up photograph",    "medical illustration close-up"),
+            ("extreme macro close-up",          "anatomical detail illustration"),
+        ]
+        for _old, _new in _PHRASE_MAP:
+            prompt = prompt.replace(_old, _new)
+
+        # ── Word-boundary regex for isolated biological / portrait nouns ──────
+        # ⚠️ \b guards prevent substring corruption:
+        #   "face"      → NOT "surface" / "interface" / "artifact"
+        #   "skin"      → NOT "skinny" / "desktop skin"
+        #   "silhouette"→ catches any remaining instances after phrase map
+        prompt = re.sub(r'\bfaces?\b',    "anatomical cross-section",   prompt, flags=re.IGNORECASE)
+        prompt = re.sub(r'\bskin\b',      "mucosal tissue",             prompt, flags=re.IGNORECASE)
+        prompt = re.sub(r'\bsilhouette\b',"anatomical diagram outline", prompt, flags=re.IGNORECASE)
+
+        # ── Clean up orphaned commas from empty replacements ──────────────────
+        prompt = re.sub(r',\s*,+', ',', prompt)
+        prompt = re.sub(r',\s*$',  '',  prompt).strip()
+
+        # ── V33.9 物理最終防線：強制轉碼為醫學存檔風格 ───────────────────────
+        # \b guards preserve "surface", "interface", "artifact" etc.
+        prompt = re.sub(r'\b(face|skin|human|portrait|silhouette|rim light)\b', "anatomical_marker", prompt, flags=re.IGNORECASE)
+        # 植入 V33.9 醫學主題品牌識別度（Nocturia 配色）
+        prompt += (
+            f", deep midnight blue {self.MIDNIGHT_BLUE} and clinical teal {self.CLINICAL_TEAL} "
+            f"medical color palette, archival scan aesthetic, painterly medical illustration"
+        )
+
+        return prompt
+
     def _build_negative_prompt(
         self,
         base_negative: str,
@@ -164,6 +290,8 @@ class ImageService:
         ]
         
         # 避免人物（如果需要）
+        # NOTE: "portrait" 已移除 — 9:16 豎向封面本身就是 portrait orientation，
+        #       放進 negative 會讓模型自打架產生暗色/抽象圖
         if avoid_hands:
             human_negatives = [
                 "people",
@@ -171,17 +299,14 @@ class ImageService:
                 "human",
                 "face",
                 "hands",
-                "fingers",
                 "body",
                 "man",
                 "woman",
-                "portrait",
                 "selfie",
                 "holding",
                 "touching",
                 "applying",
                 "deformed hands",
-                "extra fingers",
                 "mutated hands",
                 "poorly drawn hands",
             ]
@@ -201,7 +326,8 @@ class ImageService:
         model: str = "flux-schnell",
         output_quality: int = 95,
         avoid_hands: bool = True,
-        seed: int | None = None
+        seed: int | None = None,
+        guidance: float | None = None,
     ) -> str:
         """
         生成圖片（升級版，支援多種比例）
@@ -220,24 +346,41 @@ class ImageService:
         try:
             if not self.api_token:
                 raise ValueError("REPLICATE_API_TOKEN not configured")
-            
+
+            # V33.9: Nano Banana 2 → internally routes to flux-dev on Replicate
+            if model == self.NANO_BANANA_2:
+                logger.info(f"[V33.9_ROUTER] {self.NANO_BANANA_2} → flux-dev (Replicate dispatch)")
+                model = "flux-dev"
+
             logger.info(f"🎨 生成圖片 ({model}, {aspect_ratio})")
-            logger.info(f"📝 Prompt: {prompt[:80]}...")
+            logger.info(f"📝 Prompt (input): {prompt}")
             
             # 優化 prompt（根據比例）
             optimized_prompt = self._optimize_prompt_for_aspect_ratio(prompt, aspect_ratio)
-            
+
             # 加入品質關鍵字
             enhanced_prompt = self._enhance_quality_keywords(optimized_prompt, aspect_ratio)
-            
+
+            # 加入主體清晰度守衛詞（FLUX 無 negative_prompt，避免隨機花瓣/有機紋理）
+            enhanced_prompt = self._add_topic_guard_terms(enhanced_prompt)
+
             # 構建完整 negative prompt
             full_negative = self._build_negative_prompt(
-                negative_prompt, 
-                aspect_ratio, 
+                negative_prompt,
+                aspect_ratio,
                 avoid_hands
             )
-            
-            logger.info(f"✨ 優化後 Prompt: {enhanced_prompt[:100]}...")
+
+            # 注入 ts: 時間戳 + salt，物理性打破 Replicate 快取
+            # 格式：ts:{YYYYMMDDHHMMSS}_{salt_id}（前置注入，leading token 快取權重最強）
+            _ts_stamp = datetime.now().strftime("%Y%m%d%H%M%S")
+            _salt_id  = format(random.randint(0, 0xFFFFFF), '06x')
+            enhanced_prompt = f"ts:{_ts_stamp}_{_salt_id}, {enhanced_prompt}"
+
+            # V32.0 Global Cull — final biological/portrait-term purge (last gate)
+            enhanced_prompt = self._cull_biological_terms(enhanced_prompt)
+
+            logger.info(f"📡 FINAL PROMPT → Replicate: {enhanced_prompt}")
             logger.info(f"🚫 Negative: {full_negative[:100]}...")
             
             # 根據模型選擇生成參數
@@ -256,6 +399,8 @@ class ImageService:
                     generation_params["seed"] = seed
 
             elif model == "flux-dev":
+                # ⚠️ FLUX 架構不支援 negative_prompt（Replicate 靜默忽略）
+                # 亮度/品質控制完全依賴正面 prompt + guidance
                 model_id = "black-forest-labs/flux-dev"
                 generation_params = {
                     "prompt": enhanced_prompt,
@@ -264,6 +409,7 @@ class ImageService:
                     "output_format": "webp",
                     "output_quality": output_quality,
                     "num_inference_steps": 28,
+                    "guidance": guidance if guidance is not None else 3.5,
                 }
                 if seed is not None:
                     generation_params["seed"] = seed
