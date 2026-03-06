@@ -58,8 +58,10 @@ async def health():
 @app.on_event("startup")
 async def startup_event():
     """應用啟動時執行"""
+    logger.info("[BOOT] VERSION 33.9 - NOCTURIA_MEDICAL_THEME - [SCENE_INDEX_ROUTER_ACTIVE] - [NANO_BANANA_2_READY]")
     logger.info("🚀 Shorts Factory v2 Backend 啟動中...")
-    logger.info(f"📍 API 文檔: http://127.0.0.1:8000/docs")
+    _port = os.getenv("PORT", "8001")
+    logger.info(f"📍 API 文檔: http://127.0.0.1:{_port}/docs")
     logger.info(f"🌐 前端位置: {frontend_url}")
     
     # 檢查環境變數
@@ -83,7 +85,7 @@ if __name__ == "__main__":
     import uvicorn
     
     host = os.getenv("HOST", "127.0.0.1")
-    port = int(os.getenv("PORT", 8000))
+    port = int(os.getenv("PORT", 8001))
     debug = os.getenv("DEBUG", "True").lower() == "true"
     
     uvicorn.run(

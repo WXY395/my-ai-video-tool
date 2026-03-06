@@ -157,8 +157,8 @@ BANNED_BIOLOGICAL_TERMS: frozenset[str] = frozenset({
     'man', 'woman', 'body', 'infant', 'baby',
 })
 _BIO_FALLBACKS: tuple[str, str] = (
-    "intricate metallic components",
-    "weathered stone texture",
+    "anatomical cross-section diagram",   # V33.9: medical fallback replaces industrial
+    "clinical specimen illustration",
 )
 # Time / soul / spiritual topics → luminous glass fragments (checked before
 # ABSTRACT_TOPIC_MAP so CJK spiritual phrases are also caught).
@@ -508,49 +508,49 @@ def _build_cover_prompt_v2(
     # _GLOBAL_AVOID is the module-level constant; aliased here for prompt clarity.
     _AVOID = _GLOBAL_AVOID
 
-    # ── YT 2026 brand DNA: randomised industrial detail per render ────────────
-    _INDUSTRIAL_DETAIL_POOL = [
-        "brushed aluminum surface grain",
-        "rusted iron oxide patina",
-        "optical glass lens flare refraction",
-        "oxidized copper texture, industrial macro focus",
-        "hyper-detailed mechanical surface, precision-machined steel",
+    # ── V33.9 Medical brand DNA: randomised clinical detail per render ────────
+    _MEDICAL_DETAIL_POOL = [
+        "film grain overlay on archival cream paper",
+        "aged medical chart texture, foxed paper edges",
+        "painterly ink wash anatomical diagram style",
+        "clinical teal highlight on deep midnight blue background",
+        "soft lavender vasopressin molecule glow accent",
     ]
-    _brand_detail = random.choice(_INDUSTRIAL_DETAIL_POOL)
+    _brand_detail = random.choice(_MEDICAL_DETAIL_POOL)
 
     if style == "closeup":
-        # 主體特寫：工業物件局部，約 1/2 構圖，邊緣出框，冷工業打光清楚可辨
+        # V33.9 主體特寫：醫學插圖局部，約 1/2 構圖，邊緣出框，臨床存檔打光
         prompt = (
             f"{topic_subject}, "
-            f"macro engineering close-up capture, partial crop — upper half of subject fills frame, "
-            f"lower edge exits frame cleanly, sharp technical details of metallic textures clearly visible, "
-            f"cold industrial inspection light, sharp mechanical texture, "
-            f"vivid saturated colors on subject, raw metallic components clearly rendered, "
+            f"medical illustration close-up, partial crop — upper half of subject fills frame, "
+            f"lower edge exits frame cleanly, sharp anatomical details clearly visible, "
+            f"diffused clinical examination light, clean clinical background, "
+            f"vivid saturated colors on subject, anatomical diagram clearly rendered, "
             f"archival scan documentation, {_brand_detail}, {_AVOID}, "
             f"{aspect_ratio} format, {orientation}"
         )
 
     elif style == "evidence":
-        # 證物檔案：標本卡，局部 1/2 出框，乾淨打光留白
+        # V33.9 證物檔案：醫學標本卡，局部 1/2 出框，乾淨打光留白
         prompt = (
-            f"{topic_subject} as labeled specimen on bright evidence card, "
+            f"{topic_subject} as labeled medical specimen on clinical evidence card, "
             f"partial crop — left half of subject clearly visible and fully lit, "
             f"right edge exits card frame cleanly, vivid natural colors on visible portion, "
-            f"bold red circle outline graphic partially framing visible area, "
-            f"warm cream card background, generous open whitespace on right, "
-            f"bright even studio light, archival scan documentation, {_brand_detail}, {_AVOID}, "
+            f"bold clinical teal circle outline graphic partially framing visible area, "
+            f"archival cream card background, generous open whitespace on right, "
+            f"bright even diffused light, archival scan documentation, {_brand_detail}, {_AVOID}, "
             f"{aspect_ratio} format, {orientation}"
         )
 
     else:  # paradox
-        # 對比悖論：局部 1/2 出框，冷工業打光，悖論元素形成對比
+        # V33.9 對比悖論：醫學視覺，局部 1/2 出框，臨床打光，悖論元素形成對比
         prompt = (
-            f"{topic_subject} at impossible scale, "
+            f"{topic_subject} at diagnostic scale, "
             f"partial crop — left half of subject brightly lit and fully identifiable, "
-            f"right edge exits frame cleanly with textural surface details visible, "
-            f"strong key light illuminating visible left portion, vivid saturated subject colors, "
-            f"right side: stark contrasting element for paradox effect, "
-            f"raw mechanical components composition, cold industrial key light on subject, "
+            f"right edge exits frame cleanly with anatomical surface details visible, "
+            f"diffused archival key light illuminating visible left portion, vivid saturated subject colors, "
+            f"right side: stark contrasting clinical element for paradox effect, "
+            f"anatomical diagram composition, diffused clinical examination light on subject, "
             f"{_brand_detail}, {_AVOID}, "
             f"{aspect_ratio} format, {orientation}"
         )
@@ -625,7 +625,7 @@ async def generate_observation_units(request: ObservationNotesInput):
     - 運鏡建議生成
     - 成本預估
     """
-    print("[BOOT] VERSION 31.5 - FULL_CHAIN_INJECTION - [ARCH_V30_SYNC_COMPLETE] - " + datetime.now().isoformat(), flush=True)
+    print("[BOOT] VERSION 33.9 - NOCTURIA_MEDICAL_THEME - [SCENE_INDEX_ROUTER] - " + datetime.now().isoformat(), flush=True)
     try:
         logger.info("=" * 60)
         logger.info("🎬 收到觀測單元生成請求")
