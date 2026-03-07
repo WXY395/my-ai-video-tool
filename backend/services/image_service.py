@@ -72,6 +72,51 @@ class ImageService:
         logger.info(f"[V33_ROUTER_LEGACY] tier={tier} is_cover={is_cover} → model={selected}")
         return selected
 
+    async def _generate_with_imagen(
+        self,
+        prompt: str,
+        aspect_ratio: str,
+        seed: int | None = None,
+    ) -> str:
+        """
+        V33.9.1 — Nano Banana 2: Google Imagen 3 direct call.
+        Uses google-genai SDK. Returns 'data:image/png;base64,...'.
+        NEVER routes to Replicate.
+        """
+        import base64
+        from google import genai as _genai
+        from google.genai import types as _genai_types
+
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            raise ValueError("GEMINI_API_KEY not configured — required for Nano Banana 2 (Imagen 3)")
+
+        client = _genai.Client(api_key=api_key)
+
+        cfg = _genai_types.GenerateImagesConfig(
+            number_of_images=1,
+            output_mime_type="image/png",
+            aspect_ratio=aspect_ratio,   # 直接使用傳入的比例，已修正對齊問題
+        )
+
+        logger.info(f"[NANO_BANANA_2] → Google Imagen 3 (imagen-3.0-generate-002)")
+        logger.info(f"[NANO_BANANA_2] aspect={aspect_ratio} | prompt[:80]={prompt[:80]!r}")
+
+        response = await asyncio.to_thread(
+            client.models.generate_images,
+            model="imagen-3.0-generate-002",   # Nano Banana 2 實體
+            prompt=prompt,
+            config=cfg,
+        )
+
+        if not response.generated_images:
+            raise ValueError("Imagen 3 returned no images — check API quota or prompt policy")
+
+        image_bytes = response.generated_images[0].image.image_bytes
+        b64 = base64.b64encode(image_bytes).decode("utf-8")
+        logger.info(f"[NANO_BANANA_2] ✅ PNG generated, size={len(image_bytes):,} bytes")
+        return f"data:image/png;base64,{b64}"
+
     def _inject_medical_labels(self, scene_index: int) -> str:
         """
         V33.9 Medical Label Injector — returns archival scan tag + medical badge string
@@ -360,27 +405,30 @@ class ImageService:
             圖片 URL
         """
         try:
+            logger.info(f"🎨 生成圖片 ({model}, {aspect_ratio})")
+            logger.info(f"📝 Prompt (input): {prompt}")
+
+            # ── 共用 prompt 前處理管線（Imagen + Replicate 均執行）─────────────
+            optimized_prompt = self._optimize_prompt_for_aspect_ratio(prompt, aspect_ratio)
+            enhanced_prompt  = self._enhance_quality_keywords(optimized_prompt, aspect_ratio)
+            enhanced_prompt  = self._add_topic_guard_terms(enhanced_prompt)
+            enhanced_prompt  = self._cull_biological_terms(enhanced_prompt)
+
+            # ── V33.9.1: Nano Banana 2 → Google Imagen 3 DIRECT (禁止轉接 Replicate) ──
+            if model == self.NANO_BANANA_2:
+                logger.info(f"[V33.9.1_ROUTER] {self.NANO_BANANA_2} → Google Imagen 3 (output_format=png)")
+                logger.info(f"📡 FINAL PROMPT → Imagen 3: {enhanced_prompt}")
+                return await self._generate_with_imagen(
+                    prompt=enhanced_prompt,
+                    aspect_ratio=aspect_ratio,
+                    seed=seed,
+                )
+
+            # ── Replicate 路徑（Scene_Index >= 2，flux-schnell / flux-dev）─────────
             if not self.api_token:
                 raise ValueError("REPLICATE_API_TOKEN not configured")
 
-            # V33.9: Nano Banana 2 → internally routes to flux-dev on Replicate
-            if model == self.NANO_BANANA_2:
-                logger.info(f"[V33.9_ROUTER] {self.NANO_BANANA_2} → flux-dev (Replicate dispatch)")
-                model = "flux-dev"
-
-            logger.info(f"🎨 生成圖片 ({model}, {aspect_ratio})")
-            logger.info(f"📝 Prompt (input): {prompt}")
-            
-            # 優化 prompt（根據比例）
-            optimized_prompt = self._optimize_prompt_for_aspect_ratio(prompt, aspect_ratio)
-
-            # 加入品質關鍵字
-            enhanced_prompt = self._enhance_quality_keywords(optimized_prompt, aspect_ratio)
-
-            # 加入主體清晰度守衛詞（FLUX 無 negative_prompt，避免隨機花瓣/有機紋理）
-            enhanced_prompt = self._add_topic_guard_terms(enhanced_prompt)
-
-            # 構建完整 negative prompt
+            # 構建完整 negative prompt（Replicate 專用）
             full_negative = self._build_negative_prompt(
                 negative_prompt,
                 aspect_ratio,
@@ -388,13 +436,9 @@ class ImageService:
             )
 
             # 注入 ts: 時間戳 + salt，物理性打破 Replicate 快取
-            # 格式：ts:{YYYYMMDDHHMMSS}_{salt_id}（前置注入，leading token 快取權重最強）
             _ts_stamp = datetime.now().strftime("%Y%m%d%H%M%S")
             _salt_id  = format(random.randint(0, 0xFFFFFF), '06x')
             enhanced_prompt = f"ts:{_ts_stamp}_{_salt_id}, {enhanced_prompt}"
-
-            # V32.0 Global Cull — final biological/portrait-term purge (last gate)
-            enhanced_prompt = self._cull_biological_terms(enhanced_prompt)
 
             logger.info(f"📡 FINAL PROMPT → Replicate: {enhanced_prompt}")
             logger.info(f"🚫 Negative: {full_negative[:100]}...")
