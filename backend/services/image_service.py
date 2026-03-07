@@ -44,6 +44,13 @@ class ImageService:
         if not self.api_token:
             logger.warning("REPLICATE_API_TOKEN not found, image generation will fail")
 
+        # V33.9.2 啟動時驗證 GEMINI_API_KEY（Nano Banana 2 / Imagen 3 必須）
+        _gemini_key = os.getenv("GEMINI_API_KEY")
+        if _gemini_key:
+            logger.info(f"[INIT] GEMINI_API_KEY loaded — len={len(_gemini_key)}, prefix={_gemini_key[:8]}...")
+        else:
+            logger.warning("[INIT] ⚠️ GEMINI_API_KEY NOT FOUND — Nano Banana 2 (Imagen 3) will fail!")
+
         # 設定 API token
         if self.api_token:
             os.environ["REPLICATE_API_TOKEN"] = self.api_token
@@ -291,6 +298,20 @@ class ImageService:
             ("hyper-detailed mechanical surface",           "painterly medical illustration surface"),
             ("technical blueprint aesthetic",               "archival scan aesthetic"),
             ("vintage technical blueprint aesthetic",       "archival scan aesthetic"),
+            # V33.9.2 補齊攔截 — Gemini 模板洩漏詞
+            ("precision gear mechanism",                    "molecular receptor mechanism"),
+            ("hand-drawn engineering schematic",            "hand-drawn anatomical diagram"),
+            ("mechanical blueprint",                        "clinical archival diagram"),
+            ("daguerreotype metallic",                      "archival scan artifact"),
+            ("brass telegraph components",                  "clinical specimen documentation"),
+            ("19th century brass",                          "archival medical illustration"),
+            ("riveted iron",                                "cross-section anatomical layer"),
+            ("riveted metal plate",                         "labeled clinical specimen"),
+            ("iron mechanism",                              "molecular pathway diagram"),
+            ("copper wire components",                      "cellular pathway diagram"),
+            ("wooden apparatus",                            "clinical apparatus illustration"),
+            ("gear mechanism",                              "molecular mechanism diagram"),
+            ("engineering schematic",                       "anatomical diagram"),
         ]
         for _old, _new in _PHRASE_MAP:
             prompt = prompt.replace(_old, _new)
@@ -406,6 +427,8 @@ class ImageService:
             圖片 URL
         """
         try:
+            print(f"DEBUG: ACTIVE MODEL IS {model}", flush=True)
+            logger.info(f"!!! REAL_MODEL_REQUEST: {model}")
             logger.info(f"🎨 生成圖片 ({model}, {aspect_ratio})")
             logger.info(f"📝 Prompt (input): {prompt}")
 
