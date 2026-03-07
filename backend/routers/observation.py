@@ -141,38 +141,36 @@ _CJK_RE = re.compile(r'[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]')
 
 # ── Prohibited-subject guard ───────────────────────────────────────────────────
 # If extracted subject contains any of these human / biological terms, or the
-# original topic mentions birth / origin / Bell, replace with a safe industrial
+# original topic mentions birth / origin / Bell, replace with a safe medical
 # fallback so no human anatomy ever reaches the cover prompt.
 PROHIBITED_SUBJECTS: frozenset[str] = frozenset({
     'face', 'faces', 'eye', 'eyes', 'skin', 'infant', 'baby',
     'person', 'man', 'woman', 'body',
 })
 
-# ── V31.5 Hard-Coded Subject Re-mapping firewall ──────────────────────────────
+# ── V33.9 Hard-Coded Subject Re-mapping firewall ──────────────────────────────
 # BANNED_BIOLOGICAL_TERMS: physical firewall list checked at the TOP of
 # _extract_topic_subject. Any extracted subject containing these words is
-# discarded and force-remapped to an industrial / mineral noun phrase.
+# discarded and force-remapped to a medical/clinical noun phrase.
 BANNED_BIOLOGICAL_TERMS: frozenset[str] = frozenset({
     'face', 'faces', 'skin', 'person', 'human', 'eye', 'eyes',
     'man', 'woman', 'body', 'infant', 'baby',
 })
 _BIO_FALLBACKS: tuple[str, str] = (
-    "anatomical cross-section diagram",   # V33.9: medical fallback replaces industrial
+    "anatomical cross-section diagram",   # V33.9: medical fallback
     "clinical specimen illustration",
 )
-# Time / soul / spiritual topics → luminous glass fragments (checked before
-# ABSTRACT_TOPIC_MAP so CJK spiritual phrases are also caught).
+# Time / soul / spiritual topics → abstract medical visualization
 _TIME_SOUL_RE = re.compile(
     r'\b(time|soul|spirit|essence|eternity|infinity|mind|emotion|feeling|'
     r'consciousness|existence|void|energy|light|love|beauty|truth|'
     r'時間|靈魂|精神|存在|意識|永恆|愛|宇宙)\b',
     re.IGNORECASE,
 )
-# All firewall replacement strings — used by _build_cover_prompt_v2 to detect
-# when portrait-style lighting / photography terms must be stripped.
+# All firewall replacement strings — updated to medical equivalents (V33.9)
 _FIREWALL_SUBJECTS: frozenset[str] = frozenset({
-    "intricate metallic components",
-    "weathered stone texture",
+    "anatomical cross-section diagram",
+    "clinical specimen illustration",
     "luminous glass fragments",
     "identifiable historical artifact",
     "1876 patent manuscript",
@@ -219,16 +217,17 @@ _GLOBAL_AVOID = (
     "avoid human tissue, avoid organic flesh"
 )
 
-# Domain-specific material style descriptors (appended to subject noun phrase)
+# V33.9 Domain-specific visual style descriptors (appended to subject noun phrase)
+# All styles use clinical/archival aesthetics — no industrial or mechanical terms.
 _PROXY_STYLE        = "Bronze relief sculpture, engraved sketch on aged parchment, warm sepia ink wash"
 _TEXTURE_STYLE      = "micro fiber cross-section, geometric macro structure, botanical specimen plate"
-_HARD_SURFACE_STYLE = "machined metallic surface, technical blueprint precision, industrial engineering detail"
+_CLINICAL_STYLE     = "crystalline molecular diagram, precision optical cross-section, clinical archival illustration"
 
-# Domain → material style descriptor
+# Domain → visual style descriptor
 _DOMAIN_STYLE: dict[str, str] = {
     "human":   _PROXY_STYLE,
     "biology": _TEXTURE_STYLE,
-    "physics": _HARD_SURFACE_STYLE,
+    "physics": _CLINICAL_STYLE,   # V33.9: replaced industrial with clinical style
 }
 
 # Birth / origin concept → domain-specific visual translation
@@ -295,15 +294,15 @@ def _extract_topic_subject(text: str) -> str:
     - English / mixed: take first comma-segment, strip style / format /
       quality / motion / stop words, return up to 6 remaining words.
     - Prohibited-subject guard: if result contains human/biological terms, or
-      topic mentions birth/origin/Bell, returns a safe industrial fallback.
+      topic mentions birth/origin/Bell, returns a safe medical/clinical fallback.
 
     Examples:
       "Medium establishing shot of dragonfly wing, ..." → "dragonfly wing"
       "aspirin tablet, extreme close-up, scientific"    → "aspirin tablet"
       "蜻蜓翅膀"                                        → "" (CJK → fallback)
       "貝爾誕生"                                        → "1876 patent manuscript"
-      "face close-up"                                   → "intricate metallic components" | "weathered stone texture"
-      "human eye detail"                                → "intricate metallic components" | "weathered stone texture"
+      "face close-up"                                   → "anatomical cross-section diagram" | "clinical specimen illustration"
+      "human eye detail"                                → "anatomical cross-section diagram" | "clinical specimen illustration"
       "consciousness"                                   → "luminous glass fragments"  (V31.5 firewall, before ABSTRACT_MAP)
       "時間"                                            → "luminous glass fragments"
       "靈魂"                                            → "luminous glass fragments"
@@ -685,11 +684,12 @@ async def generate_observation_units(request: ObservationNotesInput):
         cover_seed = random.randint(0, 2 ** 32 - 1)
         logger.info(f"🎲 cover_seed={cover_seed} (randomized)")
 
-        # V33.9 Scene-Index model routing:
-        # Scene_Index 0 (Cover) + 1 (Unit_001) → Nano Banana 2 (via img_service router)
-        # Scene_Index >= 2 → flux-schnell (cost-efficient)
-        kf_model    = img_service.select_model_for_scene(2)   # Scene_Index >=2 standard tier
-        cover_model = img_service.select_model_for_scene(0)   # Scene_Index 0 → nano-banana-2
+        # V33.9.1 Scene-Index model routing — LOCKED, no local override permitted:
+        # Scene_Index 0 (Cover) → nano-banana-2 → Google Imagen 3 (direct)
+        # Scene_Index >= 2      → flux-schnell  → Replicate
+        kf_model    = img_service.select_model_for_scene(2)   # flux-schnell
+        cover_model = img_service.select_model_for_scene(0)   # nano-banana-2 (LOCKED)
+        logger.info(f"[V33.9.1_MODEL_LOCK] cover={cover_model!r} kf={kf_model!r} — no override allowed")
         image_count = len(units) + 1  # 單元 + 封面
         kf_cost     = len(units) * img_service.get_model_cost(kf_model)
         cover_cost  = img_service.get_model_cost(cover_model)
@@ -934,9 +934,10 @@ async def generate_observation_units_stream(request: ObservationNotesInput):
             )
             logger.info(f"✅ SSE: 成功生成 {len(units)} 個觀測單元")
 
-            # V33.9 Scene-Index routing (SSE path)
-            kf_model    = img_service.select_model_for_scene(2)   # Scene_Index >=2
-            cover_model = img_service.select_model_for_scene(0)   # Scene_Index 0 → nano-banana-2
+            # V33.9.1 Scene-Index routing (SSE path) — LOCKED
+            kf_model    = img_service.select_model_for_scene(2)   # flux-schnell
+            cover_model = img_service.select_model_for_scene(0)   # nano-banana-2 (LOCKED)
+            logger.info(f"[V33.9.1_MODEL_LOCK/SSE] cover={cover_model!r} kf={kf_model!r}")
             kf_cost     = len(units) * img_service.get_model_cost(kf_model)
             cover_cost  = img_service.get_model_cost(cover_model)
             cost_info = {

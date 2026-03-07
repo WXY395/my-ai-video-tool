@@ -99,6 +99,7 @@ class ImageService:
             aspect_ratio=aspect_ratio,   # 直接使用傳入的比例，已修正對齊問題
         )
 
+        logger.info("[SYSTEM] Pushing request to REAL Nano Banana 2 (Google SDK)")
         logger.info(f"[NANO_BANANA_2] → Google Imagen 3 (imagen-3.0-generate-002)")
         logger.info(f"[NANO_BANANA_2] aspect={aspect_ratio} | prompt[:80]={prompt[:80]!r}")
 
