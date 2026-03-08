@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { ObservationUnit } from '../types';
 import { PlayCircle, Loader2, Image as ImageIcon, CheckCircle2, Sparkles, Camera, Mic, Film, ArrowRight, Tag, MousePointerClick, Video, ChevronDown, ChevronUp } from 'lucide-react';
+import Lightbox from 'yet-another-react-lightbox';
+import 'yet-another-react-lightbox/styles.css';
 
 type AspectRatio = '9:16' | '16:9' | '1:1';
 
@@ -81,6 +83,7 @@ const ObservationUnitCard: React.FC<ObservationUnitCardProps> = ({
   onClick,
 }) => {
   const [veoExpanded, setVeoExpanded] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const imageAspectClass = aspectRatio === '16:9' ? 'aspect-[16/9]' : 'aspect-[9/16]';
 
   const title     = unit.phenomenon || unit.hook || '現象';
@@ -134,9 +137,22 @@ const ObservationUnitCard: React.FC<ObservationUnitCardProps> = ({
       </div>
 
       {/* Visual Slot */}
+      {unit.imageUrl && (
+        <Lightbox
+          open={lightboxOpen}
+          close={() => setLightboxOpen(false)}
+          slides={[{ src: unit.imageUrl }]}
+        />
+      )}
       <div className={`${imageAspectClass} bg-black relative border-b border-zinc-800 overflow-hidden flex items-center justify-center`}>
         {unit.imageUrl ? (
-          <img src={unit.imageUrl} alt={title} className="w-full h-full object-contain" />
+          <img
+            src={unit.imageUrl}
+            alt={title}
+            className="w-full h-full object-contain cursor-zoom-in"
+            onClick={(e) => { e.stopPropagation(); setLightboxOpen(true); }}
+            title="點擊放大"
+          />
         ) : (
           <div className="flex flex-col items-center space-y-4 p-8 text-center">
             {unit.isGeneratingImage ? (
@@ -197,15 +213,20 @@ const ObservationUnitCard: React.FC<ObservationUnitCardProps> = ({
           </div>
         )}
 
-        {/* Interaction Trigger */}
+        {/* Interaction Trigger + Bait Text */}
         {interactData && (
-          <div className="space-y-1 pt-2 border-t border-zinc-800/50">
+          <div className="space-y-1.5 pt-2 border-t border-zinc-800/50">
             <span className="text-[8px] mono text-zinc-600 uppercase font-bold flex items-center">
               <MousePointerClick className="w-2.5 h-2.5 mr-1.5" /> 互動觸發
             </span>
             <span className={`text-[10px] mono font-bold ${interactData.color}`}>
               {interactData.icon} {interactData.label}
             </span>
+            {unit.interaction_bait_text && (
+              <p className={`text-[11px] mono leading-snug ${interactData.color} opacity-80`}>
+                「{unit.interaction_bait_text}」
+              </p>
+            )}
           </div>
         )}
 

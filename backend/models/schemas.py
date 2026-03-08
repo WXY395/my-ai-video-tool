@@ -46,7 +46,13 @@ class ObservationNotesInput(BaseModel):
     video_mode: VideoMode = Field(default=VideoMode.SHORTS, description="影片模式")
     aspect_ratio: ContentFormat = Field(default=ContentFormat.SHORTS, description="畫面比例")
     duration_minutes: Optional[int] = Field(None, description="目標時長（分鐘），用於長片")
-    
+    # V31.0 — 手動觀點注入（優先權高於 AI 生成）
+    manual_viewpoint: Optional[str] = Field(
+        None,
+        description="使用者手動輸入的核心立場（≤ 50 字）。注入後覆蓋 AI 的 central_thesis，優先權最高。",
+        max_length=50,
+    )
+
     class Config:
         populate_by_name = True
 
@@ -97,6 +103,8 @@ class HashtagStrategy(BaseModel):
 
 class ObservationUnit(BaseModel):
     """單一觀測單元（升級版）"""
+    model_config = {"protected_namespaces": ()}   # V34.0: allow model_tag field
+
     id: str = Field(..., description="唯一識別碼", example="unit_001")
     
     # 核心內容
@@ -154,6 +162,12 @@ class ObservationUnit(BaseModel):
         description="分類標籤佈署策略（核心內容 / 演算法流量 / 情緒心理 / 平台專屬）"
     )
 
+    # ── V33.0 視覺優先級 ──
+    tier: Optional[int] = Field(None, description="V33.0 視覺優先級 (1=Hook衝擊, 2=Body展開, 3=Payoff落點)")
+
+    # ── V34.0 模型標籤 ──
+    model_tag: Optional[str] = Field(None, description="V34: 圖像模型標籤 (nano-banana-2 / flux-schnell)")
+
     # ── Veo 影片生成 ──
     veo_prompt: Optional[str] = Field(
         None,
@@ -172,6 +186,7 @@ class ObservationUnit(BaseModel):
 
 class CostEstimate(BaseModel):
     """成本預估（新增）"""
+    model_config = {"protected_namespaces": ()}  # V34.0: allow model_used field
     image_count: int = Field(..., description="圖片數量")
     cost_per_image: float = Field(..., description="單價（美元）")
     total_cost: float = Field(..., description="總成本（美元）")

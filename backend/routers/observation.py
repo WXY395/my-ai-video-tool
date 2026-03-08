@@ -741,9 +741,10 @@ async def generate_observation_units(request: ObservationNotesInput):
                 style=cover_style, kf001_anchor=kf001_anchor,
                 salt_id=salt_id,
             )
-            # V33.9: inject Nocturia medical labels into cover prompt (Scene_Index=0)
-            medical_label_0 = img_service._inject_medical_labels(0)
-            cover_prompt = f"{medical_label_0}, {cover_prompt}"
+            # V34.0: 變色龍主題標籤注入（依 topic 動態選擇，無主題特定硬綁定）
+            theme_labels = img_service.get_theme_labels(topic)
+            if theme_labels:
+                cover_prompt = f"{theme_labels}, {cover_prompt}"
 
             logger.info("📝 cover_prompt (full):")
             logger.info(f"  {cover_prompt}")
@@ -1003,8 +1004,10 @@ async def generate_observation_units_stream(request: ObservationNotesInput):
                     style=cover_style, kf001_anchor=kf001_anchor,
                     salt_id=salt_id,
                 )
-                # V33.9: inject Nocturia medical labels (Scene_Index=0)
-                cover_prompt = f"{img_service._inject_medical_labels(0)}, {cover_prompt}"
+                # V34.0: 變色龍主題標籤注入（SSE path）
+                _sse_theme_labels = img_service.get_theme_labels(topic)
+                if _sse_theme_labels:
+                    cover_prompt = f"{_sse_theme_labels}, {cover_prompt}"
                 logger.info(f"📡 SSE FINAL PROMPT → Replicate: {cover_prompt}")
                 cover_url = await img_service.generate_image(
                     prompt=cover_prompt,
@@ -1030,7 +1033,13 @@ async def generate_observation_units_stream(request: ObservationNotesInput):
                             guidance=5.0,
                         )
                 logger.info(f"✅ SSE: 封面生成成功: {cover_url}")
-                yield {"data": _json.dumps({"type": "cover", "cover_url": cover_url}, ensure_ascii=False)}
+                yield {"data": _json.dumps({
+                    "type": "cover",
+                    "cover_url": cover_url,
+                    "cover_prompt": cover_prompt,
+                    "cover_model": cover_model,
+                    "cover_style": cover_style,
+                }, ensure_ascii=False)}
             except Exception as e:
                 logger.warning(f"⚠️ SSE: 封面生成失敗，繼續: {e}")
 

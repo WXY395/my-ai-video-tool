@@ -23,7 +23,7 @@ frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
 app = FastAPI(
     title="Shorts Factory v2 Backend",
     description="觀測單元生成 API",
-    version="2.0.0"
+    version="34.0.0"
 )
 
 # 3. 設定 CORS
@@ -58,7 +58,7 @@ async def health():
 @app.on_event("startup")
 async def startup_event():
     """應用啟動時執行"""
-    logger.info("[BOOT] VERSION 33.9 - NOCTURIA_MEDICAL_THEME - [SCENE_INDEX_ROUTER_ACTIVE] - [NANO_BANANA_2_READY]")
+    logger.info("[BOOT] VERSION 34.0 - CHAMELEON_ENGINE_ACTIVE")
     logger.info("🚀 Shorts Factory v2 Backend 啟動中...")
     _port = os.getenv("PORT", "8001")
     logger.info(f"📍 API 文檔: http://127.0.0.1:{_port}/docs")

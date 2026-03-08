@@ -218,8 +218,7 @@ function buildBodyPrompt(
 
 /**
  * Build a representative cover prompt for meta.json > prompts.cover_prompt.
- * Mirrors the backend _build_cover_prompt logic: uses KF001 anchor as subject_desc,
- * enforces "well-exposed subject, bright rim/key light, readable silhouette, clear focal point".
+ * V32.0: all portrait/rim-light/silhouette cues replaced with V32.0 industrial constants.
  */
 function buildCoverPromptMeta(
   kf001Anchor: string,
@@ -232,16 +231,56 @@ function buildCoverPromptMeta(
     : 'landscape horizontal widescreen orientation';
   return [
     subject,
-    'extreme macro close-up, subject clearly visible and identifiable',
-    'well-exposed subject, bright rim/key light, readable silhouette, clear focal point',
-    'high micro detail focal point on most distinctive feature',
-    'partial shadow depth behind subject only — subject fully lit and recognizable',
-    'simplified bokeh background with cinematic depth-of-field',
-    'vibrant saturated accent color, mysterious mood through scale paradox and selective edge lighting',
-    'cinematic thumbnail quality',
+    'macro engineering close-up capture, raw metallic component, macro industrial inspection',
+    'cold industrial inspection light, sharp mechanical texture, clear focal point',
+    'high micro detail focal point on most distinctive mechanical feature',
+    'archival depth behind subject — subject fully lit and identifiable',
+    'cold industrial background, flat archival depth-of-field',
+    'vivid saturated colors on subject, archival scan quality',
     `${aspectRatio} format, ${orientation}`,
-    'no people, no hands, no fingers, no text, no watermark, no logo',
+    'no people, no hands, no fingers, no face, no text, no watermark, no logo',
   ].join(', ');
+}
+
+// ── Cover hooks ───────────────────────────────────────────────────────────────
+
+interface CoverHooks {
+  title_zh:    string;
+  title_en:    string;
+  subtitle_zh: string;
+  subtitle_en: string;
+}
+
+const HOOK_EN_MAP: Record<string, string> = {
+  reverse_question:    "You Never Knew This",
+  shock_fact:          "The Shocking Truth",
+  forbidden_knowledge: "What They Don't Tell You",
+  visual_paradox:      "See What's Really There",
+  incomplete_loop:     "The Secret Revealed",
+};
+
+/**
+ * 從 units[0] 推導封面文字疊層建議（ZH + EN 主標 + 副標）。
+ * 不寫入圖片 — 由剪輯師在 CapCut 手動疊加文字。
+ */
+function buildCoverHooks(units: ObservationUnit[], topic: string): CoverHooks {
+  const u = units[0];
+  if (!u) {
+    return {
+      title_zh:    topic.slice(0, 6),
+      title_en:    "You Won't Believe This",
+      subtitle_zh: topic.slice(0, 12),
+      subtitle_en: "Discover what's inside",
+    };
+  }
+  const title_zh    = (u.subtitle_zh ?? '').slice(0, 8) || topic.slice(0, 6);
+  const vo          = u.voice_over_zh ?? '';
+  const subParts    = vo.split(/[，。！？]/);
+  const subtitle_zh = (subParts[0] ?? '').slice(0, 12).trim()
+    || (u.phenomenon ?? '').slice(0, 8);
+  const title_en    = HOOK_EN_MAP[u.hook_technique ?? ''] ?? "You Won't Believe This";
+  const subtitle_en = "Discover what's inside";
+  return { title_zh, title_en, subtitle_zh, subtitle_en };
 }
 
 /** CapCut cut sequence (frames at 30 fps) */
@@ -587,6 +626,7 @@ function buildCapcutGuide(
   units: ObservationUnit[],
   unitPlan: UnitPlanEntry[],
   cropPresets?: CropPresetEntry[],
+  coverHooks?: CoverHooks,
 ): string {
   const N           = units.length;
   const totalFrames = N * SEG_FRAMES;
@@ -612,6 +652,26 @@ function buildCapcutGuide(
     `  字數限制  VO ≤ ${Math.floor(SEG_SEC * VO_CPS)} 字 (4.5 CPS × ${SEG_SEC}s)  |  SUB ≤ ${Math.floor(SEG_SEC * SUB_CPS)} 字 (2.2 CPS × ${SEG_SEC}s)`,
     '',
   ];
+
+  // ── COVER TEXT OVERLAYS ──────────────────────────────────────────────────
+  const hooks = coverHooks ?? buildCoverHooks(units, topic);
+  out.push(H);
+  out.push('  COVER TEXT OVERLAYS');
+  out.push('  （封面文字疊層建議 — 在 CapCut 封面圖上手動疊加，不寫入圖片）');
+  out.push(D);
+  out.push(`  ZH 主標題   : ${hooks.title_zh}`);
+  out.push(`  ZH 副標題   : ${hooks.subtitle_zh}`);
+  out.push(`  EN 主標題   : ${hooks.title_en}`);
+  out.push(`  EN 副標題   : ${hooks.subtitle_en}`);
+  out.push('');
+  out.push('  ★ 字型建議');
+  out.push('    主標  粗黑體 / Impact  字級 ≥ 60px  白字 + 黑色描邊 2px');
+  out.push('    副標  細明體 / Noto Sans TC  字級 ≥ 36px  白字 + 半透明底條');
+  out.push('  ★ 位置建議');
+  out.push('    主標  畫面垂直 28–35%  水平置中');
+  out.push('    副標  畫面垂直 42–48%  水平置中');
+  out.push('  ★ 規則: 總字數 ≤ 10 字，禁止超出畫面邊距，禁止覆蓋主體臉部/特徵');
+  out.push('');
 
   for (let i = 0; i < N; i++) {
     const u       = units[i];
@@ -892,9 +952,10 @@ export async function exportPack(opts: ExportPackOptions): Promise<void> {
   zip.file(`${rootDir}/README_START_HERE.txt`, readmeLines.join('\n'));
 
   // ── 5. EDITING_GUIDE_CAPCUT.txt ───────────────────────────────────────────
+  const coverHooks = buildCoverHooks(readyUnits, topic);
   zip.file(
     `${rootDir}/EDITING_GUIDE_CAPCUT.txt`,
-    buildCapcutGuide(topic, videoMode, readyUnits, unitPlan, cropPresetsList),
+    buildCapcutGuide(topic, videoMode, readyUnits, unitPlan, cropPresetsList, coverHooks),
   );
 
   // ── 6. crop_presets.json（Shorts only）────────────────────────────────────

@@ -74,6 +74,7 @@ export interface ObservationUnit {
   hook_technique?: 'reverse_question' | 'shock_fact' | 'forbidden_knowledge' | 'visual_paradox' | 'incomplete_loop' | string;
   seo_keywords?: string[];
   interaction_trigger?: 'comment_bait' | 'share_trigger' | 'replay_hook' | 'save_reminder' | string;
+  interaction_bait_text?: string | null;
 
   // Veo 影片生成
   veo_prompt?: string;

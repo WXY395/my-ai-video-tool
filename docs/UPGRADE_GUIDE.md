@@ -161,11 +161,13 @@ duration_minutes: 30
 
 3. **重啟後端**
    ```powershell
-   python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+   python -m uvicorn main:app --host 0.0.0.0 --port 8001 --reload
    ```
 
 4. **測試**
    前端選擇「長片模式」，輸入主題，生成
+studiotest187@gmail.com
+Az0886449
 
 ---
 

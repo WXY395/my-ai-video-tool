@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip show:*)",
+      "Bash(pip install:*)",
+      "Bash(kill %1:*)",
+      "Bash(python:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx vite:*)",
+      "Bash(node:*)",
+      "Bash(rm:*)",
+      "Bash(npm run:*)",
+      "Bash(Get-Process python*:*)",
+      "Bash(powershell:*)",
+      "Bash(netstat:*)"
+    ]
+  }
+}

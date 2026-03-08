@@ -57,7 +57,7 @@ class ImageService:
 
         # 預設使用 FLUX Schnell（成本最低）
         self.default_model = "flux-schnell"
-        logger.info("[V33.9_MEDICAL_INIT] - Nocturia theme engine active.")
+        logger.info("[V34.0_CHAMELEON_INIT] - Topic-adaptive image engine ready.")
 
     # V33.9 Scene-Index routing table
     # Scene_Index 0 (Cover) and 1 (Unit_001) → Nano Banana 2 (flux-dev tier, medical labels)
@@ -126,24 +126,53 @@ class ImageService:
         return f"data:image/png;base64,{b64}"
 
     def _inject_medical_labels(self, scene_index: int) -> str:
+        """Legacy — kept for backward compatibility. Prefer get_theme_labels(topic)."""
+        return self.get_theme_labels("nocturia")
+
+    # V34.0 變色龍模式：依主題動態選擇視覺標籤
+    _MEDICAL_TRIGGERS = frozenset([
+        "醫", "病", "症", "藥", "療", "癌", "腫", "心臟", "肺", "腎", "肝",
+        "血", "神經", "荷爾蒙", "激素", "頻尿", "泌尿", "睡眠", "解剖",
+        "細胞", "基因", "dna", "rna", "病毒", "細菌", "疫苗", "抗體",
+        "阿斯匹靈", "aspirin", "nocturia", "bladder", "vasopressin", "avp",
+        "medical", "clinical", "anatomical", "physiolog", "咖啡因",
+    ])
+    _SCIENCE_TRIGGERS = frozenset([
+        "物理", "化學", "量子", "電子", "電路", "光學", "力學", "宇宙",
+        "星系", "恆星", "黑洞", "粒子", "原子", "分子", "晶體",
+        "physics", "quantum", "optics", "crystal", "electron", "laser",
+    ])
+    _HISTORY_TRIGGERS = frozenset([
+        "歷史", "古代", "文明", "帝國", "王朝", "戰役", "考古",
+        "history", "ancient", "civilization", "dynasty", "artifact",
+    ])
+
+    def get_theme_labels(self, topic: str) -> str:
         """
-        V33.9 Medical Label Injector — returns archival scan tag + medical badge string
-        based on scene position. Scene_Index <= 1 receives premium Nocturia medical labels.
+        V34.0 — 依主題動態回傳視覺風格標籤，取代舊版 Nocturia 硬綁定。
+        返回空字串表示無需注入（讓 prompt 保持乾淨）。
         """
-        if scene_index == 0:
+        t = topic.lower()
+
+        if any(kw in t for kw in self._MEDICAL_TRIGGERS):
             return (
-                f"[MEDICAL LABEL: Nocturnal Polyuria · AVP Deficiency · Sleep Disruption], "
-                f"archival scan texture, film grain overlay, aged medical chart paper background, "
-                f"deep midnight blue {self.MIDNIGHT_BLUE} and clinical teal {self.CLINICAL_TEAL} palette"
+                "anatomical cross-section illustration, "
+                "archival cream paper texture, clinical teal highlight, "
+                "aged medical chart documentation, film grain overlay"
             )
-        elif scene_index == 1:
+        if any(kw in t for kw in self._SCIENCE_TRIGGERS):
             return (
-                f"[MEDICAL LABEL: Nocturia · Night-time Voids · Detrusor Overactivity], "
-                f"archival scan texture, subtle paper grain, clinical chart aesthetic, "
-                f"bio-amber {self.BIO_AMBER} stress indicators, soft lavender {self.SOFT_LAVENDER} hormone pathway"
+                "scientific precision diagram, "
+                "cold daylight spectrum, laboratory documentation aesthetic, "
+                "crystalline structural detail, archival scan quality"
             )
-        else:
-            return f"clinical documentation style, medical illustration aesthetic"
+        if any(kw in t for kw in self._HISTORY_TRIGGERS):
+            return (
+                "aged parchment document, sepia archival tone, "
+                "museum artifact documentation, foxed paper texture"
+            )
+        # 無法分類 → 不注入，讓主 prompt 自行決定視覺風格
+        return ""
 
     def get_model_cost(self, model: str = "flux-schnell") -> float:
         """
@@ -329,14 +358,9 @@ class ImageService:
         prompt = re.sub(r',\s*,+', ',', prompt)
         prompt = re.sub(r',\s*$',  '',  prompt).strip()
 
-        # ── V33.9 物理最終防線：強制轉碼為醫學存檔風格 ───────────────────────
+        # ── V34.0 最終防線：移除生物/人體詞彙（不注入主題特定顏色）─────────
         # \b guards preserve "surface", "interface", "artifact" etc.
-        prompt = re.sub(r'\b(face|skin|human|portrait|silhouette|rim light)\b', "anatomical_marker", prompt, flags=re.IGNORECASE)
-        # 植入 V33.9 醫學主題品牌識別度（Nocturia 配色）
-        prompt += (
-            f", deep midnight blue {self.MIDNIGHT_BLUE} and clinical teal {self.CLINICAL_TEAL} "
-            f"medical color palette, archival scan aesthetic, painterly medical illustration"
-        )
+        prompt = re.sub(r'\b(face|skin|human|silhouette|rim light)\b', "archival_subject", prompt, flags=re.IGNORECASE)
 
         return prompt
 

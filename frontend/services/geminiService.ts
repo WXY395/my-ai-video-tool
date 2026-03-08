@@ -6,7 +6,7 @@
 import { ObservationUnit, ObservationConfig } from '../types';
 import { DEV_SHORTS_UNIT_OVERRIDE } from '../config/pacingProfiles';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8001';
 
 /**
  * 影片模式
@@ -77,14 +77,12 @@ export interface CostEstimateResult {
   keyframeCount: number;
   costEstimate: {
     image_count: number;
-    cost_per_image: number;
-    total_cost: number;
+    price_per_image: number;   // KF 單價（flux-schnell）
+    kf_cost?: number;          // KF 圖片小計
+    cover_cost?: number;       // 封面小計（flux-dev）
+    total_cost: number;        // KF + 封面合計
     model_used: string;
-  };
-  savingsVsFullGeneration: {
-    fullGenerationUnits: number;
-    keyframeUnits: number;
-    savingsPercentage: number;
+    currency: string;
   };
 }
 
@@ -132,14 +130,7 @@ export async function estimateCost(
     console.log('✅ 成本預估完成:', data);
 
     // 相容後端 snake_case 欄位
-    return {
-      ...data,
-      savingsVsFullGeneration: data.savingsVsFullGeneration ?? {
-        fullGenerationUnits: data.savings_vs_full_generation?.full_generation_units ?? 0,
-        keyframeUnits: data.savings_vs_full_generation?.keyframe_units ?? 0,
-        savingsPercentage: data.savings_vs_full_generation?.savings_percentage ?? 0,
-      },
-    };
+    return data;
 
   } catch (error: any) {
     clearTimeout(timeoutId);
@@ -220,45 +211,9 @@ export async function generateObservationUnits(
     }
 
     // 轉換格式
-    const units: ObservationUnit[] = data.units.map((unit: any, index: number) => ({
-      id: unit.id || `unit_${index + 1}`,
-      phenomenon: unit.phenomenon || unit.hook || '現象描述',
-      mechanism: unit.mechanism || unit.core_message || '機制說明',
-      voice_over_zh: unit.voice_over_zh || '旁白文字',
-      subtitle_zh: unit.subtitle_zh || '字幕標籤',
-      visual_description: unit.visual_description || unit.visualDescription || '',
-      image_prompt: unit.image_prompt || { prompt: '', negative_prompt: '' },
-      emotional_tone: unit.emotional_tone || unit.emotionalTone || '',
-      start_timecode: unit.start_timecode || '00:00:00:00',
-      duration_seconds: unit.duration_seconds || 3,
-      camera_mode: unit.camera_mode || 'CLOSE_UP',
-      in_scene_timeline: unit.in_scene_timeline || [],
-      editing_notes: unit.editing_notes || unit.editingNotes || '',
-      
-      // 運鏡建議
-      motion_guidance: unit.motion_guidance ? {
-        effect: unit.motion_guidance.effect,
-        duration_seconds: unit.motion_guidance.duration_seconds,
-        transition_to_next: unit.motion_guidance.transition_to_next,
-        notes: unit.motion_guidance.notes
-      } : null,
-      is_keyframe: unit.is_keyframe !== false,
-
-      // 演算法張力欄位
-      unit_role: unit.unit_role || (index === 0 ? '定位' : index === data.units.length - 1 ? '影響' : '解構'),
-      hook_technique: unit.hook_technique || null,
-      seo_keywords: unit.seo_keywords || [],
-      interaction_trigger: unit.interaction_trigger || null,
-
-      // Veo 影片生成
-      veo_prompt: unit.veo_prompt || null,
-      veo_recommended: unit.veo_recommended === true,
-
-      // 前端狀態
-      imageUrl: '',
-      isGeneratingImage: false,
-      imageStatus: 'pending' as const,
-    }));
+    const units: ObservationUnit[] = data.units.map((unit: any, index: number) =>
+      _parseUnit(unit, index, data.units.length)
+    );
 
     console.log('✅ 成功轉換', units.length, '個觀測單元');
     
@@ -290,7 +245,8 @@ export async function generateObservationUnits(
  */
 export async function generateAssetImage(
   prompt: string,
-  aspectRatio: AspectRatio = '9:16'
+  aspectRatio: AspectRatio = '9:16',
+  sceneIndex: number = 2   // V34.0: 0/1 → nano-banana-2; >=2 → flux-schnell
 ): Promise<string> {
   console.log('🎨 呼叫圖片生成 API');
   console.log('📤 Prompt:', prompt);
@@ -312,7 +268,8 @@ export async function generateAssetImage(
       body: JSON.stringify({
         prompt: prompt,
         negative_prompt: 'low quality, blurry, distorted, text, watermark, hands, fingers, people',
-        aspect_ratio: aspectRatio
+        aspect_ratio: aspectRatio,
+        scene_index: sceneIndex,   // V34.0: 路由至正確模型
       }),
       signal: controller.signal,
     });
@@ -383,6 +340,141 @@ export async function getAvailableModes(): Promise<{
       ],
       models: []
     };
+  }
+}
+
+// ── 單元解析 helper（被 generateObservationUnits 和串流版共用）──────────────────
+function _parseUnit(unit: any, index: number, totalCount: number): ObservationUnit {
+  return {
+    id: unit.id || `unit_${index + 1}`,
+    phenomenon: unit.phenomenon || unit.hook || '現象描述',
+    mechanism: unit.mechanism || unit.core_message || '機制說明',
+    voice_over_zh: unit.voice_over_zh || '旁白文字',
+    subtitle_zh: unit.subtitle_zh || '字幕標籤',
+    visual_description: unit.visual_description || unit.visualDescription || '',
+    image_prompt: unit.image_prompt || { prompt: '', negative_prompt: '' },
+    emotional_tone: unit.emotional_tone || unit.emotionalTone || '',
+    start_timecode: unit.start_timecode || '00:00:00:00',
+    duration_seconds: unit.duration_seconds || 3,
+    camera_mode: unit.camera_mode || 'CLOSE_UP',
+    in_scene_timeline: unit.in_scene_timeline || [],
+    editing_notes: unit.editing_notes || unit.editingNotes || '',
+    motion_guidance: unit.motion_guidance ? {
+      effect: unit.motion_guidance.effect,
+      duration_seconds: unit.motion_guidance.duration_seconds,
+      transition_to_next: unit.motion_guidance.transition_to_next,
+      notes: unit.motion_guidance.notes,
+    } : null,
+    is_keyframe: unit.is_keyframe !== false,
+    unit_role: unit.unit_role || (index === 0 ? '定位' : index === totalCount - 1 ? '影響' : '解構'),
+    hook_technique: unit.hook_technique || null,
+    seo_keywords: unit.seo_keywords || [],
+    interaction_trigger: unit.interaction_trigger || null,
+    interaction_bait_text: unit.interaction_bait_text || null,
+    veo_prompt: unit.veo_prompt || null,
+    veo_recommended: unit.veo_recommended === true,
+    imageUrl: '',
+    isGeneratingImage: false,
+    imageStatus: 'pending' as const,
+  };
+}
+
+// ── SSE 事件型別 ──────────────────────────────────────────────────────────────
+export type StreamEvent =
+  | { type: 'step';  message: string }
+  | { type: 'units'; units: ObservationUnit[]; cost_estimate: any; video_mode: VideoMode; aspect_ratio: string }
+  | { type: 'cover'; cover_url: string; cover_prompt?: string; cover_model?: string; cover_style?: string }
+  | { type: 'done';  production_notes: any; cost_estimate: any }
+  | { type: 'error'; message: string };
+
+/**
+ * 生成觀測單元（SSE 串流版）
+ * 透過 Server-Sent Events 即時回傳進度，可在收到 units 事件時立刻渲染卡片，
+ * 收到 cover 事件時立刻渲染封面，無需等待整個流程完成。
+ */
+export async function generateObservationUnitsStream(
+  notes: string,
+  config: ObservationConfig,
+  videoMode: VideoMode = 'shorts',
+  aspectRatio: AspectRatio = '9:16',
+  durationMinutes: number | undefined,
+  onEvent: (event: StreamEvent) => void,
+): Promise<void> {
+  if (!notes || notes.trim().length === 0) {
+    throw new Error('請輸入觀測筆記');
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 180000); // 3 分鐘
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/observation/generate-stream`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        rawInput: notes,
+        unitCount: (videoMode === 'shorts' && DEV_SHORTS_UNIT_OVERRIDE !== null)
+          ? DEV_SHORTS_UNIT_OVERRIDE
+          : config.unitCount,
+        video_mode: videoMode,
+        aspect_ratio: aspectRatio,
+        duration_minutes: durationMinutes,
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail?.error || errorData.error || `API 錯誤: ${response.status}`);
+    }
+
+    const reader = response.body!.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop()!; // keep incomplete last line
+
+        for (const line of lines) {
+          const trimmed = line.trimEnd();
+          if (!trimmed.startsWith('data: ')) continue;
+          const dataStr = trimmed.slice(6);
+          if (!dataStr) continue;
+
+          try {
+            const raw = JSON.parse(dataStr);
+            // Parse unit arrays before forwarding
+            if (raw.type === 'units' && Array.isArray(raw.units)) {
+              const units = raw.units.map((u: any, i: number) =>
+                _parseUnit(u, i, raw.units.length)
+              );
+              onEvent({ ...raw, units } as StreamEvent);
+            } else {
+              onEvent(raw as StreamEvent);
+            }
+          } catch {
+            // skip malformed SSE line
+          }
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+
+  } catch (error: any) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new Error('串流逾時（3分鐘），請稍後再試');
+    }
+    throw new Error(error.message || '串流連線失敗');
   }
 }
 

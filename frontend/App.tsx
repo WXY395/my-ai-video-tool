@@ -1,14 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { Loader2, Zap, Activity, Terminal, Image as ImageIcon, DollarSign, Film, Maximize2, Layers, Package } from 'lucide-react';
+import { Loader2, Zap, Activity, Terminal, Image as ImageIcon, DollarSign, Film, Maximize2, Layers, Package, GripVertical } from 'lucide-react';
+import { Toaster, toast } from 'sonner';
+import Lightbox from 'yet-another-react-lightbox';
+import 'yet-another-react-lightbox/styles.css';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+  useSortable,
+  arrayMove,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import ObservationNotesInput from './components/ObservationNotesInput';
 import ObservationUnitCard from './components/ObservationUnitCard';
 import {
-  generateObservationUnits,
+  generateObservationUnitsStream,
   generateAssetImage,
   estimateCost,
   type VideoMode,
   type AspectRatio,
-  type CostEstimateResult
+  type CostEstimateResult,
+  type StreamEvent,
 } from './services/geminiService';
 import { ObservationUnit, ObservationConfig, UnitPlanEntry, VisualDensity, InformationFocus, GuidanceLevel, ImageIntent, ReferencePlane, ScaleCue, VisualContinuity } from './types';
 import { PACING_PROFILES, formatDurationRange, assignBeats, buildUnitPlan } from './config/pacingProfiles';
@@ -38,6 +59,46 @@ const UnitPlanBadge: React.FC<{ entry: UnitPlanEntry | undefined }> = ({ entry }
       <span className="text-[8px] mono text-zinc-600">{entry.keyframe_id}</span>
       <span className="text-[8px] mono text-zinc-700">·</span>
       <span className="text-[8px] mono text-zinc-500 font-bold">{entry.variant_id}</span>
+    </div>
+  );
+};
+
+// ── Sortable card wrapper ────────────────────────────────────────────────────
+const SortableCardWrapper: React.FC<{
+  id: string;
+  index: number;
+  unit: ObservationUnit;
+  unitPlanEntry: UnitPlanEntry | undefined;
+  onGenerateImage: (id: string) => void;
+  aspectRatio: AspectRatio;
+}> = ({ id, index, unit, unitPlanEntry, onGenerateImage, aspectRatio }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    zIndex: isDragging ? 50 : undefined,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="flex flex-col gap-1">
+      <div className="flex items-center gap-1">
+        <div
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing p-1 text-zinc-800 hover:text-zinc-500 transition-colors touch-none"
+          title="拖曳排序"
+        >
+          <GripVertical className="w-3 h-3" />
+        </div>
+        <UnitPlanBadge entry={unitPlanEntry} />
+      </div>
+      <ObservationUnitCard
+        unit={unit}
+        onGenerateImage={onGenerateImage}
+        aspectRatio={aspectRatio}
+      />
     </div>
   );
 };
@@ -105,6 +166,9 @@ const App: React.FC = () => {
   // 素材包輸出
   const [isExporting, setIsExporting] = useState(false);
 
+  // 封面燈箱
+  const [coverLightbox, setCoverLightbox] = useState(false);
+
   const [config] = useState<ObservationConfig>({
     unitCount: 3,
     visualDensity: VisualDensity.MEDIUM,
@@ -121,6 +185,9 @@ const App: React.FC = () => {
     units: [] as ObservationUnit[],
     error: null as string | null,
     coverImageUrl: null as string | null,
+    coverPrompt: null as string | null,
+    coverModel: null as string | null,
+    coverStyle: null as string | null,
     productionNotes: null as any,
   });
 
@@ -128,6 +195,23 @@ const App: React.FC = () => {
 
   const addLog = (msg: string) => {
     setLogs(prev => [`[${new Date().toLocaleTimeString()}] ${msg}`, ...prev].slice(0, 100));
+  };
+
+  // 拖曳排序
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    setState(prev => {
+      const oldIndex = prev.units.findIndex(u => u.id === active.id);
+      const newIndex = prev.units.findIndex(u => u.id === over.id);
+      return { ...prev, units: arrayMove(prev.units, oldIndex, newIndex) };
+    });
+    addLog(`REORDER: ${active.id} → ${over.id}`);
   };
 
   // 切換 VideoMode → 載入 Profile、重設時長
@@ -162,8 +246,10 @@ const App: React.FC = () => {
       const estimate = await estimateCost(notes, videoMode, aspectRatio, durationMinutes);
       setCostEstimate(estimate);
       addLog(`COST_ESTIMATED: $${estimate.costEstimate.total_cost} (${estimate.keyframeCount} keyframes)`);
+      toast.success(`預估 $${estimate.costEstimate.total_cost.toFixed(3)}（${estimate.keyframeCount} 個 KF）`);
     } catch (err: any) {
       addLog(`ESTIMATE_ERROR: ${err.message}`);
+      toast.error(`成本預估失敗：${err.message}`);
     } finally {
       setIsEstimating(false);
     }
@@ -172,40 +258,85 @@ const App: React.FC = () => {
   const handleGenerate = async () => {
     if (!notes.trim()) return;
 
-    setState({ isProcessing: true, units: [], error: null, coverImageUrl: null, productionNotes: null });
+    setState({ isProcessing: true, units: [], error: null, coverImageUrl: null, coverPrompt: null, coverModel: null, coverStyle: null, productionNotes: null });
     addLog("THREAD_OPEN: NEURAL_OBSERVATION_MAPPING");
     addLog(`MODE: ${videoMode.toUpperCase()} | RATIO: ${aspectRatio} | DURATION: ${durationMinutes || 'AUTO'}`);
+    toast.loading("Gemini 腳本生成中…", { id: 'gen' });
+
+    let unitCount = 0;
 
     try {
-      const result = await generateObservationUnits(notes, config, videoMode, aspectRatio, durationMinutes);
-      addLog(`SIGNAL_PARSED: ${result.units.length} KEYFRAMES`);
+      await generateObservationUnitsStream(
+        notes, config, videoMode, aspectRatio, durationMinutes,
+        (event: StreamEvent) => {
+          switch (event.type) {
+            case 'step':
+              addLog(event.message.toUpperCase().replace(/[…\s]/g, '_').replace(/_+/g, '_'));
+              toast.loading(event.message, { id: 'gen' });
+              break;
 
-      if (result.costEstimate) {
-        addLog(`COST_CONFIRMED: $${result.costEstimate.total_cost}`);
-      }
-      if (result.coverUrl) addLog("COVER_IMAGE_READY");
-      if (result.productionNotes) {
-        addLog(`POST_PRODUCTION: ${result.productionNotes.workflow}`);
-        addLog(`EDITING_TIME: ${result.productionNotes.estimatedEditingTime}`);
-      }
+            case 'units':
+              unitCount = event.units.length;
+              setState(prev => ({ ...prev, units: event.units }));
+              addLog(`SIGNAL_PARSED: ${unitCount} KEYFRAMES`);
+              if (event.cost_estimate) {
+                addLog(`COST_CONFIRMED: $${event.cost_estimate.total_cost}`);
+                setCostEstimate({
+                  success: true,
+                  videoMode: event.video_mode as VideoMode,
+                  aspectRatio: event.aspect_ratio,
+                  keyframeCount: unitCount,
+                  costEstimate: event.cost_estimate,
+                });
+              }
+              toast.loading("封面生成中…", { id: 'gen' });
+              break;
 
-      setState({
-        isProcessing: false,
-        units: result.units,
-        error: null,
-        coverImageUrl: result.coverUrl,
-        productionNotes: result.productionNotes
-      });
+            case 'cover':
+              setState(prev => ({
+                ...prev,
+                coverImageUrl: event.cover_url,
+                coverPrompt: event.cover_prompt ?? null,
+                coverModel: event.cover_model ?? null,
+                coverStyle: event.cover_style ?? null,
+              }));
+              addLog("COVER_IMAGE_READY");
+              break;
 
-      addLog("OBSERVATION_UNITS_READY_FOR_REVIEW");
+            case 'done':
+              setState(prev => ({
+                ...prev,
+                isProcessing: false,
+                productionNotes: event.production_notes,
+              }));
+              if (event.production_notes?.workflow) {
+                addLog(`POST_PRODUCTION: ${event.production_notes.workflow}`);
+              }
+              if (event.production_notes?.estimatedEditingTime) {
+                addLog(`EDITING_TIME: ${event.production_notes.estimatedEditingTime}`);
+              }
+              addLog("OBSERVATION_UNITS_READY_FOR_REVIEW");
+              toast.success(`${unitCount} 個單元就緒 · 封面已生成`, { id: 'gen' });
+              break;
+
+            case 'error':
+              setState(prev => ({ ...prev, isProcessing: false, error: event.message }));
+              addLog(`FATAL_ERROR: ${event.message}`);
+              toast.error(event.message || "生成失敗", { id: 'gen' });
+              break;
+          }
+        }
+      );
     } catch (err: any) {
       addLog(`FATAL_ERROR: ${err.message}`);
-      setState({ isProcessing: false, units: [], error: err.message || "Protocol failure.", coverImageUrl: null, productionNotes: null });
+      setState(prev => ({ ...prev, isProcessing: false, error: err.message || "Protocol failure." }));
+      toast.error(err.message || "生成失敗", { id: 'gen' });
     }
   };
 
   const handleGenerateImage = async (unitId: string) => {
-    const unit = state.units.find(u => u.id === unitId);
+    const unitIndex = state.units.findIndex(u => u.id === unitId);
+    const unit = unitIndex >= 0 ? state.units[unitIndex] : undefined;
     if (!unit) return;
 
     setState(prev => ({
@@ -216,13 +347,16 @@ const App: React.FC = () => {
     }));
 
     addLog(`SYNTHESIZING_FRAME_ID_${unitId}`);
+    toast.loading(`合成 ${unitId}…`, { id: `img-${unitId}` });
 
     try {
       const promptText = typeof unit.image_prompt === 'string'
         ? unit.image_prompt
         : unit.image_prompt?.prompt || unit.visual_description || 'A scene';
 
-      const imageUrl = await generateAssetImage(promptText, aspectRatio);
+      // V34.0: 傳遞 scene_index，讓後端路由至正確模型
+      // unitIndex 0 (第一幕) → nano-banana-2；其餘 → flux-schnell
+      const imageUrl = await generateAssetImage(promptText, aspectRatio, unitIndex);
 
       setState(prev => ({
         ...prev,
@@ -232,7 +366,8 @@ const App: React.FC = () => {
       }));
 
       addLog(`FRAME_ID_${unitId}_VERIFIED`);
-    } catch (err) {
+      toast.success(`${unitId} 圖片就緒`, { id: `img-${unitId}` });
+    } catch (err: any) {
       addLog(`ERROR: ASSET_RENDER_FAILURE_ID_${unitId}`);
       setState(prev => ({
         ...prev,
@@ -240,6 +375,7 @@ const App: React.FC = () => {
           u.id === unitId ? { ...u, isGeneratingImage: false } : u
         )
       }));
+      toast.error(`${unitId} 生成失敗`, { id: `img-${unitId}` });
     }
   };
 
@@ -248,6 +384,7 @@ const App: React.FC = () => {
 
     setIsExporting(true);
     addLog("EXPORT_PACK: ASSEMBLING_ZIP...");
+    toast.loading("打包素材包…", { id: 'export' });
 
     // slug 取筆記第一行（最多 60 字）
     const topic = notes.split('\n')[0].trim().slice(0, 60) || 'observation';
@@ -264,8 +401,10 @@ const App: React.FC = () => {
         logs,
       });
       addLog(`EXPORT_PACK: OK — pack_${slugify(topic)}_*.zip  (cover + ${readyCount} keyframes)`);
+      toast.success(`ZIP 已下載（封面 + ${readyCount} 張 KF）`, { id: 'export' });
     } catch (err: any) {
       addLog(`EXPORT_PACK_ERROR: ${err.message}`);
+      toast.error(`打包失敗：${err.message}`, { id: 'export' });
     } finally {
       setIsExporting(false);
     }
@@ -279,6 +418,14 @@ const App: React.FC = () => {
 
   return (
     <div className="h-screen flex flex-col bg-zinc-950 text-zinc-300 overflow-hidden">
+      <Toaster theme="dark" position="bottom-right" richColors closeButton />
+      {state.coverImageUrl && (
+        <Lightbox
+          open={coverLightbox}
+          close={() => setCoverLightbox(false)}
+          slides={[{ src: state.coverImageUrl }]}
+        />
+      )}
       {/* Header */}
       <header className="h-14 border-b border-zinc-800 flex items-center justify-between px-6 bg-zinc-900/40 backdrop-blur-md">
         <div className="flex items-center space-x-3">
@@ -457,9 +604,9 @@ const App: React.FC = () => {
                   ${costEstimate.costEstimate.total_cost.toFixed(3)}
                 </div>
                 <div className="text-[9px] text-zinc-500 space-y-1">
-                  <div>關鍵幀: {costEstimate.keyframeCount} 個</div>
-                  <div>圖片: {costEstimate.costEstimate.image_count} 張</div>
-                  <div>節省: {costEstimate.savingsVsFullGeneration.savingsPercentage.toFixed(0)}%</div>
+                  <div>KF ×{costEstimate.keyframeCount} · ${costEstimate.costEstimate.kf_cost?.toFixed(3) ?? '—'} (flux-schnell $0.003/張)</div>
+                  <div>封面 ×1 · ${costEstimate.costEstimate.cover_cost?.toFixed(3) ?? '—'} (flux-dev $0.025/張)</div>
+                  <div>共 {costEstimate.keyframeCount + 1} 張圖片</div>
                 </div>
               </div>
             )}
@@ -541,40 +688,74 @@ const App: React.FC = () => {
               </div>
             )}
 
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <div className={`grid ${aspectRatio === '16:9' ? 'grid-cols-2' : 'grid-cols-3'} gap-6`}>
               {/* 封面卡片（只在有真實資料時顯示） */}
               {state.coverImageUrl && (
-                <div className="glass-card dossier-clip overflow-hidden flex flex-col h-[520px]">
-                  <div className="p-3 border-b bg-emerald-500/10 border-emerald-500/20">
-                    <span className="text-[10px] mono font-bold tracking-widest text-emerald-400">
-                      ROOT_MANIFEST
-                    </span>
+                <div className="glass-card dossier-clip overflow-hidden flex flex-col">
+                  {/* Header */}
+                  <div className="p-3 border-b bg-emerald-500/10 border-emerald-500/20 flex items-center justify-between">
+                    <span className="text-[10px] mono font-bold tracking-widest text-emerald-400">ROOT_MANIFEST</span>
+                    <div className="flex items-center gap-2">
+                      {state.coverStyle && (
+                        <span className="text-[8px] mono px-1.5 py-0.5 rounded border border-emerald-500/20 text-emerald-500/70 uppercase">
+                          {state.coverStyle}
+                        </span>
+                      )}
+                      {state.coverModel && (
+                        <span className="text-[8px] mono px-1.5 py-0.5 rounded border border-violet-500/20 text-violet-400 uppercase">
+                          {state.coverModel}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <div className={`${aspectRatio === '9:16' ? 'aspect-[9/16]' : 'aspect-[16/9]'} bg-black relative border-b border-zinc-800 overflow-hidden flex items-center justify-center`}>
+                  {/* Image */}
+                  <div
+                    className={`${aspectRatio === '9:16' ? 'aspect-[9/16]' : 'aspect-[16/9]'} bg-black relative border-b border-zinc-800 overflow-hidden flex items-center justify-center cursor-zoom-in`}
+                    onClick={() => setCoverLightbox(true)}
+                    title="點擊放大"
+                  >
                     <img
                       src={state.coverImageUrl}
                       alt="Cover"
                       className="w-full h-full object-contain"
                     />
                   </div>
-                  <div className="p-4 space-y-2 bg-zinc-950/40 flex-1">
-                    <h3 className="text-[11px] font-bold text-emerald-400">封面圖</h3>
-                    <p className="text-[9px] text-zinc-500">Collection Cover</p>
+                  {/* Metadata */}
+                  <div className="p-4 space-y-3 bg-zinc-950/40 flex-1">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-[11px] font-bold text-emerald-400">封面圖</h3>
+                      <span className="text-[8px] mono text-zinc-600">SCENE_INDEX: 0</span>
+                    </div>
+                    <p className="text-[9px] text-zinc-500">Collection Cover · 點擊放大</p>
+                    {state.coverPrompt && (
+                      <div className="space-y-1">
+                        <div className="text-[8px] mono text-zinc-600 uppercase tracking-wider">Cover_Prompt</div>
+                        <p className="text-[8px] mono text-zinc-500 leading-relaxed line-clamp-4 break-all">
+                          {state.coverPrompt}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
 
-              {/* 真實觀測單元 */}
-              {hasUnits && state.units.map((unit, i) => (
-                <div key={unit.id} className="flex flex-col gap-1">
-                  <UnitPlanBadge entry={unitPlan[i]} />
-                  <ObservationUnitCard
-                    unit={unit}
-                    onGenerateImage={handleGenerateImage}
-                    aspectRatio={aspectRatio}
-                  />
-                </div>
-              ))}
+              {/* 真實觀測單元（可拖曳排序） */}
+              {hasUnits && (
+                <SortableContext items={state.units.map(u => u.id)} strategy={rectSortingStrategy}>
+                  {state.units.map((unit, i) => (
+                    <SortableCardWrapper
+                      key={unit.id}
+                      id={unit.id}
+                      index={i}
+                      unit={unit}
+                      unitPlanEntry={unitPlan[i]}
+                      onGenerateImage={handleGenerateImage}
+                      aspectRatio={aspectRatio}
+                    />
+                  ))}
+                </SortableContext>
+              )}
 
               {/* 生成中 skeleton */}
               {state.isProcessing && Array.from({ length: profile.unit_range[0] }).map((_, i) => (
@@ -598,6 +779,7 @@ const App: React.FC = () => {
                 </div>
               ))}
             </div>
+            </DndContext>
           </div>
         </section>
       </div>

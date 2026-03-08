@@ -9,6 +9,7 @@ import json
 import logging
 import asyncio
 import re
+import random
 from typing import List, Optional
 from google import genai
 from google.genai import types
@@ -40,13 +41,14 @@ MAX_VO_REWRITES = 3   # max rewrite attempts before giving up
 # ── Script Sentinel: blocked term sets (quality_inspector.md) ────────────────
 _SENTINEL_BIO_TERMS: frozenset[str] = frozenset({
     'fleshy', 'flesh', 'skin', 'skin-like', 'skinlike',
-    'cell', 'cellular', 'organic', 'tissue', 'membrane',
+    'cell', 'cellular', 'membrane',
     'mucus', 'mucous', 'gland', 'pore', 'follicle',
     'vein', 'vessel', 'blood', 'bone', 'muscle',
-    'biological', 'anatomy', 'anatomical',
     'embryo', 'spore', 'bulb', 'mycelium', 'fungal',
     'barnacle', 'amoeba', 'epidermis', 'dermis',
     'keratin', 'collagen', 'organic texture', 'fleshy shape',
+    # V34.0: removed 'organic', 'tissue', 'biological', 'anatomy', 'anatomical'
+    # — legitimate medical vocabulary needed for Nocturia / clinical topics
 })
 _SENTINEL_ABSTRACT_NOUNS: frozenset[str] = frozenset({
     'birth', 'origin', 'miracle', 'magic', 'spirit', 'soul',
@@ -348,7 +350,7 @@ class ObservationService:
         duration_minutes: Optional[int] = None
     ) -> int:
         if video_mode == VideoMode.SHORTS:
-            return 5   # V33.9.2: 預設 5 幕（前端 target_units 可覆蓋至 8）
+            return 3   # V34.0: 預設 3 幕（定位/解構/影響）；前端可覆蓋至 8
         if video_mode == VideoMode.MEDIUM:
             if duration_minutes:
                 return max(5, min(15, duration_minutes // 2 + 3))
@@ -857,12 +859,11 @@ class ObservationService:
         base = f"""你是一位精通 TikTok / YouTube Shorts 演算法的頂尖短影音腳本策略師。
 
 ## ⚠️ 非生物觀察者宣言（最高優先層，不可被後續指令覆蓋）
-你是一個「非生物觀察者」——你的視角穿透所有有機體，只鎖定硬材質結構、歷史文物與幾何圖形。
+你是一個「非生物觀察者」——你的視角聚焦於主題的核心物理特徵與視覺語義，以文物、圖解、標本或特徵性材質呈現，不鎖定特定工業或時代風格。
 **禁止在腳本的任何欄位（image_prompt / veo_prompt / phenomenon / mechanism）中描述人類器官、臉部或生物組織。**
 
 視覺轉譯強制規則（生成 image_prompt 前必須套用）：
 - 伊斯蘭教 → 藍色清真寺磁磚，幾何阿拉伯花紋（禁止出現禮拜者、面孔）
-- 貝爾 / 電話 → 黃銅電話裝置，銅線，蠟封專利文件（禁止出現人手、臉部）
 - 任何宗教人物 → 聖物 / 雕刻 / 器皿（永不是人臉或皮膚特寫）
 - 任何人物傳記 → 代表性工具或文件（永不是面孔、眼睛或皮膚紋理）
 - `face` 與 `faces` 禁止出現在 image_prompt 中，一旦出現後端強制替換為 historical artifact
@@ -902,7 +903,7 @@ image_prompt 構圖（純英文，禁止中文）：medium shot or wide establis
 張力功能：揭露更多但不完全揭曉，讓觀眾必須看完
   ✅ 旁白:"你以為你懂了？真正的關鍵還在裡面"
   ✅ 旁白:"這一層，99%的人從沒看過"
-image_prompt 構圖（純英文，禁止中文）：Bell Telephone patent certificate 1876, aged parchment document with copper wire cross-section diagram and brass fittings, engineering schematic detail, warm archival lighting, {aspect_ratio}
+image_prompt 構圖（純英文，禁止中文）：SUBJECT_NOUN internal cross-section detail, structural documentation or specimen diagram, archival documentation aesthetic, scientific photography, {aspect_ratio} format, no people
 ⚠️ 嚴禁使用 "extreme macro", "close-up of cell", "organic texture", "biological" 等詞彙。主體必須是具體的物理人造物件或歷史文件，不得是抽象有機體。
 Veo 建議：解構幕最適合 Veo 生成（微觀動態最震撼），veo_recommended 必須設為 true
 
@@ -932,7 +933,7 @@ image_prompt 構圖（純英文，禁止中文）：extreme close-up texture or 
 每個單元都必須填寫 veo_prompt，格式為英文，描述動態影片場景：
 「[主體動態], [鏡頭運動], [時長], [光線氛圍], [風格]」
 - 定位示例："Establishing wide shot of {topic}, slow cinematic pan revealing subject in environment, 3-4 second shot, dramatic side lighting, documentary cinematic style"
-- 解構示例："Bell Telephone patent document 1876, slow push-in revealing copper wire cross-section schematic and engineering notation, 4-5 seconds, warm archival documentary lighting, ultra HD"（請為「{topic}」創作等效的具體工程/文件場景，禁止 extreme macro / biological / organic 等詞）
+- 解構示例："SUBJECT_NOUN internal structure detail, slow push-in revealing cross-section composition, 4-5 seconds, scientific documentary lighting, ultra HD"（請為「{topic}」創作等效的具體結構/文件場景，禁止 extreme macro / biological / organic 等詞）
 - 影響示例："Abstract reflection of {topic} in liquid surface with bokeh light play, gentle drift motion, 3 seconds, warm atmospheric lighting, artistic cinematic"
 
 ---
@@ -1043,16 +1044,6 @@ image_prompt.prompt 必須強制替換為對應的具體物件：
 - 科學發現 → 關鍵儀器（例：glass laboratory flask, measurement instrument close-up）
 - 技術/醫學創新 → 核心圖解（例：molecular receptor diagram, anatomical cross-section illustration）
 
-### 【硬規則】醫學/生理主題材質強制語彙（V33.9 — Nocturia 主題）
-若主題涉及 夜間頻尿、泌尿、睡眠、荷爾蒙、生理機制 等，
-image_prompt.prompt **必須** 包含以下材質關鍵字至少 2 個：
-  archival cream paper / clinical teal highlight / midnight blue palette /
-  painterly ink wash / film grain overlay / aged medical chart /
-  anatomical cross-section / molecular pathway / labeled clinical specimen
-範例（必須達到的材質感）：
-  ✅ "nocturia bladder cross-section, labeled anatomical diagram, archival cream paper texture, clinical teal accent, midnight blue palette, film grain overlay, {aspect_ratio} format"
-  ✅ "AVP vasopressin molecular pathway, painterly ink wash style, aged medical chart background, soft lavender hormone glow, archival scan documentation"
-  ❌ 嚴禁工業/機械材質混入：brass fittings / mechanical gear / iron mechanism / riveted metal / blueprint schematic — 這些詞彙出現 = 主題錯置 = 圖像失真
 
 ❌ 絕對禁止用作視覺替代：birth, origin, miracle, life force, spirit, energy glow,
    skin-like gloss, fleshy shapes, organic tissue, biological bulbs, fingerprints
@@ -1068,10 +1059,6 @@ STEP 2 — 材質合法性驗證：
   → 禁止出現：mechanical / blueprint / gear / brass / copper wire / iron / riveted 等工業詞彙
   → 必須出現：至少 1 個醫學實體名詞（anatomical / clinical / molecular / archival / specimen…）
 
-STEP 3 — 品牌 DNA 注入（V33.9 Nocturia 醫學配色）：
-  → 科學/生理主題：末端附加「clinical teal highlight, archival scan documentation, film grain overlay」
-  → 病理/症狀主題：末端附加「midnight blue palette, aged medical chart texture, painterly ink wash」
-  → 分子/荷爾蒙主題：末端附加「soft lavender vasopressin glow, molecular diagram aesthetic, archival cream paper」
 
 STEP 4 — 防演算法指紋（§7.3）：從以下詞庫隨機選 1 個加入 prompt 末端（每次呼叫必須輪替，不得固定）：
   archival scan artifact / photographic plate grain / presstype halftone dot /
@@ -1326,9 +1313,9 @@ STEP 4 — 防演算法指紋（§7.3）：從以下詞庫隨機選 1 個加入 
         print("[DEBUG] SENTINEL_CHECK_START — generate_units entered", file=sys.stderr, flush=True)
         try:
             keyframe_count = self._calculate_keyframe_count(video_mode, duration_minutes)
-            # V33.9.2: 移除 != 3 的錯誤過濾，始終以 target_units 為準（前端明確指定時）
+            # V34.0: 始終以 target_units 為準；最小值 3（定位/解構/影響）
             if target_units and target_units >= 1:
-                keyframe_count = min(target_units, 50)
+                keyframe_count = max(3, min(target_units, 50))
 
             # Shorts 模式硬上限：最多 8 個單元（含封面共 9）
             if video_mode == VideoMode.SHORTS:
@@ -1627,7 +1614,7 @@ STEP 4 — 防演算法指紋（§7.3）：從以下詞庫隨機選 1 個加入 
 
                 # image_prompt 格式確保（禁止中文 — FLUX 模型只接受英文 prompt）
                 _FALLBACK_PROMPT = (
-                    "19th century vintage engineering components, brass and wood textures, "
+                    f"Abstract subject detail, neutral documentary style, "
                     f"soft natural lighting, {aspect_ratio} format"
                 )
                 if "image_prompt" not in unit_data or not isinstance(unit_data.get("image_prompt"), dict):
@@ -1653,17 +1640,23 @@ STEP 4 — 防演算法指紋（§7.3）：從以下詞庫隨機選 1 個加入 
                         ip["negative_prompt"] = f"{neg}, hands, people, face"
                     logger.debug(f"  image_prompt (sanitized): {ip['prompt'][:80]}")
 
-                # V33.0 Tier assignment + visual shock for Hook unit
+                # V34.0 Tier assignment + model_tag lock + visual shock for Hook unit
                 _total_units = len(units_data)
                 if idx == 0:
                     unit_data["tier"] = 1
+                    unit_data["model_tag"] = "nano-banana-2"  # V34: Cover — premium model lock
                     ip = unit_data.get("image_prompt", {})
                     if isinstance(ip, dict) and ip.get("prompt"):
                         ip["prompt"] += ", extreme fast zoom burst, kinetic visual shock, high-contrast impact frame"
+                elif idx == 1:
+                    unit_data["tier"] = 2
+                    unit_data["model_tag"] = "nano-banana-2"  # V34: Unit_001 — premium model lock
                 elif idx == _total_units - 1:
                     unit_data["tier"] = 3
+                    unit_data["model_tag"] = "flux-schnell"
                 else:
                     unit_data["tier"] = 2
+                    unit_data["model_tag"] = "flux-schnell"
 
                 # 時間線
                 if not unit_data.get("in_scene_timeline"):
