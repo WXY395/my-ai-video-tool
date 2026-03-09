@@ -39,12 +39,11 @@ mkdirSync(OUT_ROOT, { recursive: true });
 
 // ── Style helpers ─────────────────────────────────────────────────────────────
 const NANO_STYLE =
-  "East Asian wash painting style with ink wash technique, " +
-  "wild and rough brushstrokes, bold color block collisions, " +
-  "ink bleeding and dripping textures, abstract dynamism, " +
-  "imperfect hand-drawn feel, eschewing smooth details and photorealistic rendering, " +
-  "raw energy aura. Centered composition, high contrast, textured paper background, " +
-  "studio lighting. Primitive style, no blur, no plastic feel, avoid perfect symmetry.";
+  "Hyper-realistic miniature diorama, macro lens photography, " +
+  "clay and resin figurines with fine texture detail, " +
+  "satirical arrangement, humorous subversion of history, " +
+  "studio 3-point lighting, tilt-shift bokeh, vibrant saturated palette. " +
+  "Surrealist diorama theatre, no flat design, no illustration, no painting, no drawing.";
 
 const FLUX_NO_TEXT =
   "(Strictly NO letters, NO characters, NO red seals, NO text overlays, no labels, no watermarks, no stamps) " +
