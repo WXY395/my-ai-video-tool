@@ -6,7 +6,7 @@
  * OR:  bash bridge/run.sh "topic"
  */
 import "dotenv/config";
-import { mkdirSync, writeFileSync } from "fs";
+import { mkdirSync, writeFileSync, statSync } from "fs";
 import { join } from "path";
 import Replicate from "replicate";
 import {
@@ -281,6 +281,9 @@ for (let i = 1; i < scenes.length; i++) {
   }) as unknown as string[];
   const url = Array.isArray(output) ? output[0] : String(output);
   const resp = await fetch(url);
+  if (!resp.ok) {
+    throw new Error(`Fetch failed for ${scene.filename}: ${resp.status} ${resp.statusText}`);
+  }
   const buf  = Buffer.from(await resp.arrayBuffer());
   writeFileSync(join(outDir, scene.filename), buf);
   saved[scene.filename] = join(outDir, scene.filename);
@@ -308,7 +311,6 @@ console.log(`${"=".repeat(60)}\n`);
 
 // Print file list
 for (const [name, path] of Object.entries(saved)) {
-  const { statSync } = await import("fs");
   const size = statSync(path).size;
   console.log(`  ${name.padEnd(30)} ${size.toLocaleString()} bytes`);
 }
