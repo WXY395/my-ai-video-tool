@@ -67,16 +67,32 @@ export function segmentScript(text: string): string[] {
   return segments;
 }
 
-// ── Veo decision ─────────────────────────────────────────────────────────────
+// ── Veo anchor logic ─────────────────────────────────────────────────────────
 
-const VEO_TRIGGER_VERBS = new Set([
-  "流出","破碎","閃爍","奔跑","爆炸","衝","噴","顫抖","燃燒","墜落","崩潰",
-]);
+/**
+ * Returns 0-based indices of scenes that get Veo video.
+ * N≤4: [0, N-1]
+ * 5≤N≤8: [0, round(N/2)-1, N-1]
+ * N≥9: [0, round(N/2)-1, round(0.8*N)-1, N-1]
+ */
+export function veoScenes(n: number): number[] {
+  if (n <= 4)  return [0, n - 1];
+  if (n <= 8)  return [0, Math.round(n / 2) - 1, n - 1];
+  return [0, Math.round(n / 2) - 1, Math.round(0.8 * n) - 1, n - 1];
+}
 
 export function needsVeo(voText: string, sceneIdx: number, totalScenes: number): boolean {
-  if (sceneIdx === 0) return true;                      // Hook forced
-  if (sceneIdx === totalScenes - 1) return true;        // Payoff forced
-  return [...VEO_TRIGGER_VERBS].some(v => voText.includes(v));
+  return veoScenes(totalScenes).includes(sceneIdx);
+}
+
+export function dioramaVeoPrompt(prompt: string, chapter: string): string {
+  return (
+    `Surreal miniature diorama, 3D clay texture figurines, macro lens close-up, ` +
+    `tilt-shift bokeh, slapstick physical comedy action: ` +
+    `${prompt.slice(0, 120)}. ` +
+    `Scene chapter: ${chapter}. ` +
+    `Absurd humorous physical movement, clay stop-motion feel, vibrant studio lighting.`
+  );
 }
 
 // ── Visual metaphor ───────────────────────────────────────────────────────────
@@ -107,24 +123,51 @@ export function extractMetaphor(text: string): string {
 
 // ── SFX ──────────────────────────────────────────────────────────────────────
 
-const SFX_TRANSITION = "Whoosh + deep impact drum";
-const SFX_HUMOR      = "Cartoon boing / slide-whistle";
-const SFX_AMBIENT    = "Soft atmospheric pad";
 const HUMOR_MARKERS  = ["哈","笑","蠢","傻","瘋","搞笑","OMG","WTF","崩潰","傻眼"];
+const ACTION_MARKERS = ["衝","爆","噴","砸","踢","摔","撞","炸","飛","崩"];
+const MONEY_MARKERS  = ["錢","財","寶","金","收","賺","價值","帝國","征服"];
 
 export function sfxForScene(
   voText: string, subText: string,
   sceneIdx: number, totalScenes: number,
 ): string {
-  if (sceneIdx === 0 || sceneIdx === totalScenes - 1) return SFX_TRANSITION;
-  if (HUMOR_MARKERS.some(m => (voText + subText).includes(m))) return SFX_HUMOR;
-  return SFX_AMBIENT;
+  const text = voText + subText;
+  if (sceneIdx === 0)               return "Whoosh → Impact drum [SUB IN aligned]";
+  if (sceneIdx === totalScenes - 1) return "Cha-ching → Whoosh [SUB IN aligned]";
+  if (MONEY_MARKERS.some(m => text.includes(m))) return "Cha-ching [SUB IN aligned]";
+  if (ACTION_MARKERS.some(m => text.includes(m))) return "Squish → Impact [SUB IN aligned]";
+  if (HUMOR_MARKERS.some(m => text.includes(m)))  return "Slide-whistle → Boing [SUB IN aligned]";
+  return "Soft pad → Whoosh [SUB IN aligned]";
 }
 
-// ── Camera action ─────────────────────────────────────────────────────────────
+// ── Camera action (semantic, no Ken Burns) ────────────────────────────────────
 
+const FAST_PAN_KW   = ["衝","跑","奔","飛","快","速","追","逃","掃"];
+const TILT_UP_KW    = ["發現","揭露","升起","崛起","天空","壯觀","宏偉","誕生"];
+const SHAKY_KW      = ["哈","笑","蠢","傻","瘋","崩潰","搞笑","吐槽","OMG","WTF"];
+const DOLLY_ZOOM_KW = ["震驚","恐懼","驚","嚇","詭異","扭曲","深淵","顫抖"];
+
+const CAMERA_POOL = [
+  "Dolly Zoom — push in + warp",
+  "Fast Pan — lateral whip cut",
+  "Tilt Up — reveal shot 0→90°",
+  "Macro Shaky Cam — handheld extreme close-up",
+  "Arc Shot — 90° orbit around subject",
+  "Push In — slow creep 1.0×→1.4×",
+];
+
+export function dynamicCamera(voText: string, sceneIdx: number): string {
+  if (SHAKY_KW.some(k => voText.includes(k)))    return "Macro Shaky Cam — handheld extreme close-up";
+  if (DOLLY_ZOOM_KW.some(k => voText.includes(k))) return "Dolly Zoom — push in + warp";
+  if (FAST_PAN_KW.some(k => voText.includes(k)))   return "Fast Pan — lateral whip cut";
+  if (TILT_UP_KW.some(k => voText.includes(k)))    return "Tilt Up — reveal shot 0→90°";
+  // Deterministic rotation for remaining scenes
+  return CAMERA_POOL[sceneIdx % CAMERA_POOL.length];
+}
+
+/** @deprecated use dynamicCamera() */
 export function staticAction(): string {
-  return "Camera slow zoom in (1.2×) | Ken Burns effect";
+  return dynamicCamera("", 0);
 }
 
 // ── 1:1 Scene alignment ───────────────────────────────────────────────────────

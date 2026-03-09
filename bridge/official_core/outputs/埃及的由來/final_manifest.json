@@ -1,124 +1,111 @@
 {
   "topic": "埃及的由來",
   "version": "V35.7",
-  "generated_at": "2026-03-09T20:43:06.139Z",
+  "generated_at": "2026-03-09T21:53:47.431Z",
   "ssot": {
-    "topic": "埃及的由來：尼羅河的贈禮與文明的曙光",
-    "one_line_promise": "透過地理、政治與神話三個維度，揭開古埃及如何從荒漠中崛起成為人類史上最輝煌文明的秘密。",
-    "hook_intent": "以尼羅河乾涸的假想情況為引子，挑戰觀眾對文明起源的認知，展示早期王朝如何在極端地理環境下建立高度組織化的社會。",
+    "topic": "埃及的由來：尼羅河的贈禮與古文明的黎明",
+    "one_line_promise": "透過地質、氣候與早期文化的交織，揭示埃及如何從荒漠中誕生並延續五千年的文明密碼。",
+    "hook_intent": "挑戰觀眾對古埃及只有金字塔的認知，揭示若沒有一次史前氣候劇變，這個偉大文明根本不會存在。",
     "key_claims": [
-      "尼羅河的定期規律氾濫是埃及農業文明與中央集權體制建立的物理基礎。",
-      "上下埃及的統一不僅是軍事行動，更是宗教與政治符號的高度融合過程。",
-      "古埃及的早期宗教觀念與法老神權化是維持社會長期穩定與推動大型建設的核心驅動力。"
+      "尼羅河的規律氾濫提供了文明賴以生存的農業基礎，使其成為尼羅河的贈禮。",
+      "撒哈拉沙漠的乾旱化迫使史前部落向綠洲遷移，形成了最初的社會組織。",
+      "上下埃及的統一不僅是軍事上的勝利，更是資源整合與神格化王權的開端。"
     ],
     "chapter_outline": [
-      "第一章：前言—隱藏在沙漠中的綠色奇蹟",
-      "第二章：地理決定論—尼羅河如何形塑埃及的靈魂與灌溉系統",
-      "第三章：史前曙光—從部落割據到納爾邁王（Narmer）的統一之路",
-      "第四章：法老的誕生—王權、宗教與第一王朝的社會結構",
-      "第五章：文化遺產—古埃及文明初創期的核心價值觀與永恆影響"
+      "第一章：荒漠中的生命奇蹟 - 尼羅河谷的地理優勢",
+      "第二章：消失的綠洲 - 撒哈拉乾旱與人口大遷徙的因果",
+      "第三章：前王朝時期 - 從零散聚落到早期社會組織的演進",
+      "第四章：雙冠合一 - 納爾邁王與第一王朝的建立",
+      "第五章：結語 - 埃及文明的永恆循環與現代啟示"
     ],
     "visual_list": [
-      "動態 3D 地圖顯示尼羅河流域每年的氾濫範圍與沉積物覆蓋。",
-      "納爾邁調色板（Narmer Palette）的高畫質微距細節特寫與符號解析。",
-      "早期古埃及村落與原始灌溉渠道的 3D 動態模擬重建。",
-      "上下埃及王冠合成過程的視覺效果特效圖。",
-      "早期聖書體（象形文字）從實物符號演化至文字系統的動態變換。",
-      "對比荒蕪沙漠與尼羅河沿岸綠洲的壯觀航拍模擬視覺。"
+      "尼羅河三角洲的衛星遙測對比圖（綠洲與荒漠對比）",
+      "模擬五千年前撒哈拉地區植被消失的縮時動畫",
+      "尼羅河年度氾濫循環與淤泥沉積的動態解說圖表",
+      "早期巴達里文化與納加達文化的陶器特寫切換",
+      "納爾邁調色板的高畫質細節掃描與象徵符號解析",
+      "第一王朝時期早期建築遺址的3D復原建模",
+      "古埃及早期象形文字與蘇美文字的並列演變示意圖"
     ]
   },
   "image_prompts": [
     {
-      "chapter": "第一章：前言—隱藏在沙漠中的綠色奇蹟",
+      "chapter": "第一章",
       "filename": "scene_001.png",
-      "prompt": "A vast barren desert where the Nile used to flow, cracked earth, intense sunlight, dry riverbed, highly detailed wide shot, 14mm focal length, cinematic lighting, realistic documentary style. (No text, no watermarks, no logos)",
-      "vo_text": "如果尼羅河突然乾涸？"
+      "prompt": "Satellite imagery of Nile River Delta contrasting the lush green oasis with the barren desert sands, high-contrast sunlight emphasizing the textures, 50mm lens, ultra-realistic National Geographic documentary style. (No text, no watermarks, no logos)",
+      "vo_text": "埃及只有金字塔嗎？"
     },
     {
-      "chapter": "第一章：前言—隱藏在沙漠中的綠色奇蹟",
+      "chapter": "第一章",
       "filename": "scene_002.png",
-      "prompt": "Veo motion video showing strong wind blowing across massive sand dunes, dust particles dancing in the air, harsh midday sun, 35mm lens, hyper-realistic, dynamic lighting. (No text, no watermarks, no logos)",
-      "vo_text": "那裡只是一堆大沙坑！"
+      "prompt": "Cinematic Veo dynamic video of the Sahara region rapidly transforming from a vibrant green landscape to a dry and barren desert, dramatic sunset lighting, 24mm wide-angle lens, photorealistic time-lapse animation. (No text, no watermarks, no logos)",
+      "vo_text": "沒氣候變遷就沒它啦！"
     },
     {
-      "chapter": "第一章：前言—隱藏在沙漠中的綠色奇蹟",
+      "chapter": "第二章",
       "filename": "scene_003.png",
-      "prompt": "Aerial view showing a sharp contrast between arid desert and lush green vegetation along the Nile river, spectacular majestic view, 24mm focal length, dramatic sunset lighting, National Geographic style. (No text, no watermarks, no logos)",
-      "vo_text": "極端沙漠如何孕育文明？"
+      "prompt": "Lush green prehistoric Sahara landscape with ancient tribes gathering around a crystal clear oasis, soft morning sunlight illuminating the vibrant vegetation, 35mm lens, cinematic historical recreation style. (No text, no watermarks, no logos)",
+      "vo_text": "撒哈拉以前可是綠洲呢"
     },
     {
-      "chapter": "第二章：地理決定論—尼羅河如何形塑埃及",
+      "chapter": "第二章",
       "filename": "scene_004.png",
-      "prompt": "Veo motion video of a 3D simulated topographic map of the Nile river, water magically rising and flooding the banks, depositing rich dark soil, glowing magical effects, 50mm lens, epic studio lighting. (No text, no watermarks, no logos)",
-      "vo_text": "尼羅河就像準時發薪水"
+      "prompt": "Veo dynamic video showing desperate prehistoric tribes marching across blowing sand dunes carrying rudimentary belongings, harsh midday sun creating sharp shadows, 85mm lens, intense survival documentary aesthetic. (No text, no watermarks, no logos)",
+      "vo_text": "後來乾旱逼大家搬家"
     },
     {
-      "chapter": "第二章：地理決定論—尼羅河如何形塑埃及",
+      "chapter": "第三章",
       "filename": "scene_005.png",
-      "prompt": "Ancient Egyptian farmers joyful in mud, rich dark fertile soil, golden sun rays piercing through clouds, highly detailed close up, 85mm focal length, cinematic backlight, historical realism. (No text, no watermarks, no logos)",
-      "vo_text": "年年淹水，留下滿地沃土"
+      "prompt": "Bustling early human settlement forming along the muddy banks of the Nile River with primitive reed huts, golden hour lighting reflecting off the water, 50mm lens, hyper-realistic ancient history visual style. (No text, no watermarks, no logos)",
+      "vo_text": "全擠到尼羅河畔求生"
     },
     {
-      "chapter": "第三章：史前曙光—從部落割據到納爾邁王",
+      "chapter": "第三章",
       "filename": "scene_006.png",
-      "prompt": "Veo motion video showing ancient primitive Egyptian village with small mud-brick huts, people fighting with primitive weapons, dust kicking up, chaotic atmosphere, 35mm lens, gritty cinematic lighting. (No text, no watermarks, no logos)",
-      "vo_text": "以前大家各自佔地為王"
+      "prompt": "Veo dynamic video of rich black mud drying on the Nile bank with rapid growth of wheat and crops sprouting magically from the soil, bright midday lighting, macro 100mm lens, BBC nature documentary style. (No text, no watermarks, no logos)",
+      "vo_text": "爛泥巴竟成了搖錢樹"
     },
     {
-      "chapter": "第三章：史前曙光—從部落割據到納爾邁王",
+      "chapter": "第四章",
       "filename": "scene_007.png",
-      "prompt": "Extreme macro close-up of the Narmer Palette, highly detailed stone texture, intricate ancient carvings depicting a king smiting his enemies, moody dramatic studio lighting, 100mm macro lens, museum showcase style. (No text, no watermarks, no logos)",
-      "vo_text": "直到納爾邁大哥站出來"
+      "prompt": "Highly detailed close-up of the Red Crown and White Crown of ancient Egypt resting on a stone pedestal with scattered weapons, dramatic spotlighting from above, 50mm lens, cinematic museum artifact style. (No text, no watermarks, no logos)",
+      "vo_text": "上下埃及整天打架"
     },
     {
-      "chapter": "第三章：史前曙光—從部落割據到納爾邁王",
+      "chapter": "第四章",
       "filename": "scene_008.png",
-      "prompt": "Veo motion video of the white crown of Upper Egypt and the red crown of Lower Egypt magically glowing and merging together into the double crown, floating in mid-air, particle effects, 50mm lens, fantasy lighting. (No text, no watermarks, no logos)",
-      "vo_text": "不只能打，還超懂行銷！"
+      "prompt": "Veo dynamic video of an animated Narmer Palette coming to life with fierce ancient Egyptian warriors clashing in a chaotic battle, epic firelight illuminating the scene, 35mm lens, dramatic fantasy historical style. (No text, no watermarks, no logos)",
+      "vo_text": "納爾邁大王一統江湖"
     },
     {
-      "chapter": "第四章：法老的誕生—王權與宗教",
+      "chapter": "第五章",
       "filename": "scene_009.png",
-      "prompt": "A majestic ancient Egyptian Pharaoh standing proudly under a giant glowing sun disk, wearing golden ornaments, subjects bowing down, dramatic god-ray lighting, 35mm focal length, epic cinematic historical painting style. (No text, no watermarks, no logos)",
-      "vo_text": "他說：我是神派來的！"
+      "prompt": "Majestic early Pharaoh standing on a golden balcony holding a crook and flail while bathed in divine god-like rays of sunlight, 85mm lens, ultra-detailed epic fantasy cinematic art style. (No text, no watermarks, no logos)",
+      "vo_text": "老闆自封為神真會玩"
     },
     {
-      "chapter": "第四章：法老的誕生—王權與宗教",
+      "chapter": "第五章",
       "filename": "scene_010.png",
-      "prompt": "Veo motion video of ancient hieroglyphs on a sandstone wall magically transforming and glowing with golden light, shifting shapes rapidly, mystical atmosphere, 50mm macro lens, dramatic side lighting. (No text, no watermarks, no logos)",
-      "vo_text": "乖乖聽話，跟我去搬磚"
-    },
-    {
-      "chapter": "第五章：文化遺產—古埃及文明初創期",
-      "filename": "scene_011.png",
-      "prompt": "Abstract artistic composition merging dark wet mud from the Nile with golden divine light radiating from an ancient obelisk, highly detailed textures, surreal concept art, 24mm focal length, dramatic contrast lighting. (No text, no watermarks, no logos)",
-      "vo_text": "靠著泥巴與神話的組合"
-    },
-    {
-      "chapter": "第五章：文化遺產—古埃及文明初創期",
-      "filename": "scene_012.png",
-      "prompt": "Veo motion video of the Great Pyramid rising from the desert at sunrise, glorious golden hour light illuminating the stone blocks, time-lapse sky moving fast, epic scale, 14mm ultra-wide lens, cinematic blockbuster style. (No text, no watermarks, no logos)",
-      "vo_text": "寫下最狂的文明曙光！"
+      "prompt": "Veo dynamic 3D rendering of early First Dynasty Egyptian mudbrick monuments and ancient temples rapidly constructing themselves from the sand, cinematic sunrise lighting, 24mm lens, photorealistic architectural time-lapse. (No text, no watermarks, no logos)",
+      "vo_text": "五千年文明就此開機"
     }
   ],
   "saved_files": {
-    "draft_vo.srt": "C:\\Projects\\shorts_factory_react\\bridge\\outputs\\埃及的由來\\draft_vo.srt",
-    "subtitles.srt": "C:\\Projects\\shorts_factory_react\\bridge\\outputs\\埃及的由來\\subtitles.srt",
-    "seo.txt": "C:\\Projects\\shorts_factory_react\\bridge\\outputs\\埃及的由來\\seo.txt",
-    "runbook.md": "C:\\Projects\\shorts_factory_react\\bridge\\outputs\\埃及的由來\\runbook.md",
-    "cover.png": "C:\\Projects\\shorts_factory_react\\bridge\\outputs\\埃及的由來\\cover.png",
-    "scene_001.png": "C:\\Projects\\shorts_factory_react\\bridge\\outputs\\埃及的由來\\scene_001.png",
-    "scene_002.png": "C:\\Projects\\shorts_factory_react\\bridge\\outputs\\埃及的由來\\scene_002.png",
-    "scene_003.png": "C:\\Projects\\shorts_factory_react\\bridge\\outputs\\埃及的由來\\scene_003.png",
-    "scene_004.png": "C:\\Projects\\shorts_factory_react\\bridge\\outputs\\埃及的由來\\scene_004.png",
-    "scene_005.png": "C:\\Projects\\shorts_factory_react\\bridge\\outputs\\埃及的由來\\scene_005.png",
-    "scene_006.png": "C:\\Projects\\shorts_factory_react\\bridge\\outputs\\埃及的由來\\scene_006.png",
-    "scene_007.png": "C:\\Projects\\shorts_factory_react\\bridge\\outputs\\埃及的由來\\scene_007.png",
-    "scene_008.png": "C:\\Projects\\shorts_factory_react\\bridge\\outputs\\埃及的由來\\scene_008.png",
-    "scene_009.png": "C:\\Projects\\shorts_factory_react\\bridge\\outputs\\埃及的由來\\scene_009.png",
-    "scene_010.png": "C:\\Projects\\shorts_factory_react\\bridge\\outputs\\埃及的由來\\scene_010.png",
-    "scene_011.png": "C:\\Projects\\shorts_factory_react\\bridge\\outputs\\埃及的由來\\scene_011.png",
-    "scene_012.png": "C:\\Projects\\shorts_factory_react\\bridge\\outputs\\埃及的由來\\scene_012.png"
+    "draft_vo.srt": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\draft_vo.srt",
+    "subtitles.srt": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\subtitles.srt",
+    "seo.txt": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\seo.txt",
+    "runbook.md": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\runbook.md",
+    "cover.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\cover.png",
+    "scene_001.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_001.png",
+    "scene_002.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_002.png",
+    "scene_003.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_003.png",
+    "scene_004.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_004.png",
+    "scene_005.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_005.png",
+    "scene_006.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_006.png",
+    "scene_007.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_007.png",
+    "scene_008.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_008.png",
+    "scene_009.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_009.png",
+    "scene_010.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_010.png"
   },
-  "seo_txt": "--- 【YouTube】 ---\n標題：\n極端荒漠如何孕育古埃及？納爾邁王的無敵策略\nHow Did Extreme Deserts Birth Ancient Egypt?\n描述：\n如果尼羅河不氾濫，古埃及文明根本不可能存在！這支影片帶你重回納爾邁王的時代，揭開法老如何用泥巴與神話建立史上最強帝國！快來看看人類文明的超狂曙光！\nTags：\n#古埃及 #尼羅河 #法老 #歷史解密 #納爾邁王 #金字塔 #人類文明 #世界史 #考古 #神話 #歷史故事 #埃及神話 #知識 #教育 #歷史頻道\n\n--- 【TikTok】 ---\n標題：\n玩沙玩出世界最強帝國？古埃及神操作！\nDesert to Empire: Egypt's Insane Origin\n描述：\n沒有尼羅河古埃及就是個大沙坑！法老洗腦神招太猛啦😂快看他們怎麼玩！\nTags：\n#古埃及 #歷史解密 #法老 #金字塔 #冷知識 #神話 #短影音 #歷史\n\n--- 【Instagram】 ---\n標題：\n泥巴與神話的雙重奏✨揭開古埃及絕美曙光\nThe Golden Dawn of Ancient Egypt\n描述：\n在極端地獄難度的沙漠中，尼羅河是唯一的救贖🌊。看納爾邁王如何用最強行銷術與神話，打造出人類史上最輝煌的篇章👑🔥 快分享給喜歡歷史的朋友！\nTags：\n#古埃及 #埃及神話 #歷史美學 #法老王 #金字塔 #尼羅河 #人類文明 #藝術與歷史 #探索發現 #美感生活 #知識分享\n\n--- 【Facebook】 ---\n標題：\n如果尼羅河突然乾涸？古埃及文明根本無法誕生！\nThe Secret Formula Behind Ancient Egypt\n描述：\n想像一下，如果沒有每年準時氾濫的尼羅河，埃及只會是一片大沙坑！今天帶大家回到幾千年前，看看古埃及人是怎麼在極端環境中，靠著泥巴和宗教神話，建立起超狂的帝國！你覺得這招厲害嗎？留言告訴我！\nTags：\n#古埃及秘辛 #歷史故事分享 #法老 #金字塔 #尼羅河的贈禮 #知識補給站"
+  "seo_txt": "【YouTube】\n標題：埃及只有金字塔？揭開五千年文明誕生的驚人真相！ | 歷史大解密 (Is Egypt just pyramids? Uncovering the shocking truth of a 5000-year civilization!)\n描述：說到古埃及你只想到金字塔？其實如果沒有一場史前氣候劇變和撒哈拉乾旱，這個偉大的尼羅河文明根本不會存在！一起來看看這場五千年前的生存大挑戰。\nTags: #古埃及 #尼羅河 #歷史真相 #撒哈拉沙漠 #納爾邁王 #歷史解密 #世界史 #文明起源 #知識型YouTuber #氣候變遷 #金字塔 #法老 #上埃及下埃及 #歷史故事 #紀錄片\n---\n【TikTok】\n標題：古埃及能建國全靠老天不賞飯吃？😎🐫 (Egypt's rise thanks to bad weather?)\n描述：課本沒教的古埃及建國史！爛泥巴竟然變搖錢樹？快來看他們怎麼活下來的！\nTags: #古埃及 #歷史 #冷知識 #TikTok知識 #尼羅河 #撒哈拉 #長知識 #說書\n---\n【Instagram】\n標題：荒漠中的奇蹟✨如果沒有這場乾旱，古埃及就不存在了？ (The miracle in the desert✨)\n描述：我們常讚嘆金字塔的宏偉，卻忘記了尼羅河畔最初的艱辛。從逃荒大隊到雙冠王誕生，古埃及的文明密碼原來藏在氣候變遷裡！🌍🐫快分享給喜歡歷史的朋友吧～\nTags: #古埃及 #歷史日常 #歷史故事 #知識分享 #尼羅河 #法老 #金字塔 #探索世界 #考古 #世界歷史\n---\n【Facebook】\n標題：埃及的誕生：不是因為金字塔，而是因為撒哈拉變乾了？ (The birth of Egypt: It's all about the Sahara drying up?)\n描述：你以為古埃及人一開始就很強大嗎？錯了！他們其實是一群被氣候逼到尼羅河畔的「逃荒大隊」。想知道泥巴怎麼變成黃金、上下埃及怎麼統一的嗎？這集五千年文明開機史絕對讓你大開眼界！看完記得留言告訴我你最驚訝的點喔👇\nTags: #古埃及歷史 #尼羅河的贈禮 #趣味歷史 #歷史冷知識 #深度好文 #分享發現"
 }
