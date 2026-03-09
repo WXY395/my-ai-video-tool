@@ -33,8 +33,8 @@ import {
 // ── Constants ─────────────────────────────────────────────────────────────────
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = dirname(__filename);
-// Locked to physical project root regardless of cwd
-const OUT_ROOT = resolve(__dirname, "../../outputs");
+// Locked to bridge/official_core/outputs regardless of cwd
+const OUT_ROOT = resolve(__dirname, "../outputs");
 mkdirSync(OUT_ROOT, { recursive: true });
 
 // ── Style helpers ─────────────────────────────────────────────────────────────
@@ -67,20 +67,19 @@ function applyStyleNanoScene(prompt: string): string {
   return `${NO_TEXT_PREFIX}\n\n${prompt.trim()}\n\n${NANO_STYLE}`;
 }
 
-const FAUVISM_STYLE =
-  "Fauvism style fused with traditional Chinese ink painting, " +
-  "wild and rough brushstrokes, bold color block collisions, " +
-  "ink bleeding and dripping textures, abstract dynamism, " +
-  "imperfect hand-drawn feel, raw energy aura. " +
-  "Centered composition, high contrast, textured paper background. " +
-  "No plastic feel, avoid perfect symmetry, no watermarks, no logos.";
+const DIORAMA_COVER_STYLE =
+  "Hyper-realistic miniature diorama cover art, macro lens photography, " +
+  "clay and resin figurines, satirical and humorous historical subversion, " +
+  "studio 3-point lighting, tilt-shift bokeh, vibrant saturated palette, " +
+  "cinematic 9:16 vertical composition. " +
+  "No flat design, no illustration, no painting, no drawing, no watermarks, no logos.";
 
 function applyStyleCover(prompt: string, title: string): string {
   return (
     `${prompt.trim()}\n\n` +
     `If text is required, render the Traditional Chinese characters 『${title}』 ` +
     `in a bold, hand-written ink calligraphy style, integrated into the composition.\n\n` +
-    FAUVISM_STYLE
+    DIORAMA_COVER_STYLE
   );
 }
 
@@ -281,6 +280,11 @@ let cooldownCount = 0;
 for (let i = 1; i < scenes.length; i++) {
   const scene  = scenes[i];
   const destPath = join(outDir, scene.filename);
+  if (existsSync(destPath)) {
+    console.log(`\n[${scene.filename}] exists — skipping (delete to force regenerate).`);
+    saved[scene.filename] = destPath;
+    continue;
+  }
   const styled = applyStyleFluxScene(scene.prompt);
   console.log(`\n[${scene.filename}] Flux-schnell...`);
   const output = await replicate.run("black-forest-labs/flux-schnell", {
