@@ -6,13 +6,14 @@
  * OR:  bash bridge/run.sh "topic"
  */
 import "dotenv/config";
-import { mkdirSync, writeFileSync, statSync } from "fs";
+import { mkdirSync, writeFileSync, statSync, existsSync } from "fs";
 import { join } from "path";
 import Replicate from "replicate";
 import {
   generateSSOTOfficial,
   renderPackOfficial,
   generateImageOfficial,
+  generateCoverImageOfficial,
   type SSOT,
   type ContentPack,
 } from "./bridge_adapter.js";
@@ -41,35 +42,41 @@ const NANO_STYLE =
   "studio lighting. Primitive style, no blur, no plastic feel, avoid perfect symmetry.";
 
 const FLUX_NO_TEXT =
-  "(No text, no letters, no labels, no watermarks, no seals, no stamps) " +
-  "(No text, no letters, no labels, no watermarks, no seals, no stamps)";
+  "(Strictly NO letters, NO characters, NO red seals, NO text overlays, no labels, no watermarks, no stamps) " +
+  "(Strictly NO letters, NO characters, NO red seals, NO text overlays, no labels, no watermarks, no stamps)";
 
-const FLUX_STYLE =
-  "Modern minimalist ink splash abstraction, organic fluid ink textures, " +
-  "monochromatic spills, wild and rough brushstrokes, bold color block collisions, " +
-  "ink bleeding and dripping textures, abstract dynamism, imperfect hand-drawn feel, " +
-  "eschewing smooth details and photorealistic rendering, raw energy aura. " +
-  "Centered composition, high contrast, textured paper background, studio lighting. " +
-  "Primitive style, no blur, no plastic feel, avoid perfect symmetry. " +
-  "Pure visual imagery only. Ensure no artistic signatures, no red stamps, " +
-  "no chop marks, and no pseudo-text characters appear anywhere in the composition.";
+const DIORAMA_STYLE =
+  "A high-end surrealist miniature diorama captured with macro lens, " +
+  "clay and resin textures, tilt-shift bokeh, soft studio 3-point lighting, " +
+  "vibrant saturated colors, absolute zero text/seals. " +
+  "9:16 vertical composition, cinematic depth of field, hyper-detailed craftsmanship, " +
+  "no illustration, no painting, no drawing, no real human photography, no flat design.";
 
 const NO_TEXT_PREFIX =
   "(No text, no letters, no watermarks, no logos, no symbols, no alphabet characters)";
 
 function applyStyleFluxScene(prompt: string): string {
-  return `${FLUX_NO_TEXT}\n\n${prompt.trim()}\n\n${FLUX_STYLE}`;
+  return `${FLUX_NO_TEXT}\n\n${prompt.trim()}\n\n${DIORAMA_STYLE}`;
 }
 
 function applyStyleNanoScene(prompt: string): string {
   return `${NO_TEXT_PREFIX}\n\n${prompt.trim()}\n\n${NANO_STYLE}`;
 }
 
+const FAUVISM_STYLE =
+  "Fauvism style fused with traditional Chinese ink painting, " +
+  "wild and rough brushstrokes, bold color block collisions, " +
+  "ink bleeding and dripping textures, abstract dynamism, " +
+  "imperfect hand-drawn feel, raw energy aura. " +
+  "Centered composition, high contrast, textured paper background. " +
+  "No plastic feel, avoid perfect symmetry, no watermarks, no logos.";
+
 function applyStyleCover(prompt: string, title: string): string {
   return (
     `${prompt.trim()}\n\n` +
-    `Render the title 『${title}』 in bold Traditional Chinese calligraphy, ` +
-    `centered at the top of the frame, large and impactful. ${NANO_STYLE}`
+    `If text is required, render the Traditional Chinese characters 『${title}』 ` +
+    `in a bold, hand-written ink calligraphy style, integrated into the composition.\n\n` +
+    FAUVISM_STYLE
   );
 }
 
@@ -246,10 +253,10 @@ saved["runbook.md"] = join(outDir, "runbook.md");
 
 console.log("[Text] draft_vo.srt, subtitles.srt, seo.txt, runbook.md -- done");
 
-// Phase 6: Cover image
-console.log("\n[COVER] Generating via gemini-2.5-flash-image...");
+// Phase 6: Cover image (Nano Banana 2 — gemini-3.1-flash-image-preview + imageSize=1K)
+console.log("\n[COVER] Generating via gemini-3.1-flash-image-preview...");
 const coverPrompt = applyStyleCover(pack.cover_prompt ?? `Epic cinematic image about ${topic}`, topic);
-const coverBytes  = await generateImageOfficial(coverPrompt);
+const coverBytes  = await generateCoverImageOfficial(coverPrompt);
 writeFileSync(join(outDir, "cover.png"), coverBytes);
 saved["cover.png"] = join(outDir, "cover.png");
 console.log(`  Saved: cover.png  (${coverBytes.length.toLocaleString()} bytes)`);
@@ -269,6 +276,7 @@ const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
 let cooldownCount = 0;
 for (let i = 1; i < scenes.length; i++) {
   const scene  = scenes[i];
+  const destPath = join(outDir, scene.filename);
   const styled = applyStyleFluxScene(scene.prompt);
   console.log(`\n[${scene.filename}] Flux-schnell...`);
   const output = await replicate.run("black-forest-labs/flux-schnell", {

@@ -1,0 +1,112 @@
+{
+  "topic": "埃及的由來",
+  "version": "V35.7",
+  "generated_at": "2026-03-09T19:27:15.955Z",
+  "ssot": {
+    "topic": "埃及文明的起源：尼羅河與法老王朝的誕生",
+    "one_line_promise": "探索古埃及如何從荒蕪沙漠邊緣演變成人類歷史上最偉大文明的完整歷程。",
+    "hook_intent": "揭示法老權力的源頭與尼羅河如何決定了一個帝國的生死，並破解金字塔建立前的社會面貌。",
+    "key_claims": [
+      "尼羅河的週期性氾濫是埃及農業與行政系統的核心",
+      "上下埃及的統一標誌著法老集權體制的確立",
+      "宗教信仰與對死後世界的追求驅動了早期埃及的工程奇蹟"
+    ],
+    "chapter_outline": [
+      "第一章：尼羅河的贈禮與早期地理優勢",
+      "第二章：前王朝時期的村落與區域競爭",
+      "第三章：納爾邁與統一：第一王朝的建立",
+      "第四章：神權與王權：法老崇拜的形成",
+      "第五章：早期王朝時代的文化與技術傳承",
+      "第六章：結語：傳承三千年的文明基石"
+    ],
+    "visual_list": [
+      "衛星視角展示尼羅河綠帶與周邊沙漠的鮮明對比",
+      "早期埃及壁畫中描繪的狩獵與捕魚場景",
+      "納爾邁調色板細節的近距離掃描展示",
+      "動態地圖演示上下埃及合併的地理進程",
+      "3D建模還原早期馬斯塔巴墓葬結構",
+      "尼羅河水位計運作原理的解說動畫",
+      "法老加冕儀式的藝術構想模擬圖"
+    ]
+  },
+  "image_prompts": [
+    {
+      "chapter": "CH1_1",
+      "filename": "scene_001.png",
+      "prompt": "High altitude satellite view capturing the vibrant green Nile River slicing through the vast, barren Sahara Desert. Golden hour lighting, 24mm wide-angle lens, cinematic National Geographic style. (No text, no watermarks, no logos)",
+      "vo_text": "沙漠裡的一條水溝？"
+    },
+    {
+      "chapter": "CH1_2",
+      "filename": "scene_002.png",
+      "prompt": "Ancient Egyptian farmers joyfully dancing as the Nile river floods their fertile fields. Bright midday sun, 35mm lens, dynamic cinematic documentary style. (No text, no watermarks, no logos)",
+      "vo_text": "尼羅河氾濫是種田外掛"
+    },
+    {
+      "chapter": "CH2_1",
+      "filename": "scene_003.png",
+      "prompt": "Primitive Egyptian mud-brick village near the riverbed, villagers arguing over clay pots. Hazy dawn lighting, 50mm lens, gritty historical realism style. (No text, no watermarks, no logos)",
+      "vo_text": "以前大家只是小村落"
+    },
+    {
+      "chapter": "CH2_2",
+      "filename": "scene_004.png",
+      "prompt": "Two rival tribes in ancient Egypt splashing water at each other furiously in the shallow Nile. Dramatic sunset lighting, 85mm portrait lens, slow-motion cinematic style. (No text, no watermarks, no logos)",
+      "vo_text": "搶水源搶到頭破血流"
+    },
+    {
+      "chapter": "CH3_1",
+      "filename": "scene_005.png",
+      "prompt": "Pharaoh Narmer standing tall and imposing on a sand dune, holding a glowing scepter. High contrast dramatic shadows, 85mm lens, epic mythological movie style. (No text, no watermarks, no logos)",
+      "vo_text": "納爾邁大哥橫空出世"
+    },
+    {
+      "chapter": "CH3_2",
+      "filename": "scene_006.png",
+      "prompt": "An animated ancient Egyptian map rolling out, showing Upper and Lower Egypt slamming together with a burst of golden dust. Magical studio lighting, macro lens, vivid 3D animation style. (No text, no watermarks, no logos)",
+      "vo_text": "把上下埃及揍成一家"
+    },
+    {
+      "chapter": "CH4_1",
+      "filename": "scene_007.png",
+      "prompt": "A smug Pharaoh adorned in golden jewels sitting on a majestic stone throne surrounded by priests. Soft temple torchlight, 35mm lens, opulent historical fantasy style. (No text, no watermarks, no logos)",
+      "vo_text": "法老說自己是神的化身"
+    },
+    {
+      "chapter": "CH4_2",
+      "filename": "scene_008.png",
+      "prompt": "Ancient Egyptian architects sweating profusely while stacking massive mud-bricks for an early Mastaba tomb. Harsh desert sunlight, 24mm wide lens, intense cinematic action style. (No text, no watermarks, no logos)",
+      "vo_text": "死後還要蓋豪華別墅"
+    },
+    {
+      "chapter": "CH5_1",
+      "filename": "scene_009.png",
+      "prompt": "A colossal, intricately detailed early Egyptian Mastaba tomb glowing under a starry night sky. Cool moonlight, 14mm ultra-wide lens, majestic historical wonder style. (No text, no watermarks, no logos)",
+      "vo_text": "這些墓葬變成了奇蹟"
+    },
+    {
+      "chapter": "CH6_1",
+      "filename": "scene_010.png",
+      "prompt": "The great Pyramids and ancient Egyptian cities rapidly rising from the sand in a magical time-lapse. Glorious sunrise lighting, drone shot focal length, sweeping epic cinematic style. (No text, no watermarks, no logos)",
+      "vo_text": "三千年帝國就此開局"
+    }
+  ],
+  "saved_files": {
+    "draft_vo.srt": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\draft_vo.srt",
+    "subtitles.srt": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\subtitles.srt",
+    "seo.txt": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\seo.txt",
+    "runbook.md": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\runbook.md",
+    "cover.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\cover.png",
+    "scene_001.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_001.png",
+    "scene_002.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_002.png",
+    "scene_003.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_003.png",
+    "scene_004.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_004.png",
+    "scene_005.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_005.png",
+    "scene_006.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_006.png",
+    "scene_007.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_007.png",
+    "scene_008.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_008.png",
+    "scene_009.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_009.png",
+    "scene_010.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_010.png"
+  },
+  "seo_txt": "【YouTube】\n標題：古埃及開局竟然是這樣？尼羅河外掛解密！ | Ancient Egypt Origin\n描述：古埃及文明怎麼從荒蕪沙漠變成三千年霸主？揭秘法老的權力遊戲與尼羅河的終極外掛，帶你一次看懂法老王朝誕生史！\n標籤：#古埃及 #法老 #尼羅河 #世界歷史 #埃及金字塔 #歷史解密 #文明起源 #冷知識 #納爾邁 #上下埃及 #歷史故事 #古代工程 #神話與歷史 #古文明 #歷史紀錄片\n\n------------------------\n\n【TikTok】\n標題：古埃及建國全靠一條河？法老原來是房地產大亨🤣\n描述：沙漠裡的小村落怎麼變成千古帝國？看完你就懂什麼叫新手村直接封頂！留言告訴我你想穿越回古埃及嗎？👇\n標籤：#古埃及 #歷史冷知識 #法老 #搞笑歷史 #長知識 #尼羅河 #金字塔 #秒懂歷史\n\n------------------------\n\n【Instagram】\n標題：🏜️ 揭開黃沙下的秘密：古埃及王朝的史詩開局 ✨\n描述：在荒蕪的沙漠邊緣，尼羅河的氾濫帶來了生機，也孕育了人類史上最偉大的文明之一 🌊 這些自稱神明化身的法老，不僅統一了上下埃及，還蓋出了讓現代工程師都驚呆的奇蹟建築！🏛️ 一起來探索這份傳承三千年的霸氣！ \n標籤：#歷史之美 #古埃及 #法老王 #尼羅河 #歷史探索 #金字塔 #古代文明 #美學設計 #歷史日常 #知識分享 #旅行靈感 #世界奇觀\n\n------------------------\n\n【Facebook】\n標題：你以為古埃及一開始就很強嗎？其實他們也經歷過「菜雞互啄」的時代！😂\n描述：每次看到金字塔都覺得古埃及人是外星人？其實他們一開始也只是在尼羅河邊搶水喝的小村落！直到一個超狠的「納爾邁大哥」出現，把大家揍成一家人，才開啟了三千年的法老帝國！快標記你那個也很愛當大哥的朋友來看看這段超狂建國史！\n標籤：#古埃及歷史 #法老王朝 #冷知識分享 #歷史趣聞 #尼羅河奇蹟 #朋友必看"
+}

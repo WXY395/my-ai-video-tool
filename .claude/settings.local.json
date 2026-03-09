@@ -12,7 +12,12 @@
       "Bash(npm run:*)",
       "Bash(Get-Process python*:*)",
       "Bash(powershell:*)",
-      "Bash(netstat:*)"
+      "Bash(netstat:*)",
+      "Bash(npm install:*)",
+      "Bash(npx tsx:*)",
+      "Bash(npx:*)",
+      "Bash(git:*)",
+      "Bash(python3:*)"
     ]
   }
 }

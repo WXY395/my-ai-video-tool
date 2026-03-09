@@ -1,0 +1,5 @@
+{
+  "name": "Long Video Text-Only Pack Generator",
+  "description": "Generate a complete text-only content pack for long-form videos, including SSOT, bilingual scripts, subtitles, SEO metadata, and image prompts for external generation.",
+  "requestFramePermissions": []
+}
