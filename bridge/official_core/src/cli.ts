@@ -7,7 +7,8 @@
  */
 import "dotenv/config";
 import { mkdirSync, writeFileSync, statSync, existsSync } from "fs";
-import { join } from "path";
+import { join, resolve, dirname } from "path";
+import { fileURLToPath } from "url";
 import Replicate from "replicate";
 import {
   generateSSOTOfficial,
@@ -30,7 +31,11 @@ import {
 } from "./DirectorService.js";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
-const OUT_ROOT = join(process.cwd(), "outputs");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = dirname(__filename);
+// Locked to physical project root regardless of cwd
+const OUT_ROOT = resolve(__dirname, "../../outputs");
+mkdirSync(OUT_ROOT, { recursive: true });
 
 // ── Style helpers ─────────────────────────────────────────────────────────────
 const NANO_STYLE =
