@@ -1,6 +1,8 @@
 # efficiency.md — 踩坑經驗與效率規則
-> 最後更新：2026-03-11
+> 最後更新：2026-03-11 (V35.9.6)
 > 性質：本檔為活文件，每次踩坑後即時追加。
+> 上位法參照：`docs/constitution_honest_observer.md`
+> 靜默治理參照：`skills/silence_governance.skill`
 
 ---
 
@@ -99,12 +101,27 @@ ls bridge/official_core/outputs/<topic>/
 
 ---
 
-## 缺失技能（待建立）
+## 絕對路徑鎖定（強制執行）
 
-| 技能 | 優先級 | 說明 |
+任何 AI 對話、任何 script，都必須使用以下絕對路徑，禁止相對路徑或舊路徑：
+
+| 項目 | 鎖定路徑 |
+|---|---|
+| 輸出目錄 | `C:/Projects/shorts_factory_react/bridge/official_core/outputs/` |
+| 環境變數 | `C:/Projects/shorts_factory_react/bridge/official_core/.env` |
+| CLI 入口 | `C:/Projects/shorts_factory_react/bridge/official_core/src/cli.ts` |
+| 憲法文件 | `C:/Projects/shorts_factory_react/docs/constitution_honest_observer.md` |
+| 靜默治理 | `C:/Projects/shorts_factory_react/skills/silence_governance.skill` |
+
+**違反路徑鎖定 = 對話浪費**。執行前必先確認路徑，不得假設。
+
+---
+
+## 技能狀態（V35.9.6 更新）
+
+| 技能 | 狀態 | 位置 |
 |---|---|---|
-| HONEST OBSERVER CONSTITUTION | 高 | 尚未定義 AI 觀察者身份與邊界 |
-| Silence 上位法 | 高 | 尚未定義靜默/不行動條件 |
-| Prompt Agent 規格 | 中 | prompt 工程邏輯分散各處，未集中管理 |
-| Token 節流策略 | 中 | 目前只有 Replicate 120s cooldown，無全局節流規則 |
-| 踩坑自動追加 Hook | 低 | 手動維護本檔，未來可考慮自動化 |
+| HONEST OBSERVER CONSTITUTION | ✅ 已建立 | `docs/constitution_honest_observer.md` |
+| Silence 上位法 + Token 節流 | ✅ 已建立 | `skills/silence_governance.skill` |
+| Prompt Agent 規格 | ⚠️ 部分（分散在 cli.ts / bridge_adapter.ts） | — |
+| 踩坑自動追加 Hook | ❌ 尚未自動化 | 手動維護本檔 |

@@ -1,0 +1,129 @@
+# silence_governance.skill
+# 靜默治理技能 — Token 與時間受限下的自動降階協定
+> 版本：1.0
+> 效力層級：執行法（實施上位法 Article I 的具體機制）
+> 適用情境：Token 預算不足 / 單次生成超時 / API 回應截斷
+
+---
+
+## TRIGGER CONDITIONS — 觸發條件
+
+以下任一條件成立時，自動進入 Silence Mode：
+
+```yaml
+triggers:
+  - token_remaining < 500          # 剩餘 token 低於 500
+  - response_time_ms > 8000        # 單次 API 回應超過 8 秒
+  - prompt_length_chars > 2000     # prompt 字元數超過 2000
+  - retry_count >= 2               # 同一場景重試超過 2 次
+  - gemini_finish_reason: "STOP"   # 模型要求澄清而非直接輸出圖像
+```
+
+---
+
+## SILENCE PROTOCOL — 靜默降階協定
+
+### Phase 1：Prompt 壓縮
+
+當觸發時，依序執行以下壓縮步驟，每步驟後重新嘗試：
+
+```
+Step 1：移除所有風格修飾詞
+  Before：「Fauvism painting style, bold brushstrokes, vibrant colors,
+           expressive distortion, high contrast palette, art movement」
+  After： 「Fauvism painting」
+
+Step 2：移除所有負面提示詞（negative_prompt）
+  原因：FLUX 本就靜默忽略 negative_prompt；Gemini 有時因負面詞產生歧義
+
+Step 3：壓縮為純物理特寫格式
+  模板：「[主體名詞], [一個動作/狀態], macro photography, 9:16 vertical」
+  範例：「Water droplet, crown splash impact, macro photography, 9:16 vertical」
+
+Step 4（最終降階）：最小可行 prompt
+  模板：「[主體], close-up, 9:16」
+  範例：「Sand grain, close-up, 9:16」
+```
+
+### Phase 2：幽默爆點優先原則
+
+Token 受限時，**捨棄語義完整性，保留視覺荒謬性**。
+
+```
+優先保留（不可刪除）：
+  ✅ 比例數字（「1/50 scale」、「0.3mm crack」）
+  ✅ 動態關鍵詞（「impact」、「fracture」、「overflow」、「collapse」）
+  ✅ 荒謬性修飾詞（「perfectly symmetrical」、「impossibly smooth」）
+
+優先刪除（可以犧牲）：
+  ❌ 情境背景描述（「in a laboratory」、「under bright sunlight」）
+  ❌ 攝影技術詞彙（「shallow depth of field」、「bokeh background」）
+  ❌ 風格流派名稱（「cinematic」、「documentary style」）
+```
+
+### Phase 3：Silence Fallback（完全靜默回退）
+
+若 Step 1–4 全部失敗（重試次數 ≥ 3），執行靜默跳過：
+
+```typescript
+// 靜默跳過邏輯（對應 cli.ts 的 scene 生成迴圈）
+if (retryCount >= 3) {
+  console.log(`[scene_${pad(i)}.png] SILENCE FALLBACK — skipped after ${retryCount} attempts`);
+  // 不拋出錯誤，繼續下一個 scene
+  // 在 final_manifest.json 中標記 status: "silence_fallback"
+  continue;
+}
+```
+
+**Silence Fallback 的核心哲學**：
+> 一個缺失的場景，比一個語義混亂的場景更誠實。
+> 沉默是最後一種物理觀察。
+
+---
+
+## HUMOR PRIORITY MATRIX — 幽默優先矩陣
+
+當需要在「語義完整」與「視覺荒謬」之間選擇時：
+
+```
+高 Token 預算：
+  語義完整 (40%) + 視覺荒謬 (40%) + 風格修飾 (20%)
+
+中 Token 預算（觸發 Step 1-2）：
+  語義完整 (20%) + 視覺荒謬 (80%) + 風格修飾 (0%)
+
+低 Token 預算（觸發 Step 3-4）：
+  語義完整 (0%) + 視覺荒謬 (100%) + 風格修飾 (0%)
+```
+
+**規則**：視覺上的幽默爆點永遠是最後被刪除的元素。
+
+---
+
+## ANTI-PATTERNS — 禁止行為
+
+```
+❌ 在 Token 受限時，用散文補償 prompt 的不足
+   （「雖然無法生成圖片，但這個場景應該呈現…」）
+
+❌ 在重試失敗後，轉為生成說明文字替代圖片
+
+❌ 向使用者解釋為何某個場景被跳過（直接標記，不解釋）
+
+❌ 為了「看起來完整」而生成低品質佔位圖
+```
+
+---
+
+## INTEGRATION POINTS — 整合點
+
+| 系統 | 整合方式 |
+|---|---|
+| `cli.ts` scene 生成迴圈 | retry 邏輯觸發 prompt 壓縮步驟 |
+| `bridge_adapter.ts` | `generateImageOfficial()` 失敗後調用 silence fallback |
+| `final_manifest.json` | 每個 scene 增加 `silence_level: 0-4` 欄位 |
+| Gemini `finishReason: "STOP"` | 觸發 Step 1 重試（已知穿幫，見 PITFALL-001 變體） |
+
+---
+
+Version: 1.0 | Date: 2026-03-11
