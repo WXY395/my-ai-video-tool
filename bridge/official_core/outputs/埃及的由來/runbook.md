@@ -1,233 +1,297 @@
 # Runbook — 埃及的由來
-> V35.9.1 Cinematic Rhythm | 14 scenes | 37.7s total | 30fps CapCut
-> Veo anchors: scenes 1, 7, 11, 14
+> V35.9 Cinematic Rhythm | 18 scenes | 44.7s total | 30fps CapCut
+> Veo anchors: scenes 1, 9, 14, 18
 > Duration range: 1.5s–4.0s/scene | Normal breath +10f | Veo/punchline +25f
 
 | CH | Chapter | Dur | VO IN | SUB IN | Scene OUT | Camera | SFX | Veo |
 |----|---------|-----|-------|--------|-----------|--------|-----|-----|
-|  1 | Hook | 2.83s | `00:00:00:09` | `00:00:00:15` | `00:00:02:25` | Zoom In | Boing | ✅ |
-|  2 | Hook | 2.33s | `00:00:03:04` | `00:00:03:10` | `00:00:05:05` | Zoom Out | Whoosh | — |
-|  3 | Hook | 2.73s | `00:00:05:14` | `00:00:05:20` | `00:00:07:27` | Zoom Out | Boing | — |
-|  4 | Chapter 1 | 2.73s | `00:00:08:06` | `00:00:08:12` | `00:00:10:19` | Zoom Out | Whoosh | — |
-|  5 | Chapter 1 | 2.53s | `00:00:10:28` | `00:00:11:04` | `00:00:13:05` | Slide | Cash Register | — |
-|  6 | Chapter 2 | 2.53s | `00:00:13:14` | `00:00:13:20` | `00:00:15:21` | Zoom In | Whoosh | — |
-|  7 | Chapter 2 | 3.03s | `00:00:16:00` | `00:00:16:06` | `00:00:18:22` | Whip | Hammer Hit | ✅ |
-|  8 | Chapter 3 | 2.53s | `00:00:19:01` | `00:00:19:07` | `00:00:21:08` | Whip | Hammer Hit | — |
-|  9 | Chapter 3 | 2.53s | `00:00:21:17` | `00:00:21:23` | `00:00:23:24` | Shake | Boing | — |
-| 10 | Chapter 4 | 2.53s | `00:00:24:03` | `00:00:24:09` | `00:00:26:10` | Slide | System Boot | — |
-| 11 | Chapter 4 | 3.03s | `00:00:26:19` | `00:00:26:25` | `00:00:29:11` | Zoom In | System Boot | ✅ |
-| 12 | Chapter 5 | 2.53s | `00:00:29:20` | `00:00:29:26` | `00:00:31:27` | Zoom Out | System Boot | — |
-| 13 | Chapter 5 | 2.73s | `00:00:32:06` | `00:00:32:12` | `00:00:34:19` | Whip | Cash Register | — |
-| 14 | Chapter 5 | 3.03s | `00:00:34:28` | `00:00:35:04` | `00:00:37:20` | Zoom In | System Boot | ✅ |
+|  1 | 序言：撒哈拉中的綠色生命線 | 3.13s | `00:00:00:09` | `00:00:00:15` | `00:00:03:04` | Shake | Boing | ✅ |
+|  2 | 序言：撒哈拉中的綠色生命線 | 2.53s | `00:00:03:13` | `00:00:03:19` | `00:00:05:20` | Zoom Out | System Boot | — |
+|  3 | 序言：撒哈拉中的綠色生命線 | 2.37s | `00:00:05:29` | `00:00:06:05` | `00:00:08:01` | Zoom Out | Magic Chime | — |
+|  4 | 尼羅河的恩賜：從狩獵採集到定居農 | 2.53s | `00:00:08:10` | `00:00:08:16` | `00:00:10:17` | Shake | Magic Chime | — |
+|  5 | 尼羅河的恩賜：從狩獵採集到定居農 | 2.33s | `00:00:10:26` | `00:00:11:02` | `00:00:12:27` | Slide | Cash Register | — |
+|  6 | 尼羅河的恩賜：從狩獵採集到定居農 | 2.33s | `00:00:13:06` | `00:00:13:12` | `00:00:15:07` | Zoom In | Magic Chime | — |
+|  7 | 分裂與統一：美尼斯國王與第一王朝 | 2.17s | `00:00:15:16` | `00:00:15:22` | `00:00:17:12` | Zoom Out | System Boot | — |
+|  8 | 分裂與統一：美尼斯國王與第一王朝 | 2.53s | `00:00:17:21` | `00:00:17:27` | `00:00:19:28` | Whip | Hammer Impact | — |
+|  9 | 分裂與統一：美尼斯國王與第一王朝 | 2.67s | `00:00:20:07` | `00:00:20:13` | `00:00:22:18` | Shake | Magic Chime | ✅ |
+| 10 | 金字塔前的技術積累：文字、數學與 | 2.53s | `00:00:22:27` | `00:00:23:03` | `00:00:25:04` | Slide | System Boot | — |
+| 11 | 金字塔前的技術積累：文字、數學與 | 2.33s | `00:00:25:13` | `00:00:25:19` | `00:00:27:14` | Zoom Out | Magic Chime | — |
+| 12 | 金字塔前的技術積累：文字、數學與 | 2.33s | `00:00:27:23` | `00:00:27:29` | `00:00:29:24` | Zoom Out | Magic Chime | — |
+| 13 | 永恆的秩序：宗教觀念如何塑造埃及 | 2.17s | `00:00:30:03` | `00:00:30:09` | `00:00:31:29` | Whip | Magic Chime | — |
+| 14 | 永恆的秩序：宗教觀念如何塑造埃及 | 2.83s | `00:00:32:08` | `00:00:32:14` | `00:00:34:24` | Shake | Magic Chime | ✅ |
+| 15 | 永恆的秩序：宗教觀念如何塑造埃及 | 2.33s | `00:00:35:03` | `00:00:35:09` | `00:00:37:04` | Slide | Magic Chime | — |
+| 16 | 結語：埃及文明留給現代世界的遺產 | 2.33s | `00:00:37:13` | `00:00:37:19` | `00:00:39:14` | Zoom In | Magic Chime | — |
+| 17 | 結語：埃及文明留給現代世界的遺產 | 2.17s | `00:00:39:23` | `00:00:39:29` | `00:00:41:19` | Zoom Out | Magic Chime | — |
+| 18 | 結語：埃及文明留給現代世界的遺產 | 3.03s | `00:00:41:28` | `00:00:42:04` | `00:00:44:20` | Whip | Hammer Impact | ✅ |
 
 ---
 
-### CH01: Hook
+### CH01: 序言：撒哈拉中的綠色生命線
 | Field | Value |
 |-------|-------|
-| Scene | `00:00:00:00` → `00:00:02:25` (2.83s / 85f) |
+| Scene | `00:00:00:00` → `00:00:03:04` (3.13s / 94f) |
 | VO IN / OUT | `00:00:00:09` (+9f) → `00:00:02:00` |
 | SUB IN / OUT | `00:00:00:15` (+15f) → `00:00:02:00` |
-| Breath | +25f (833ms) |
-| VO text | 想像一下這片大黃沙 |
-| SUB text | 說好的綠洲呢？ |
+| Breath | +34f (1133ms) |
+| VO text | 撒哈拉沙漠超缺水！ |
+| SUB text | 史上最乾旱地區 |
 | Image | `scene_001.png` |
-| Camera | Zoom In |
+| Camera | Shake |
 | SFX | Boing |
-| Veo | Surreal miniature diorama, 3D clay texture figurines, macro lens close-up, tilt-shift bokeh, slapstick physical comedy action: Endless yellow desert landscape, vast and dry, scorching sun, wide angle lens, cinematic lighting, hyper-realistic. Scene chapter: Hook. Absurd humorous physical movement, clay stop-motion feel, vibrant studio lighting. | Suggest cutting from 6s raw: 01:00 -> 04:00 |
+| Veo | Surreal miniature diorama, 3D clay texture figurines, macro lens close-up, tilt-shift bokeh, slapstick physical comedy action: A breathtaking satellite top-down view of the vast, scorching Sahara desert, showcasing immense sand dunes stretching to. Scene chapter: 序言：撒哈拉中的綠色生命線. Absurd humorous physical movement, clay stop-motion feel, vibrant studio lighting. | Suggest cutting from 6s raw: 01:00 -> 04:00 |
 
 
-### CH02: Hook
+### CH02: 序言：撒哈拉中的綠色生命線
 | Field | Value |
 |-------|-------|
-| Scene | `00:00:02:25` → `00:00:05:05` (2.33s / 70f) |
-| VO IN / OUT | `00:00:03:04` (+9f) → `00:00:04:25` |
-| SUB IN / OUT | `00:00:03:10` (+15f) → `00:00:04:25` |
-| Breath | +10f (333ms) |
-| VO text | 古埃及人竟然在這裡 |
-| SUB text | 沙漠生存大師 |
+| Scene | `00:00:03:04` → `00:00:05:20` (2.53s / 76f) |
+| VO IN / OUT | `00:00:03:13` (+9f) → `00:00:05:04` |
+| SUB IN / OUT | `00:00:03:19` (+15f) → `00:00:05:04` |
+| Breath | +16f (533ms) |
+| VO text | 卻長出最狂的文明？ |
+| SUB text | 古埃及登入中… |
 | Image | `scene_002.png` |
 | Camera | Zoom Out |
-| SFX | Whoosh |
+| SFX | System Boot |
 | Veo | — |
 
 
-### CH03: Hook
+### CH03: 序言：撒哈拉中的綠色生命線
 | Field | Value |
 |-------|-------|
-| Scene | `00:00:05:05` → `00:00:07:27` (2.73s / 82f) |
-| VO IN / OUT | `00:00:05:14` (+9f) → `00:00:07:11` |
-| SUB IN / OUT | `00:00:05:20` (+15f) → `00:00:07:11` |
+| Scene | `00:00:05:20` → `00:00:08:01` (2.37s / 71f) |
+| VO IN / OUT | `00:00:05:29` (+9f) → `00:00:07:15` |
+| SUB IN / OUT | `00:00:06:05` (+15f) → `00:00:07:15` |
 | Breath | +16f (533ms) |
-| VO text | 蓋出了地表最強帝國！ |
-| SUB text | 還是外星人蓋的？ |
+| VO text | 全靠這條河撐場！ |
+| SUB text | 尼羅河乾爹來了 |
 | Image | `scene_003.png` |
 | Camera | Zoom Out |
-| SFX | Boing |
+| SFX | Magic Chime |
 | Veo | — |
 
 
-### CH04: Chapter 1
+### CH04: 尼羅河的恩賜：從狩獵採集到定居農業
 | Field | Value |
 |-------|-------|
-| Scene | `00:00:07:27` → `00:00:10:19` (2.73s / 82f) |
-| VO IN / OUT | `00:00:08:06` (+9f) → `00:00:10:03` |
-| SUB IN / OUT | `00:00:08:12` (+15f) → `00:00:10:03` |
+| Scene | `00:00:08:01` → `00:00:10:17` (2.53s / 76f) |
+| VO IN / OUT | `00:00:08:10` (+9f) → `00:00:10:01` |
+| SUB IN / OUT | `00:00:08:16` (+15f) → `00:00:10:01` |
 | Breath | +16f (533ms) |
-| VO text | 一切全靠這條尼羅河。 |
-| SUB text | 乾爹尼羅河！ |
+| VO text | 尼羅河每年準時氾濫 |
+| SUB text | 水逆變神蹟？ |
 | Image | `scene_004.png` |
-| Camera | Zoom Out |
-| SFX | Whoosh |
+| Camera | Shake |
+| SFX | Magic Chime |
 | Veo | — |
 
 
-### CH05: Chapter 1
+### CH05: 尼羅河的恩賜：從狩獵採集到定居農業
 | Field | Value |
 |-------|-------|
-| Scene | `00:00:10:19` → `00:00:13:05` (2.53s / 76f) |
-| VO IN / OUT | `00:00:10:28` (+9f) → `00:00:12:25` |
-| SUB IN / OUT | `00:00:11:04` (+15f) → `00:00:12:25` |
+| Scene | `00:00:10:17` → `00:00:12:27` (2.33s / 70f) |
+| VO IN / OUT | `00:00:10:26` (+9f) → `00:00:12:17` |
+| SUB IN / OUT | `00:00:11:02` (+15f) → `00:00:12:17` |
 | Breath | +10f (333ms) |
-| VO text | 每年淹水變成了恩賜？ |
-| SUB text | 遇水則發啦！ |
+| VO text | 退水後留下極品黑土 |
+| SUB text | 天然黑金肥料 |
 | Image | `scene_005.png` |
 | Camera | Slide |
 | SFX | Cash Register |
 | Veo | — |
 
 
-### CH06: Chapter 2
+### CH06: 尼羅河的恩賜：從狩獵採集到定居農業
 | Field | Value |
 |-------|-------|
-| Scene | `00:00:13:05` → `00:00:15:21` (2.53s / 76f) |
-| VO IN / OUT | `00:00:13:14` (+9f) → `00:00:15:11` |
-| SUB IN / OUT | `00:00:13:20` (+15f) → `00:00:15:11` |
+| Scene | `00:00:12:27` → `00:00:15:07` (2.33s / 70f) |
+| VO IN / OUT | `00:00:13:06` (+9f) → `00:00:14:27` |
+| SUB IN / OUT | `00:00:13:12` (+15f) → `00:00:14:27` |
 | Breath | +10f (333ms) |
-| VO text | 人變多就得分區管理。 |
-| SUB text | 菜鳥村長上線 |
+| VO text | 獵人直接改行當農夫 |
+| SUB text | 躺平種田真香 |
 | Image | `scene_006.png` |
 | Camera | Zoom In |
-| SFX | Whoosh |
+| SFX | Magic Chime |
 | Veo | — |
 
 
-### CH07: Chapter 2
+### CH07: 分裂與統一：美尼斯國王與第一王朝的建立
 | Field | Value |
 |-------|-------|
-| Scene | `00:00:15:21` → `00:00:18:22` (3.03s / 91f) |
-| VO IN / OUT | `00:00:16:00` (+9f) → `00:00:17:27` |
-| SUB IN / OUT | `00:00:16:06` (+15f) → `00:00:17:27` |
-| Breath | +25f (833ms) |
-| VO text | 上下埃及天天在打架。 |
-| SUB text | 南北粽大對決 |
-| Image | `scene_007.png` |
-| Camera | Whip |
-| SFX | Hammer Hit |
-| Veo | Surreal miniature diorama, 3D clay texture figurines, macro lens close-up, tilt-shift bokeh, slapstick physical comedy action: Two ancient Egyptian warriors clashing, one from Upper Egypt, one from Lower Egypt, dynamic action pose, 85mm lens, dramatic cinematic lighting. Scene chapter: Chapter 2. Absurd humorous physical movement, clay stop-motion feel, vibrant studio lighting. | Suggest cutting from 6s raw: 01:00 -> 04:00 |
-
-
-### CH08: Chapter 3
-| Field | Value |
-|-------|-------|
-| Scene | `00:00:18:22` → `00:00:21:08` (2.53s / 76f) |
-| VO IN / OUT | `00:00:19:01` (+9f) → `00:00:20:28` |
-| SUB IN / OUT | `00:00:19:07` (+15f) → `00:00:20:28` |
+| Scene | `00:00:15:07` → `00:00:17:12` (2.17s / 65f) |
+| VO IN / OUT | `00:00:15:16` (+9f) → `00:00:17:02` |
+| SUB IN / OUT | `00:00:15:22` (+15f) → `00:00:17:02` |
 | Breath | +10f (333ms) |
-| VO text | 直到狠人美尼斯登場。 |
-| SUB text | 物理說服大師 |
+| VO text | 當年埃及還分南北 |
+| SUB text | 戰區伺服器 |
+| Image | `scene_007.png` |
+| Camera | Zoom Out |
+| SFX | System Boot |
+| Veo | — |
+
+
+### CH08: 分裂與統一：美尼斯國王與第一王朝的建立
+| Field | Value |
+|-------|-------|
+| Scene | `00:00:17:12` → `00:00:19:28` (2.53s / 76f) |
+| VO IN / OUT | `00:00:17:21` (+9f) → `00:00:19:12` |
+| SUB IN / OUT | `00:00:17:27` (+15f) → `00:00:19:12` |
+| Breath | +16f (533ms) |
+| VO text | 美尼斯大王一統江湖 |
+| SUB text | 第一屆法老上線 |
 | Image | `scene_008.png` |
 | Camera | Whip |
-| SFX | Hammer Hit |
+| SFX | Hammer Impact |
 | Veo | — |
 
 
-### CH09: Chapter 3
+### CH09: 分裂與統一：美尼斯國王與第一王朝的建立
 | Field | Value |
 |-------|-------|
-| Scene | `00:00:21:08` → `00:00:23:24` (2.53s / 76f) |
-| VO IN / OUT | `00:00:21:17` (+9f) → `00:00:23:14` |
-| SUB IN / OUT | `00:00:21:23` (+15f) → `00:00:23:14` |
-| Breath | +10f (333ms) |
-| VO text | 把紅白兩頂帽子合體！ |
-| SUB text | 潮流混搭風 |
+| Scene | `00:00:19:28` → `00:00:22:18` (2.67s / 80f) |
+| VO IN / OUT | `00:00:20:07` (+9f) → `00:00:21:23` |
+| SUB IN / OUT | `00:00:20:13` (+15f) → `00:00:21:23` |
+| Breath | +25f (833ms) |
+| VO text | 戴上雙冠就變老大 |
+| SUB text | 霸氣側漏的帽子 |
 | Image | `scene_009.png` |
 | Camera | Shake |
-| SFX | Boing |
-| Veo | — |
+| SFX | Magic Chime |
+| Veo | Surreal miniature diorama, 3D clay texture figurines, macro lens close-up, tilt-shift bokeh, slapstick physical comedy action: A hyper-detailed close-up of the magnificent Double Crown of ancient Egypt, combining the white bowling-pin shape of the. Scene chapter: 分裂與統一：美尼斯國王與第一王朝的建立. Absurd humorous physical movement, clay stop-motion feel, vibrant studio lighting. | Suggest cutting from 6s raw: 01:00 -> 04:00 |
 
 
-### CH10: Chapter 4
+### CH10: 金字塔前的技術積累：文字、數學與觀星術的萌芽
 | Field | Value |
 |-------|-------|
-| Scene | `00:00:23:24` → `00:00:26:10` (2.53s / 76f) |
-| VO IN / OUT | `00:00:24:03` (+9f) → `00:00:26:00` |
-| SUB IN / OUT | `00:00:24:09` (+15f) → `00:00:26:00` |
-| Breath | +10f (333ms) |
-| VO text | 統治者開始自稱神明。 |
-| SUB text | 我就是真理！ |
+| Scene | `00:00:22:18` → `00:00:25:04` (2.53s / 76f) |
+| VO IN / OUT | `00:00:22:27` (+9f) → `00:00:24:18` |
+| SUB IN / OUT | `00:00:23:03` (+15f) → `00:00:24:18` |
+| Breath | +16f (533ms) |
+| VO text | 蓋金字塔前先點科技 |
+| SUB text | 科技樹點滿 |
 | Image | `scene_010.png` |
 | Camera | Slide |
 | SFX | System Boot |
 | Veo | — |
 
 
-### CH11: Chapter 4
+### CH11: 金字塔前的技術積累：文字、數學與觀星術的萌芽
 | Field | Value |
 |-------|-------|
-| Scene | `00:00:26:10` → `00:00:29:11` (3.03s / 91f) |
-| VO IN / OUT | `00:00:26:19` (+9f) → `00:00:28:16` |
-| SUB IN / OUT | `00:00:26:25` (+15f) → `00:00:28:16` |
-| Breath | +25f (833ms) |
-| VO text | 為了維護宇宙的秩序。 |
-| SUB text | 其實是怕被篡位 |
-| Image | `scene_011.png` |
-| Camera | Zoom In |
-| SFX | System Boot |
-| Veo | Surreal miniature diorama, 3D clay texture figurines, macro lens close-up, tilt-shift bokeh, slapstick physical comedy action: Narmer Palette detailed close-up, intricate carvings of divine order, soft museum lighting, macro lens, photorealistic. Scene chapter: Chapter 4. Absurd humorous physical movement, clay stop-motion feel, vibrant studio lighting. | Suggest cutting from 6s raw: 01:00 -> 04:00 |
-
-
-### CH12: Chapter 5
-| Field | Value |
-|-------|-------|
-| Scene | `00:00:29:11` → `00:00:31:27` (2.53s / 76f) |
-| VO IN / OUT | `00:00:29:20` (+9f) → `00:00:31:17` |
-| SUB IN / OUT | `00:00:29:26` (+15f) → `00:00:31:17` |
+| Scene | `00:00:25:04` → `00:00:27:14` (2.33s / 70f) |
+| VO IN / OUT | `00:00:25:13` (+9f) → `00:00:27:04` |
+| SUB IN / OUT | `00:00:25:19` (+15f) → `00:00:27:04` |
 | Breath | +10f (333ms) |
-| VO text | 開始發明奇怪的文字。 |
+| VO text | 算數觀星全都自己來 |
+| SUB text | 數學不會就真不會 |
+| Image | `scene_011.png` |
+| Camera | Zoom Out |
+| SFX | Magic Chime |
+| Veo | — |
+
+
+### CH12: 金字塔前的技術積累：文字、數學與觀星術的萌芽
+| Field | Value |
+|-------|-------|
+| Scene | `00:00:27:14` → `00:00:29:24` (2.33s / 70f) |
+| VO IN / OUT | `00:00:27:23` (+9f) → `00:00:29:14` |
+| SUB IN / OUT | `00:00:27:29` (+15f) → `00:00:29:14` |
+| Breath | +10f (333ms) |
+| VO text | 象形文字更是密碼學 |
 | SUB text | 最早的表情包 |
 | Image | `scene_012.png` |
 | Camera | Zoom Out |
-| SFX | System Boot |
+| SFX | Magic Chime |
 | Veo | — |
 
 
-### CH13: Chapter 5
+### CH13: 永恆的秩序：宗教觀念如何塑造埃及人的世界觀
 | Field | Value |
 |-------|-------|
-| Scene | `00:00:31:27` → `00:00:34:19` (2.73s / 82f) |
-| VO IN / OUT | `00:00:32:06` (+9f) → `00:00:34:03` |
-| SUB IN / OUT | `00:00:32:12` (+15f) → `00:00:34:03` |
-| Breath | +16f (533ms) |
-| VO text | 最後搞出了大金字塔。 |
-| SUB text | 法老超狂大別墅 |
+| Scene | `00:00:29:24` → `00:00:31:29` (2.17s / 65f) |
+| VO IN / OUT | `00:00:30:03` (+9f) → `00:00:31:19` |
+| SUB IN / OUT | `00:00:30:09` (+15f) → `00:00:31:19` |
+| Breath | +10f (333ms) |
+| VO text | 法老說自己是神明 |
+| SUB text | 自帶神仙光環 |
 | Image | `scene_013.png` |
 | Camera | Whip |
-| SFX | Cash Register |
+| SFX | Magic Chime |
 | Veo | — |
 
 
-### CH14: Chapter 5
+### CH14: 永恆的秩序：宗教觀念如何塑造埃及人的世界觀
 | Field | Value |
 |-------|-------|
-| Scene | `00:00:34:19` → `00:00:37:20` (3.03s / 91f) |
-| VO IN / OUT | `00:00:34:28` (+9f) → `00:00:36:25` |
-| SUB IN / OUT | `00:00:35:04` (+15f) → `00:00:36:25` |
+| Scene | `00:00:31:29` → `00:00:34:24` (2.83s / 85f) |
+| VO IN / OUT | `00:00:32:08` (+9f) → `00:00:33:29` |
+| SUB IN / OUT | `00:00:32:14` (+15f) → `00:00:33:29` |
 | Breath | +25f (833ms) |
-| VO text | 這就是古埃及的誕生！ |
-| SUB text | 點讚訂閱啦！ |
+| VO text | 其實是為了穩固江山 |
+| SUB text | 高端洗腦術 |
 | Image | `scene_014.png` |
+| Camera | Shake |
+| SFX | Magic Chime |
+| Veo | Surreal miniature diorama, 3D clay texture figurines, macro lens close-up, tilt-shift bokeh, slapstick physical comedy action: The Pharaoh charmingly giving a thumbs-up to a massive crowd of hypnotized citizens, while smoothly pocketing golden coi. Scene chapter: 永恆的秩序：宗教觀念如何塑造埃及人的世界觀. Absurd humorous physical movement, clay stop-motion feel, vibrant studio lighting. | Suggest cutting from 6s raw: 01:00 -> 04:00 |
+
+
+### CH15: 永恆的秩序：宗教觀念如何塑造埃及人的世界觀
+| Field | Value |
+|-------|-------|
+| Scene | `00:00:34:24` → `00:00:37:04` (2.33s / 70f) |
+| VO IN / OUT | `00:00:35:03` (+9f) → `00:00:36:24` |
+| SUB IN / OUT | `00:00:35:09` (+15f) → `00:00:36:24` |
+| Breath | +10f (333ms) |
+| VO text | 死後還要蓋豪華大墓 |
+| SUB text | 陰間房地產大亨 |
+| Image | `scene_015.png` |
+| Camera | Slide |
+| SFX | Magic Chime |
+| Veo | — |
+
+
+### CH16: 結語：埃及文明留給現代世界的遺產
+| Field | Value |
+|-------|-------|
+| Scene | `00:00:37:04` → `00:00:39:14` (2.33s / 70f) |
+| VO IN / OUT | `00:00:37:13` (+9f) → `00:00:39:04` |
+| SUB IN / OUT | `00:00:37:19` (+15f) → `00:00:39:04` |
+| Breath | +10f (333ms) |
+| VO text | 埃及人把荒漠變奇蹟 |
+| SUB text | 沙漠求生大師 |
+| Image | `scene_016.png` |
 | Camera | Zoom In |
-| SFX | System Boot |
-| Veo | Surreal miniature diorama, 3D clay texture figurines, macro lens close-up, tilt-shift bokeh, slapstick physical comedy action: Sweeping view of the completed Step Pyramid under a bright blue sky, birds flying, wide angle lens, epic cinematic realism. Scene chapter: Chapter 5. Absurd humorous physical movement, clay stop-motion feel, vibrant studio lighting. | Suggest cutting from 6s raw: 01:00 -> 04:00 |
+| SFX | Magic Chime |
+| Veo | — |
+
+
+### CH17: 結語：埃及文明留給現代世界的遺產
+| Field | Value |
+|-------|-------|
+| Scene | `00:00:39:14` → `00:00:41:19` (2.17s / 65f) |
+| VO IN / OUT | `00:00:39:23` (+9f) → `00:00:41:09` |
+| SUB IN / OUT | `00:00:39:29` (+15f) → `00:00:41:09` |
+| Breath | +10f (333ms) |
+| VO text | 留下五千年的傳說 |
+| SUB text | 萬世流芳啦 |
+| Image | `scene_017.png` |
+| Camera | Zoom Out |
+| SFX | Magic Chime |
+| Veo | — |
+
+
+### CH18: 結語：埃及文明留給現代世界的遺產
+| Field | Value |
+|-------|-------|
+| Scene | `00:00:41:19` → `00:00:44:20` (3.03s / 91f) |
+| VO IN / OUT | `00:00:41:28` (+9f) → `00:00:43:19` |
+| SUB IN / OUT | `00:00:42:04` (+15f) → `00:00:43:19` |
+| Breath | +31f (1033ms) |
+| VO text | 感謝尼羅河的打賞！ |
+| SUB text | 感謝大哥抖內 |
+| Image | `scene_018.png` |
+| Camera | Whip |
+| SFX | Hammer Impact |
+| Veo | Surreal miniature diorama, 3D clay texture figurines, macro lens close-up, tilt-shift bokeh, slapstick physical comedy action: A massive anthropomorphic representation of the Nile River giving a generous wink and making it rain gold coins over a c. Scene chapter: 結語：埃及文明留給現代世界的遺產. Absurd humorous physical movement, clay stop-motion feel, vibrant studio lighting. | Suggest cutting from 6s raw: 01:00 -> 04:00 |
 

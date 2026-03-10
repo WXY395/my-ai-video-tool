@@ -1,105 +1,143 @@
 {
   "topic": "埃及的由來",
   "version": "V35.7",
-  "generated_at": "2026-03-10T05:03:47.918Z",
+  "generated_at": "2026-03-10T18:08:18.540Z",
   "ssot": {
-    "topic": "埃及的由來",
-    "one_line_promise": "深入探索尼羅河贈禮，揭開古埃及文明如何從荒漠中崛起並鑄就三千年輝煌的起源奧秘。",
-    "hook_intent": "引發對人類最早文明之一的好奇心，解釋為何一個極度乾旱的地區能孕育出影響世界的龐大帝國。",
+    "topic": "埃及的由來：尼羅河贈禮的文明起源",
+    "one_line_promise": "帶你跨越五千年，解開古埃及如何從荒漠中誕生並成為世界文明奇蹟的科學與歷史真相。",
+    "hook_intent": "為什麼在生存環境極其惡劣的撒哈拉沙漠，能誕生出結構最複雜且科技最先進的古代文明？這不僅是神話，更是一場關於生存的地理奇蹟。",
     "key_claims": [
-      "尼羅河的定期氾濫是古埃及文明賴以生存的物理基礎。",
-      "納爾邁國王的統一行動標誌著古埃及政治實體的正式誕生。",
-      "宗教信仰與對永生的追求是驅動早期埃及社會組織與技術進步的核心動力。"
+      "尼羅河的定期規律氾濫是埃及文明生存與曆法建立的物理基礎。",
+      "上下埃及的統一是由地理環境促成的必然政治結果，並非偶然。",
+      "宗教神話與法老統治的結合是維持埃及文明數千年穩定的核心社會契約。"
     ],
     "chapter_outline": [
-      "第一章：尼羅河的餽贈——地理環境與氣候變遷",
-      "第二章：前王朝時期——從零散聚落到早期社會架構",
-      "第三章：上下埃及的融合——納爾邁與首個統一王朝",
-      "第四章：神權政體的確立——法老權威與官僚體系的雛形",
-      "第五章：早期金字塔的誕生——從馬斯塔巴到階梯金字塔的演化",
-      "第六章：永恆的起點——埃及文明起源對後世的影響"
+      "序言：撒哈拉中的綠色生命線",
+      "尼羅河的恩賜：從狩獵採集到定居農業",
+      "分裂與統一：美尼斯國王與第一王朝的建立",
+      "金字塔前的技術積累：文字、數學與觀星術的萌芽",
+      "永恆的秩序：宗教觀念如何塑造埃及人的世界觀",
+      "結語：埃及文明留給現代世界的遺產"
     ],
     "visual_list": [
-      "尼羅河衛星圖像展示綠色綠洲與周邊紅土沙漠的鮮明對比",
-      "尼羅河氾濫與淤泥沈積的 3D 動態模擬動畫",
-      "納爾邁調色板（Narmer Palette）的近距離特寫與考古細節解析",
-      "早期上下埃及不同風格陶器與工具的對比展示",
-      "早期法老王冠合併過程的視覺演變圖",
-      "馬斯塔巴墓穴演變為左塞爾階梯金字塔的 3D 建模過程"
+      "衛星俯瞰視角的尼羅河流域與兩岸荒漠對比",
+      "尼羅河水上漲與退去後肥沃黑土的縮時攝影動畫",
+      "早期埃及象形文字在岩石上的刻痕特寫",
+      "上下埃及王冠合併為雙冠的演變示意圖",
+      "古埃及人測量土地與觀察天狼星升起的復原動畫",
+      "第一王朝時期早期墓葬結構與梯形金字塔的演變對照",
+      "壁畫中描繪的農業收割與神靈崇拜場景",
+      "現代開羅與遠處金字塔交疊的航拍畫面"
     ]
   },
   "image_prompts": [
     {
-      "chapter": "第一章：尼羅河的餽贈",
+      "chapter": "序言：撒哈拉中的綠色生命線",
       "filename": "scene_001.png",
-      "prompt": "Aerial satellite view of the harsh red Egyptian desert with a striking, narrow green oasis winding through it, intense bright daylight, 24mm wide lens, highly detailed photorealistic National Geographic style. (No text, no watermarks, no logos)",
-      "vo_text": "埃及是一片大沙漠？"
+      "prompt": "A breathtaking satellite top-down view of the vast, scorching Sahara desert, showcasing immense sand dunes stretching to the horizon under the blinding midday sun. High contrast between the golden sands and a deep blue sky. Shot with a 14mm ultra-wide lens, hyper-realistic, highly detailed cinematic 8k resolution. (No text, no watermarks, no logos)",
+      "vo_text": "撒哈拉沙漠超缺水！"
     },
     {
-      "chapter": "第一章：尼羅河的餽贈",
+      "chapter": "序言：撒哈拉中的綠色生命線",
       "filename": "scene_002.png",
-      "prompt": "A massive flood of dark muddy water surging violently across dry cracked earth, transforming the landscape into fertile soil, dramatic stormy lighting, 50mm lens, cinematic dynamic motion documentary style. (No text, no watermarks, no logos)",
-      "vo_text": "好險有尼羅河送水。"
+      "prompt": "A dynamic timelapse revealing an ancient Egyptian city miraculously constructing itself from the golden desert sands, massive stone columns rising magically into the air. Cinematic dramatic lighting with a glorious sunset casting long shadows. Captured on a 35mm lens, hyper-realistic visual effects style. (No text, no watermarks, no logos)",
+      "vo_text": "卻長出最狂的文明？"
     },
     {
-      "chapter": "第二章：前王朝時期",
+      "chapter": "序言：撒哈拉中的綠色生命線",
       "filename": "scene_003.png",
-      "prompt": "Small scattered primitive mud huts built precariously close to the edge of a wide river, ancient tools scattered on the dusty ground, harsh noon sunlight, 35mm lens, photorealistic historical setup. (No text, no watermarks, no logos)",
-      "vo_text": "大家開始河邊違建。"
+      "prompt": "A gorgeous aerial shot of the Nile river flowing majestically through a barren desert, functioning as a vibrant blue and green lifeline against the yellow sand. Golden hour lighting reflecting beautifully on the water's surface. 24mm wide-angle lens, National Geographic documentary style. (No text, no watermarks, no logos)",
+      "vo_text": "全靠這條河撐場！"
     },
     {
-      "chapter": "第二章：前王朝時期",
+      "chapter": "尼羅河的恩賜：從狩獵採集到定居農業",
       "filename": "scene_004.png",
-      "prompt": "Fast paced time-lapse of ancient villagers rapidly building mudbrick houses near a riverbed, spinning clay on a wheel to make crude pottery, warm sunset lighting, 35mm lens, dynamic historical reenactment style. (No text, no watermarks, no logos)",
-      "vo_text": "從玩泥巴到蓋村莊。"
+      "prompt": "The mighty Nile river rapidly flooding its banks, churning waters spreading across the land under a dramatic cloudy sky, lightning striking in the distance. Intense stormy lighting illuminating the violent, life-giving waters. Shot with a 50mm standard lens, cinematic slow-motion dynamic movement. (No text, no watermarks, no logos)",
+      "vo_text": "尼羅河每年準時氾濫"
     },
     {
-      "chapter": "第三章：上下埃及的融合",
+      "chapter": "尼羅河的恩賜：從狩獵採集到定居農業",
       "filename": "scene_005.png",
-      "prompt": "Close up macro shot of the ancient Narmer Palette carved from dark schist stone, revealing intricate carvings of a king striking his enemies, dramatic museum spotlight, 100mm macro lens, ultra realistic archaeological style. (No text, no watermarks, no logos)",
-      "vo_text": "直到納爾邁當了老大。"
+      "prompt": "Close-up macro shot of incredibly rich, dark black soil left behind by receding floodwaters, glowing with moisture under bright morning sunlight, tiny green sprouts beginning to push through the earth. 100mm macro lens, extreme high detail, photorealistic nature documentary style. (No text, no watermarks, no logos)",
+      "vo_text": "退水後留下極品黑土"
     },
     {
-      "chapter": "第三章：上下埃及的融合",
+      "chapter": "尼羅河的恩賜：從狩獵採集到定居農業",
       "filename": "scene_006.png",
-      "prompt": "A magical visual effect of a glowing red crown and a tall white crown merging together on a faceless bust, sparkling golden dust, dramatic theatrical lighting, 50mm lens, high-end 3D animation style. (No text, no watermarks, no logos)",
-      "vo_text": "南北合併，王冠合體。"
+      "prompt": "A prehistoric hunter suddenly dropping his spear and picking up a primitive farming hoe with an exaggerated expression of joy, enthusiastically tilling the extremely fertile soil. Bright, cheerful natural daylight. Captured with an 85mm portrait lens, slightly humorous cinematic storytelling style. (No text, no watermarks, no logos)",
+      "vo_text": "獵人直接改行當農夫"
     },
     {
-      "chapter": "第四章：神權政體的確立",
+      "chapter": "分裂與統一：美尼斯國王與第一王朝的建立",
       "filename": "scene_007.png",
-      "prompt": "An imposing ancient Egyptian Pharaoh sitting on a golden throne, pointing an authoritative finger forward with an arrogant expression, mystical temple torchlight, 85mm portrait lens, epic cinematic fantasy style. (No text, no watermarks, no logos)",
-      "vo_text": "法老說：我是神！"
+      "prompt": "An ancient map carved into a giant stone slab, split dramatically down the middle with glowing magical lines showing a fierce territorial division between Upper and Lower Egypt. Dark, moody torchlight illuminating the deeply etched symbols. 50mm lens, dark fantasy historical epic style. (No text, no watermarks, no logos)",
+      "vo_text": "當年埃及還分南北"
     },
     {
-      "chapter": "第四章：神權政體的確立",
+      "chapter": "分裂與統一：美尼斯國王與第一王朝的建立",
       "filename": "scene_008.png",
-      "prompt": "A large group of ancient Egyptian bureaucrats bowing their heads repeatedly and furiously writing on papyrus scrolls, nervous and panicked, dim candle lighting, 35mm lens, comedic dynamic historical movie style. (No text, no watermarks, no logos)",
-      "vo_text": "底下官員只能猛點頭。"
+      "prompt": "King Menes dramatically raising a gleaming golden staff into the air as massive cheering crowds of ancient Egyptians bow down before him in a grand desert arena. Epic sunbeams piercing through clouds to spotlight the heroic king. 24mm ultra-wide lens, blockbuster movie climax style. (No text, no watermarks, no logos)",
+      "vo_text": "美尼斯大王一統江湖"
     },
     {
-      "chapter": "第五章：早期金字塔的誕生",
+      "chapter": "分裂與統一：美尼斯國王與第一王朝的建立",
       "filename": "scene_009.png",
-      "prompt": "A wide shot of a flat, rectangular mastaba tomb made of rough mud bricks sitting alone in a vast empty desert, ominous shadows, harsh midday sun, 24mm lens, photorealistic archaeological site style. (No text, no watermarks, no logos)",
-      "vo_text": "死後也要住豪宅。"
+      "prompt": "A hyper-detailed close-up of the magnificent Double Crown of ancient Egypt, combining the white bowling-pin shape of the south and the red chair-shape of the north, sitting on an ornate golden pedestal. Rich dramatic studio lighting emphasizing the textures. 85mm lens, museum archive aesthetic. (No text, no watermarks, no logos)",
+      "vo_text": "戴上雙冠就變老大"
     },
     {
-      "chapter": "第五章：早期金字塔的誕生",
+      "chapter": "金字塔前的技術積累：文字、數學與觀星術的萌芽",
       "filename": "scene_010.png",
-      "prompt": "A flat mastaba tomb suddenly expanding upwards block by massive stone block, rapidly transforming into the towering Step Pyramid of Djoser, bright harsh desert sun, 14mm ultra wide lens, 3D architectural rendering dynamic style. (No text, no watermarks, no logos)",
-      "vo_text": "階梯金字塔就此蓋起。"
+      "prompt": "Ancient Egyptian architects frantically unrolling massive papyrus blueprints covered in glowing blue mathematical equations while standing in front of a half-built pyramid. Dramatic low-angle sunrise lighting creating an epic silhouette of the unfinished structure. 35mm lens, sci-fi historical crossover style. (No text, no watermarks, no logos)",
+      "vo_text": "蓋金字塔前先點科技"
     },
     {
-      "chapter": "第六章：永恆的起點",
+      "chapter": "金字塔前的技術積累：文字、數學與觀星術的萌芽",
       "filename": "scene_011.png",
-      "prompt": "Mysterious mummification process showing priests wrapping a body in linen bandages, surrounded by golden amulets and ancient scrolls, flickering candlelight inside a dark stone chamber, 50mm lens, dark cinematic thriller style. (No text, no watermarks, no logos)",
-      "vo_text": "為了永生他們拚了。"
+      "prompt": "A group of ancient astronomers standing atop an incredibly high stone observatory, pointing complex brass measuring instruments towards a brilliantly glowing star cluster in the deep night sky. Magical bioluminescent starlight illuminating their focused faces. 50mm lens, epic historical fantasy aesthetic. (No text, no watermarks, no logos)",
+      "vo_text": "算數觀星全都自己來"
     },
     {
-      "chapter": "第六章：永恆的起點",
+      "chapter": "金字塔前的技術積累：文字、數學與觀星術的萌芽",
       "filename": "scene_012.png",
-      "prompt": "A sweeping aerial flyover revealing a majestic sprawling ancient Egyptian city with colossal golden statues, bustling markets, and massive pyramids in the distance, golden hour lighting, drone camera, epic historical blockbuster style. (No text, no watermarks, no logos)",
-      "vo_text": "埃及文明就這樣狂了。"
+      "prompt": "A skilled ancient scribe rapidly chiseling intricate, cute-looking hieroglyphs into a giant sandstone wall, dust flying as the mysterious symbols seem to magically glow with golden energy. Warm ambient light from flickering torches. 85mm portrait lens, dynamic historical reenactment style. (No text, no watermarks, no logos)",
+      "vo_text": "象形文字更是密碼學"
+    },
+    {
+      "chapter": "永恆的秩序：宗教觀念如何塑造埃及人的世界觀",
+      "filename": "scene_013.png",
+      "prompt": "A majestic Pharaoh sitting confidently on a massive golden throne, surrounded by a radiant, almost divine glowing aura that makes him look like a living sun god. Heavenly bright beams of light shining down from a hole in the ceiling. 35mm lens, mythic godlike portrait style. (No text, no watermarks, no logos)",
+      "vo_text": "法老說自己是神明"
+    },
+    {
+      "chapter": "永恆的秩序：宗教觀念如何塑造埃及人的世界觀",
+      "filename": "scene_014.png",
+      "prompt": "The Pharaoh charmingly giving a thumbs-up to a massive crowd of hypnotized citizens, while smoothly pocketing golden coins into his royal robes in a subtly humorous manner. Bright, saturated daylight highlighting the opulent gold jewelry. 50mm lens, slightly comedic historical satire style. (No text, no watermarks, no logos)",
+      "vo_text": "其實是為了穩固江山"
+    },
+    {
+      "chapter": "永恆的秩序：宗教觀念如何塑造埃及人的世界觀",
+      "filename": "scene_015.png",
+      "prompt": "An incredibly luxurious and massive underground ancient Egyptian tomb, filled to the brim with glittering gold treasures, massive statues, and piles of jewels. Cinematic dramatic lighting with a single beam of dusty light revealing the wealth. 14mm ultra-wide lens, Indiana Jones adventure style. (No text, no watermarks, no logos)",
+      "vo_text": "死後還要蓋豪華大墓"
+    },
+    {
+      "chapter": "結語：埃及文明留給現代世界的遺產",
+      "filename": "scene_016.png",
+      "prompt": "A group of resilient ancient Egyptians ingeniously building complex irrigation canals, transforming dry, cracking yellow desert sand into vibrant, lush green farmland in a matter of seconds. High-contrast magical realism lighting. 24mm lens, breathtaking transformative visual effects style. (No text, no watermarks, no logos)",
+      "vo_text": "埃及人把荒漠變奇蹟"
+    },
+    {
+      "chapter": "結語：埃及文明留給現代世界的遺產",
+      "filename": "scene_017.png",
+      "prompt": "A majestic panorama of the Great Pyramids and the Sphinx standing timelessly against a brilliant, fiery red and purple sunset sky, representing the enduring legacy of a five-thousand-year-old civilization. 14mm ultra-wide lens, award-winning travel photography style. (No text, no watermarks, no logos)",
+      "vo_text": "留下五千年的傳說"
+    },
+    {
+      "chapter": "結語：埃及文明留給現代世界的遺產",
+      "filename": "scene_018.png",
+      "prompt": "A massive anthropomorphic representation of the Nile River giving a generous wink and making it rain gold coins over a celebrating ancient Egyptian city. Bright, festive, and colorful magical lighting. 35mm lens, highly stylized magical realism cinematic style. (No text, no watermarks, no logos)",
+      "vo_text": "感謝尼羅河的打賞！"
     }
   ],
   "saved_files": {
@@ -119,7 +157,13 @@
     "scene_009.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_009.png",
     "scene_010.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_010.png",
     "scene_011.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_011.png",
-    "scene_012.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_012.png"
+    "scene_012.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_012.png",
+    "scene_013.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_013.png",
+    "scene_014.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_014.png",
+    "scene_015.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_015.png",
+    "scene_016.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_016.png",
+    "scene_017.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_017.png",
+    "scene_018.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\埃及的由來\\scene_018.png"
   },
-  "seo_txt": "【YouTube】\n標題：沙漠如何變帝國？古埃及文明起源大揭秘！\n描述：尼羅河的氾濫如何造就古埃及？納爾邁又是誰？一起深入探索古埃及文明如何從荒漠中崛起，鑄就三千年輝煌的起源奧秘！\nTags：#古埃及 #埃及歷史 #尼羅河 #金字塔 #法老 #納爾邁 #世界歷史 #歷史解密 #神話與歷史 #文明起源 #木乃伊 #階梯金字塔 #考古發現 #古代文明 #歷史故事\n---\n【TikTok】\n標題：埃及到底怎麼紅的？30秒看懂！\n描述：沙漠裡蓋豪宅？法老其實是基建狂魔！你不知道的埃及冷知識都在這，看到最後超傻眼！趕快留言告訴我你想當哪個法老👇\nTags：#古埃及 #歷史小知識 #尼羅河 #法老 #金字塔 #冷知識 #秒懂 #搞笑歷史\n---\n【Instagram】\n標題：永恆的起點✨揭開古埃及三千年霸榜的秘密\n描述：從一片黃沙到輝煌的帝國，尼羅河的餽贈成就了不朽的古埃及文明🏛️。\n你想知道法老是如何統治這片土地的嗎？滑動看更多👇\nTags：#古埃及 #歷史 #埃及 #尼羅河 #文明 #歷史愛好者 #金字塔 #法老王 #生活風格 #探索世界 #考古 #美學 #古代神話 #長知識\n---\n【Facebook】\n標題：不可思議！極度乾旱的沙漠竟然孕育出影響世界的龐大帝國？\n描述：大家常聽說埃及金字塔，但你知道古埃及人一開始是怎麼在沙漠裡生存下來的嗎？一切都要從尼羅河這個「最佳神隊友」說起... 快來看看這段超有趣的歷史故事，看完別忘了分享給喜歡歷史的朋友喔！\nTags：#古埃及 #歷史故事 #尼羅河 #法老 #金字塔 #歷史知識 #趣味分享"
+  "seo_txt": "【YouTube】\n標題：撒哈拉沙漠長出超狂文明？5分鐘看懂古埃及的逆襲生存術！ | How Ancient Egypt Conquered the Sahara\n描述：在世界上最荒涼的撒哈拉沙漠，古埃及人究竟是如何靠著一條尼羅河，建立起擁有金字塔與高度科技的超級文明？本片帶你穿越五千年，揭開法老王與黑土的硬核生存秘密！\nTags：#古埃及 #尼羅河 #金字塔 #法老 #歷史解密 #世界奇觀 #撒哈拉沙漠 #古代文明 #歷史故事 #科普知識 #美尼斯 #象形文字 #天狼星 #神話傳說 #考古發現\n----------------------------------------\n【TikTok】\n標題：沙漠求生最高境界！古埃及根本開了外掛🏜️ | Egypt Survived the Sahara!\n描述：全靠一條河撐場？古埃及人的開掛人生，結局超神！快標記你那個不想努力的朋友來看👀\nTags：#古埃及 #冷知識 #歷史 #金字塔 #短影音 #法老 #尼羅河 #搞笑歷史\n----------------------------------------\n【Instagram】\n標題：🏜️沙海中的綠色奇蹟：古埃及文明的誕生 | The Miracle of Ancient Egypt\n描述：當荒蕪沙漠遇上氾濫的尼羅河，生命就此孕育✨ 古埃及人不僅戰勝了自然，還留下了五千年的璀璨遺產。他們的智慧，至今依然令人驚嘆！你最想親眼看看哪個古埃及遺跡呢？👇\nTags：#古埃及 #尼羅河 #金字塔 #歷史之美 #文明的起源 #法老 #旅遊靈感 #探索世界 #考古 #歷史愛好者 #旅行日記 #神秘學 #人類學 #世界遺產\n----------------------------------------\n【Facebook】\n標題：如果把古埃及當成一款生存遊戲，他們絕對是頂尖玩家！🎮 | Ancient Egypt: The Ultimate Survival Game\n描述：想像一下，你出生在全地球最缺水的撒哈拉沙漠，不但沒被渴死，反而還蓋出了世界七大奇蹟？這不是傳說，是古埃及人活生生的「硬核生存史」！來看看這群古代的大神們，是怎麼靠著尼羅河逆轉勝的？分享給你身邊的歷史迷朋友吧！\nTags：#古埃及 #歷史趣聞 #尼羅河 #金字塔 #法老的秘密 #古代科技"
 }
