@@ -47,6 +47,48 @@ export function voDuration(voText: string): number {
   return VO_LEAD_IN + voText.length * VO_CHAR_DURATION + VO_TAIL;
 }
 
+/** Convert whole-frame count to ms (avoids cumulative float drift). */
+export function frameToMs(frames: number): number {
+  return Math.round(frames * 1000 / SMPTE_FPS);
+}
+
+// ── Dynamic scene duration ────────────────────────────────────────────────────
+// Each scene occupies [startF, startF + durationF).
+//   VO IN  = startF + 9
+//   SUB IN = startF + 15
+//   VO OUT = startF + 9 + voFrames
+//   Scene end (breath) = VO OUT + breathFrames  →  clamped [45f, 120f]
+
+const VO_F_PER_CHAR = SMPTE_FPS * VO_CHAR_DURATION;  // 5.7 f/char
+const VO_IN_F       = 9;
+const BREATH_F_NORMAL  = 10;   // 1/3 s
+const BREATH_F_VEO     = 25;   // midpoint of 20-30 f spec
+const MIN_SCENE_F      = 45;   // 1.5 s
+const MAX_SCENE_F      = 120;  // 4.0 s
+
+const HUMOR_DUR_KW  = ["哈","笑","蠢","傻","瘋","搞笑","OMG","WTF","崩了","笑死","不行"];
+const VISUAL_DUR_KW = ["金字塔","帝國","文明","宏偉","壯觀","一統","征服","神祇","大沙漠","尼羅河"];
+
+/**
+ * Returns total scene duration in WHOLE FRAMES.
+ * isVeo / SUB punchline → extended breath (20–30f).
+ * Clamped to [1.5s, 4.0s].
+ */
+export function sceneDurationFrames(
+  voText:  string,
+  subText: string,
+  isVeo:   boolean,
+): number {
+  const combined  = voText + subText;
+  const voF       = Math.round(voText.length * VO_F_PER_CHAR);
+  const hasHumor  = HUMOR_DUR_KW.some(k => combined.includes(k));
+  const hasVisual = VISUAL_DUR_KW.some(k => combined.includes(k));
+  const bonusF    = (hasHumor ? 9 : 0) + (hasVisual ? 6 : 0);   // 0.3s / 0.2s
+  const breathF   = (isVeo || hasHumor) ? BREATH_F_VEO : BREATH_F_NORMAL;
+  const total     = VO_IN_F + voF + bonusF + breathF;
+  return Math.max(MIN_SCENE_F, Math.min(MAX_SCENE_F, total));
+}
+
 // ── Script segmentation ───────────────────────────────────────────────────────
 
 const SPLIT_RE = /[。，、！？；…\n]+/;
@@ -123,46 +165,41 @@ export function extractMetaphor(text: string): string {
 
 // ── SFX ──────────────────────────────────────────────────────────────────────
 
-const HUMOR_MARKERS  = ["哈","笑","蠢","傻","瘋","搞笑","OMG","WTF","崩潰","傻眼"];
-const ACTION_MARKERS = ["衝","爆","噴","砸","踢","摔","撞","炸","飛","崩"];
-const MONEY_MARKERS  = ["錢","財","寶","金","收","賺","價值","帝國","征服"];
+// SFX driven primarily by SUB text (the sharpened punchline)
+const SFX_BOING_KW    = ["哈","笑","蠢","傻","瘋","搞笑","OMG","WTF","不行","死了","崩了","笑死"];
+const SFX_CASH_KW     = ["錢","財","寶","金","收","賺","搖錢","帝國","征服","贏","發財","cha"];
+const SFX_HAMMER_KW   = ["打","砸","撞","擊","衝","爆","炸","飛","崩","摔","踢","一統"];
+const SFX_SYSBOOT_KW  = ["登入","開機","啟動","伺服器","系統","矩陣","AI","科技","誕生","開始"];
 
 export function sfxForScene(
   voText: string, subText: string,
-  sceneIdx: number, totalScenes: number,
+  _sceneIdx: number, _totalScenes: number,
 ): string {
-  const text = voText + subText;
-  if (sceneIdx === 0)               return "Whoosh → Impact drum [SUB IN aligned]";
-  if (sceneIdx === totalScenes - 1) return "Cha-ching → Whoosh [SUB IN aligned]";
-  if (MONEY_MARKERS.some(m => text.includes(m))) return "Cha-ching [SUB IN aligned]";
-  if (ACTION_MARKERS.some(m => text.includes(m))) return "Squish → Impact [SUB IN aligned]";
-  if (HUMOR_MARKERS.some(m => text.includes(m)))  return "Slide-whistle → Boing [SUB IN aligned]";
-  return "Soft pad → Whoosh [SUB IN aligned]";
+  // SUB text first (punchline), then VO fallback
+  for (const src of [subText, voText]) {
+    if (SFX_BOING_KW.some(k => src.includes(k)))    return "Boing";
+    if (SFX_CASH_KW.some(k => src.includes(k)))     return "Cash Register";
+    if (SFX_HAMMER_KW.some(k => src.includes(k)))   return "Hammer Impact";
+    if (SFX_SYSBOOT_KW.some(k => src.includes(k)))  return "System Boot";
+  }
+  return "Magic Chime";  // default: wonder / discovery
 }
 
-// ── Camera action (semantic, no Ken Burns) ────────────────────────────────────
+// ── Camera action — CapCut International built-in only ───────────────────────
 
-const FAST_PAN_KW   = ["衝","跑","奔","飛","快","速","追","逃","掃"];
-const TILT_UP_KW    = ["發現","揭露","升起","崛起","天空","壯觀","宏偉","誕生"];
-const SHAKY_KW      = ["哈","笑","蠢","傻","瘋","崩潰","搞笑","吐槽","OMG","WTF"];
-const DOLLY_ZOOM_KW = ["震驚","恐懼","驚","嚇","詭異","扭曲","深淵","顫抖"];
+const CC_SHAKE_KW   = ["哈","笑","蠢","傻","瘋","崩潰","搞笑","OMG","WTF","吐槽","不行"];
+const CC_WHIP_KW    = ["衝","跑","奔","飛","快","速","追","逃","一統","打"];
+const CC_ZOOMIN_KW  = ["發現","揭露","誕生","崛起","開機","啟動","揭開"];
+const CC_ZOOMOUT_KW = ["全","整","宏","壯","帝國","文明","天下","世界"];
 
-const CAMERA_POOL = [
-  "Dolly Zoom — push in + warp",
-  "Fast Pan — lateral whip cut",
-  "Tilt Up — reveal shot 0→90°",
-  "Macro Shaky Cam — handheld extreme close-up",
-  "Arc Shot — 90° orbit around subject",
-  "Push In — slow creep 1.0×→1.4×",
-];
+const CC_POOL = ["Zoom In", "Zoom Out", "Whip", "Shake", "Slide"];
 
 export function dynamicCamera(voText: string, sceneIdx: number): string {
-  if (SHAKY_KW.some(k => voText.includes(k)))    return "Macro Shaky Cam — handheld extreme close-up";
-  if (DOLLY_ZOOM_KW.some(k => voText.includes(k))) return "Dolly Zoom — push in + warp";
-  if (FAST_PAN_KW.some(k => voText.includes(k)))   return "Fast Pan — lateral whip cut";
-  if (TILT_UP_KW.some(k => voText.includes(k)))    return "Tilt Up — reveal shot 0→90°";
-  // Deterministic rotation for remaining scenes
-  return CAMERA_POOL[sceneIdx % CAMERA_POOL.length];
+  if (CC_SHAKE_KW.some(k => voText.includes(k)))   return "Shake";
+  if (CC_WHIP_KW.some(k => voText.includes(k)))    return "Whip";
+  if (CC_ZOOMIN_KW.some(k => voText.includes(k)))  return "Zoom In";
+  if (CC_ZOOMOUT_KW.some(k => voText.includes(k))) return "Zoom Out";
+  return CC_POOL[sceneIdx % CC_POOL.length];
 }
 
 /** @deprecated use dynamicCamera() */
