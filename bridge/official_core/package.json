@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
-    "factory": "tsx src/cli.ts"
+    "factory": "tsx src/cli.ts",
+    "gen": "tsx src/cli.ts --full-pipeline --skip-veo --vo-engine edge-tts --image-model mixed --force-overwrite"
   },
   "dependencies": {
     "@google/genai": "^1.29.0",
