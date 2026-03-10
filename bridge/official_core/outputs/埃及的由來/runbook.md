@@ -1,28 +1,28 @@
 # Runbook — 埃及的由來
-> V35.9.9 Breath Alignment | 18 scenes | 45.17s total | 30fps CapCut
+> V35.10.0 Semantic SFX Engine | 18 scenes | 45.17s total | 30fps CapCut
 > Veo anchors: scenes 1, 7, 9, 11, 14, 18
-> Duration range: 2.17s–2.83s/scene | Normal breath +10/16f | Veo/punchline +25f
+> Duration range: 2.17s–2.83s/scene | Veo breath +25f | Normal breath +10/16f
 
 | CH | Chapter | Dur | VO IN | SUB IN | Scene OUT | Camera | SFX | Veo |
 |----|---------|-----|-------|--------|-----------|--------|-----|-----|
-|  1 | 序言：撒哈拉中的綠色生命線 | 2.83s | `00:00:00:09` | `00:00:00:15` | `00:00:02:25` | Shake | Boing | ✅ |
-|  2 | 序言：撒哈拉中的綠色生命線 | 2.53s | `00:00:03:04` | `00:00:03:10` | `00:00:05:11` | Zoom Out | System Boot | — |
-|  3 | 序言：撒哈拉中的綠色生命線 | 2.37s | `00:00:05:20` | `00:00:05:26` | `00:00:07:22` | Tilt Down | Water Splash | — |
-|  4 | 尼羅河的恩賜：從狩獵採集到定居農 | 2.53s | `00:00:08:01` | `00:00:08:07` | `00:00:10:08` | Shake | River Flow | — |
-|  5 | 尼羅河的恩賜：從狩獵採集到定居農 | 2.33s | `00:00:10:17` | `00:00:10:23` | `00:00:12:18` | Slide | Cash Register | — |
-|  6 | 尼羅河的恩賜：從狩獵採集到定居農 | 2.33s | `00:00:12:27` | `00:00:13:03` | `00:00:14:28` | Zoom In | Snoring | — |
-|  7 | 分裂與統一：美尼斯國王與第一王朝 | 2.67s | `00:00:15:07` | `00:00:15:13` | `00:00:17:18` | Zoom Out | System Boot | ✅ |
-|  8 | 分裂與統一：美尼斯國王與第一王朝 | 2.53s | `00:00:17:27` | `00:00:18:03` | `00:00:20:04` | Whip | Hammer Impact | — |
-|  9 | 分裂與統一：美尼斯國王與第一王朝 | 2.67s | `00:00:20:13` | `00:00:20:19` | `00:00:22:24` | Shake | Magic Chime | ✅ |
-| 10 | 金字塔前的技術積累：文字、數學與 | 2.53s | `00:00:23:03` | `00:00:23:09` | `00:00:25:10` | Slide | System Boot | — |
-| 11 | 金字塔前的技術積累：文字、數學與 | 2.83s | `00:00:25:19` | `00:00:25:25` | `00:00:28:05` | Zoom Out | Reed Scribble | ✅ |
-| 12 | 金字塔前的技術積累：文字、數學與 | 2.33s | `00:00:28:14` | `00:00:28:20` | `00:00:30:15` | Rotate | Camera Pop | — |
-| 13 | 永恆的秩序：宗教觀念如何塑造埃及 | 2.17s | `00:00:30:24` | `00:00:31:00` | `00:00:32:20` | Whip | Magic Chime | — |
-| 14 | 永恆的秩序：宗教觀念如何塑造埃及 | 2.83s | `00:00:32:29` | `00:00:33:05` | `00:00:35:15` | Shake | Hypnotic Hum | ✅ |
-| 15 | 永恆的秩序：宗教觀念如何塑造埃及 | 2.33s | `00:00:35:24` | `00:00:36:00` | `00:00:37:25` | Slide | Cash Register | — |
-| 16 | 結語：埃及文明留給現代世界的遺產 | 2.33s | `00:00:38:04` | `00:00:38:10` | `00:00:40:05` | Zoom In | Magic Chime | — |
-| 17 | 結語：埃及文明留給現代世界的遺產 | 2.17s | `00:00:40:14` | `00:00:40:20` | `00:00:42:10` | Zoom Out | Magic Chime | — |
-| 18 | 結語：埃及文明留給現代世界的遺產 | 2.83s | `00:00:42:19` | `00:00:42:25` | `00:00:45:05` | Whip | River Flow | ✅ |
+|  1 | 序言：撒哈拉中的綠色生命線 | 2.83s | `00:00:00:09` | `00:00:00:15` | `00:00:02:25` | Shake | Desert Wind Hum | ✅ |
+|  2 | 序言：撒哈拉中的綠色生命線 | 2.53s | `00:00:03:04` | `00:00:03:10` | `00:00:05:11` | Zoom Out | Modem Dial-Up | — |
+|  3 | 序言：撒哈拉中的綠色生命線 | 2.37s | `00:00:05:20` | `00:00:05:26` | `00:00:07:22` | Tilt Down | Bass Boom Drop | — |
+|  4 | 尼羅河的恩賜：從狩獵採集到定居農 | 2.53s | `00:00:08:01` | `00:00:08:07` | `00:00:10:08` | Shake | Alarm Clock Ring | — |
+|  5 | 尼羅河的恩賜：從狩獵採集到定居農 | 2.33s | `00:00:10:17` | `00:00:10:23` | `00:00:12:18` | Slide | Gold Coin Drop | — |
+|  6 | 尼羅河的恩賜：從狩獵採集到定居農 | 2.33s | `00:00:12:27` | `00:00:13:03` | `00:00:14:28` | Zoom In | Contented Sigh | — |
+|  7 | 分裂與統一：美尼斯國王與第一王朝 | 2.67s | `00:00:15:07` | `00:00:15:13` | `00:00:17:18` | Zoom Out | Server Disconnect | ✅ |
+|  8 | 分裂與統一：美尼斯國王與第一王朝 | 2.53s | `00:00:17:27` | `00:00:18:03` | `00:00:20:04` | Whip | War Drum Strike | — |
+|  9 | 分裂與統一：美尼斯國王與第一王朝 | 2.67s | `00:00:20:13` | `00:00:20:19` | `00:00:22:24` | Shake | Hollow Crown Clunk | ✅ |
+| 10 | 金字塔前的技術積累：文字、數學與 | 2.53s | `00:00:23:03` | `00:00:23:09` | `00:00:25:10` | Slide | Achievement Unlock Chime | — |
+| 11 | 金字塔前的技術積累：文字、數學與 | 2.83s | `00:00:25:19` | `00:00:25:25` | `00:00:28:05` | Zoom Out | Quill Scratch on Papyrus | ✅ |
+| 12 | 金字塔前的技術積累：文字、數學與 | 2.33s | `00:00:28:14` | `00:00:28:20` | `00:00:30:15` | Rotate | Ancient Notification Ping | — |
+| 13 | 永恆的秩序：宗教觀念如何塑造埃及 | 2.17s | `00:00:30:24` | `00:00:31:00` | `00:00:32:20` | Whip | Harp Shimmer | — |
+| 14 | 永恆的秩序：宗教觀念如何塑造埃及 | 2.83s | `00:00:32:29` | `00:00:33:05` | `00:00:35:15` | Shake | Mesmer Tone Drop | ✅ |
+| 15 | 永恆的秩序：宗教觀念如何塑造埃及 | 2.33s | `00:00:35:24` | `00:00:36:00` | `00:00:37:25` | Slide | Echo Coin Ring | — |
+| 16 | 結語：埃及文明留給現代世界的遺產 | 2.33s | `00:00:38:04` | `00:00:38:10` | `00:00:40:05` | Zoom In | Triumphant Brass Sting | — |
+| 17 | 結語：埃及文明留給現代世界的遺產 | 2.17s | `00:00:40:14` | `00:00:40:20` | `00:00:42:10` | Zoom Out | Temple Bell Reverb | — |
+| 18 | 結語：埃及文明留給現代世界的遺產 | 2.83s | `00:00:42:19` | `00:00:42:25` | `00:00:45:05` | Whip | Live Stream Donation Ping | ✅ |
 
 ---
 
@@ -37,7 +37,7 @@
 | SUB text | 史上最乾旱地區 |
 | Image | `scene_001.png` |
 | Camera | Shake |
-| SFX | Boing |
+| SFX | Desert Wind Hum |
 | Veo | Surreal miniature diorama, 3D clay texture, macro lens, tilt-shift bokeh, MODULE 02 比例失衡: A 0.7cm clay figurine stands at the base of an 18cm sand dune — scale ratio 1:25.7, label visible in lower frame. Figurine takes one step forward at normal walking pace. Does not look up. Camera fixed at ground level, figurine anchored lower-left. 9:16 vertical, clay stop-motion, studio lighting. | Suggest cutting from 6s raw: 01:00 -> 04:00 |
 
 
@@ -52,7 +52,7 @@
 | SUB text | 古埃及登入中… |
 | Image | `scene_002.png` |
 | Camera | Zoom Out |
-| SFX | System Boot |
+| SFX | Modem Dial-Up |
 | Veo | — |
 
 
@@ -67,7 +67,7 @@
 | SUB text | 尼羅河乾爹來了 |
 | Image | `scene_003.png` |
 | Camera | Tilt Down |
-| SFX | Water Splash |
+| SFX | Bass Boom Drop |
 | Veo | — |
 
 
@@ -82,7 +82,7 @@
 | SUB text | 水逆變神蹟？ |
 | Image | `scene_004.png` |
 | Camera | Shake |
-| SFX | River Flow |
+| SFX | Alarm Clock Ring |
 | Veo | — |
 
 
@@ -97,7 +97,7 @@
 | SUB text | 天然黑金肥料 |
 | Image | `scene_005.png` |
 | Camera | Slide |
-| SFX | Cash Register |
+| SFX | Gold Coin Drop |
 | Veo | — |
 
 
@@ -112,7 +112,7 @@
 | SUB text | 躺平種田真香 |
 | Image | `scene_006.png` |
 | Camera | Zoom In |
-| SFX | Snoring |
+| SFX | Contented Sigh |
 | Veo | — |
 
 
@@ -127,7 +127,7 @@
 | SUB text | 戰區伺服器 |
 | Image | `scene_007.png` |
 | Camera | Zoom Out |
-| SFX | System Boot |
+| SFX | Server Disconnect |
 | Veo | Surreal miniature diorama, 3D clay texture figurines, macro lens close-up, tilt-shift bokeh, MODULE 01 重心崩壞: Two 1.2cm clay figurines — one wearing a 0.8cm white bowling-pin crown (Upper Egypt), one wearing a 0.6cm red basket crown (Lower Egypt) — facing each other at 3cm distance. At t=0.8s both figurines simultaneously exceed their center-of-gravity threshold in opposite directions, falling away from each other at identical 47° angles. White crown travels 4.2cm parabolic arc before landing. Red crown travels 3.8cm. Both figurines remain fallen. Camera fixed. Scene chapter: 分裂與統一：美尼斯國王與第一王朝的建立. Clay stop-motion feel, vibrant studio lighting. | Suggest cutting from 6s raw: 01:00 -> 04:00 |
 
 
@@ -142,7 +142,7 @@
 | SUB text | 第一屆法老上線 |
 | Image | `scene_008.png` |
 | Camera | Whip |
-| SFX | Hammer Impact |
+| SFX | War Drum Strike |
 | Veo | — |
 
 
@@ -157,7 +157,7 @@
 | SUB text | 霸氣側漏的帽子 |
 | Image | `scene_009.png` |
 | Camera | Shake |
-| SFX | Magic Chime |
+| SFX | Hollow Crown Clunk |
 | Veo | Surreal miniature diorama, 3D clay texture, macro lens, tilt-shift bokeh, MODULE 10 莊嚴崩潰: A 1.1cm clay figurine initiates crown placement ceremony — posture upright, both arms raised to receive a 1.4cm double crown (127% of figurine head diameter). At t=1.2s crown weight exceeds neck support threshold. Head tilts 34° forward. Crown continues to table surface. Figurine maintains ceremonial arm position throughout. Camera fixed. Scene chapter: 分裂與統一：美尼斯國王與第一王朝的建立. Clay stop-motion feel, vibrant studio lighting. | Suggest cutting from 6s raw: 01:00 -> 04:00 |
 
 
@@ -172,7 +172,7 @@
 | SUB text | 科技樹點滿 |
 | Image | `scene_010.png` |
 | Camera | Slide |
-| SFX | System Boot |
+| SFX | Achievement Unlock Chime |
 | Veo | — |
 
 
@@ -187,7 +187,7 @@
 | SUB text | 數學不會就真不會 |
 | Image | `scene_011.png` |
 | Camera | Zoom Out |
-| SFX | Reed Scribble |
+| SFX | Quill Scratch on Papyrus |
 | Veo | Surreal miniature diorama, 3D clay texture figurines, macro lens close-up, tilt-shift bokeh, MODULE 06 微型自尊: A 0.9cm clay scholar figurine methodically arranging papyrus scrolls each 2.7cm tall — 3x the figurine's height. Head-to-body ratio: 1.8:1. The figurine examines a star chart using a reed measuring stick 1.4x its own arm length. Movement deliberate, unhurried, technically precise. Head does not tilt upward despite scroll height discrepancy. Camera fixed at 45° overhead. Scene chapter: 金字塔前的技術積累：文字、數學與觀星術的萌芽. Clay stop-motion feel, vibrant studio lighting. | Suggest cutting from 6s raw: 01:00 -> 04:00 |
 
 
@@ -202,7 +202,7 @@
 | SUB text | 最早的表情包 |
 | Image | `scene_012.png` |
 | Camera | Rotate |
-| SFX | Camera Pop |
+| SFX | Ancient Notification Ping |
 | Veo | — |
 
 
@@ -217,7 +217,7 @@
 | SUB text | 自帶神仙光環 |
 | Image | `scene_013.png` |
 | Camera | Whip |
-| SFX | Magic Chime |
+| SFX | Harp Shimmer |
 | Veo | — |
 
 
@@ -232,7 +232,7 @@
 | SUB text | 高端洗腦術 |
 | Image | `scene_014.png` |
 | Camera | Shake |
-| SFX | Hypnotic Hum |
+| SFX | Mesmer Tone Drop |
 | Veo | Surreal miniature diorama, 3D clay texture, macro lens, tilt-shift bokeh, MODULE 10 莊嚴崩潰: A 1.0cm clay pharaoh figurine extends arm holding a 1.8cm scepter (180% body height) in official decree posture. At t=1.4s scepter-to-body torque ratio exceeds base friction threshold. Figurine rotates 90° forward at uniform speed. Scepter lands 5.1cm from figurine. Figurine remains at 90° from vertical. Camera fixed. Scene chapter: 永恆的秩序：宗教觀念如何塑造埃及人的世界觀. Clay stop-motion feel, vibrant studio lighting. | Suggest cutting from 6s raw: 01:00 -> 04:00 |
 
 
@@ -247,7 +247,7 @@
 | SUB text | 陰間房地產大亨 |
 | Image | `scene_015.png` |
 | Camera | Slide |
-| SFX | Cash Register |
+| SFX | Echo Coin Ring |
 | Veo | — |
 
 
@@ -262,7 +262,7 @@
 | SUB text | 沙漠求生大師 |
 | Image | `scene_016.png` |
 | Camera | Zoom In |
-| SFX | Magic Chime |
+| SFX | Triumphant Brass Sting |
 | Veo | — |
 
 
@@ -277,7 +277,7 @@
 | SUB text | 萬世流芳啦 |
 | Image | `scene_017.png` |
 | Camera | Zoom Out |
-| SFX | Magic Chime |
+| SFX | Temple Bell Reverb |
 | Veo | — |
 
 
@@ -292,5 +292,5 @@
 | SUB text | 感謝大哥抖內 |
 | Image | `scene_018.png` |
 | Camera | Whip |
-| SFX | River Flow |
+| SFX | Live Stream Donation Ping |
 | Veo | Surreal miniature diorama, 3D clay texture, macro lens, tilt-shift bokeh, MODULE 09 冠軍噴濺協定: Water droplet 8mm diameter impacts miniature Nile delta surface (22cm × 8cm) at 3.2m/s. Crown splash: 12 symmetric jets each 14mm tall, arc angle 62°. Crown duration 47ms. Two 0.8cm clay figurines visible at delta edge. Camera macro fixed. Scene chapter: 結語：埃及文明留給現代世界的遺產. Clay stop-motion feel, vibrant studio lighting. | Suggest cutting from 6s raw: 01:00 -> 04:00 |
