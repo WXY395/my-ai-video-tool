@@ -1,6 +1,6 @@
 # Runbook — 埃及的由來
 > V35.9 Cinematic Rhythm | 18 scenes | 44.7s total | 30fps CapCut
-> Veo anchors: scenes 1, 9, 14, 18
+> Veo anchors: scenes 1, 7, 9, 11, 14, 18  ← V35.9.7 新增 CH07(MODULE01) CH11(MODULE06)
 > Duration range: 1.5s–4.0s/scene | Normal breath +10f | Veo/punchline +25f
 
 | CH | Chapter | Dur | VO IN | SUB IN | Scene OUT | Camera | SFX | Veo |
@@ -11,11 +11,11 @@
 |  4 | 尼羅河的恩賜：從狩獵採集到定居農 | 2.53s | `00:00:08:10` | `00:00:08:16` | `00:00:10:17` | Shake | Magic Chime | — |
 |  5 | 尼羅河的恩賜：從狩獵採集到定居農 | 2.33s | `00:00:10:26` | `00:00:11:02` | `00:00:12:27` | Slide | Cash Register | — |
 |  6 | 尼羅河的恩賜：從狩獵採集到定居農 | 2.33s | `00:00:13:06` | `00:00:13:12` | `00:00:15:07` | Zoom In | Magic Chime | — |
-|  7 | 分裂與統一：美尼斯國王與第一王朝 | 2.17s | `00:00:15:16` | `00:00:15:22` | `00:00:17:12` | Zoom Out | System Boot | — |
+|  7 | 分裂與統一：美尼斯國王與第一王朝 | 2.17s | `00:00:15:16` | `00:00:15:22` | `00:00:17:12` | Zoom Out | System Boot | ✅ |
 |  8 | 分裂與統一：美尼斯國王與第一王朝 | 2.53s | `00:00:17:21` | `00:00:17:27` | `00:00:19:28` | Whip | Hammer Impact | — |
 |  9 | 分裂與統一：美尼斯國王與第一王朝 | 2.67s | `00:00:20:07` | `00:00:20:13` | `00:00:22:18` | Shake | Magic Chime | ✅ |
 | 10 | 金字塔前的技術積累：文字、數學與 | 2.53s | `00:00:22:27` | `00:00:23:03` | `00:00:25:04` | Slide | System Boot | — |
-| 11 | 金字塔前的技術積累：文字、數學與 | 2.33s | `00:00:25:13` | `00:00:25:19` | `00:00:27:14` | Zoom Out | Magic Chime | — |
+| 11 | 金字塔前的技術積累：文字、數學與 | 2.33s | `00:00:25:13` | `00:00:25:19` | `00:00:27:14` | Zoom Out | Magic Chime | ✅ |
 | 12 | 金字塔前的技術積累：文字、數學與 | 2.33s | `00:00:27:23` | `00:00:27:29` | `00:00:29:24` | Zoom Out | Magic Chime | — |
 | 13 | 永恆的秩序：宗教觀念如何塑造埃及 | 2.17s | `00:00:30:03` | `00:00:30:09` | `00:00:31:29` | Whip | Magic Chime | — |
 | 14 | 永恆的秩序：宗教觀念如何塑造埃及 | 2.83s | `00:00:32:08` | `00:00:32:14` | `00:00:34:24` | Shake | Magic Chime | ✅ |
@@ -38,7 +38,7 @@
 | Image | `scene_001.png` |
 | Camera | Shake |
 | SFX | Boing |
-| Veo | Surreal miniature diorama, 3D clay texture figurines, macro lens close-up, tilt-shift bokeh, slapstick physical comedy action: A breathtaking satellite top-down view of the vast, scorching Sahara desert, showcasing immense sand dunes stretching to. Scene chapter: 序言：撒哈拉中的綠色生命線. Absurd humorous physical movement, clay stop-motion feel, vibrant studio lighting. | Suggest cutting from 6s raw: 01:00 -> 04:00 |
+| Veo | Surreal miniature diorama, 3D clay texture figurines, macro lens close-up, tilt-shift bokeh, MODULE 02 比例失衡: A 0.7cm clay figurine standing at the base of a sand dune 18cm tall — scale ratio 1:25.7, label visible in lower frame. The figurine does not look up at the dune. It takes one step forward at normal walking pace. Camera fixed at ground level, figurine anchored lower-left. Scene chapter: 序言：撒哈拉中的綠色生命線. Clay stop-motion feel, vibrant studio lighting. | Suggest cutting from 6s raw: 01:00 -> 04:00 |
 
 
 ### CH02: 序言：撒哈拉中的綠色生命線
@@ -128,7 +128,7 @@
 | Image | `scene_007.png` |
 | Camera | Zoom Out |
 | SFX | System Boot |
-| Veo | — |
+| Veo | Surreal miniature diorama, 3D clay texture figurines, macro lens close-up, tilt-shift bokeh, MODULE 01 重心崩壞: Two 1.2cm clay figurines — one wearing a 0.8cm white bowling-pin crown (Upper Egypt), one wearing a 0.6cm red basket crown (Lower Egypt) — facing each other at 3cm distance. At t=0.8s both figurines simultaneously exceed their center-of-gravity threshold in opposite directions, falling away from each other at identical 47° angles. White crown travels 4.2cm parabolic arc before landing. Red crown travels 3.8cm. Both figurines remain fallen. Camera fixed. Scene chapter: 分裂與統一：美尼斯國王與第一王朝的建立. Clay stop-motion feel, vibrant studio lighting. | Suggest cutting from 6s raw: 01:00 -> 04:00 |
 
 
 ### CH08: 分裂與統一：美尼斯國王與第一王朝的建立
@@ -188,7 +188,7 @@
 | Image | `scene_011.png` |
 | Camera | Zoom Out |
 | SFX | Magic Chime |
-| Veo | — |
+| Veo | Surreal miniature diorama, 3D clay texture figurines, macro lens close-up, tilt-shift bokeh, MODULE 06 微型自尊: A 0.9cm clay scholar figurine methodically arranging papyrus scrolls each 2.7cm tall — 3x the figurine's height. Head-to-body ratio: 1.8:1. The figurine examines a star chart using a reed measuring stick 1.4x its own arm length. Movement deliberate, unhurried, technically precise. Head does not tilt upward despite scroll height discrepancy. Camera fixed at 45° overhead. Scene chapter: 金字塔前的技術積累：文字、數學與觀星術的萌芽. Clay stop-motion feel, vibrant studio lighting. | Suggest cutting from 6s raw: 01:00 -> 04:00 |
 
 
 ### CH12: 金字塔前的技術積累：文字、數學與觀星術的萌芽

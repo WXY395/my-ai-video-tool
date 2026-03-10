@@ -1,0 +1,233 @@
+# absurd_logic.skill
+# 荒謬動態邏輯清單 — 10 大物理荒謬動作模組
+> 版本：1.0 | 2026-03-11
+> 憲法隸屬：HONEST OBSERVER CONSTITUTION v1.0 — Article II 子集
+> 效力：本清單定義 AI 唯一允許的幽默輸出路徑。
+>       AI 只能透過描述以下物理現象來展現幽默，禁止使用笑點詞彙。
+
+---
+
+## 憲法鏈接聲明
+
+```
+父憲法：docs/constitution_honest_observer.md
+隸屬條文：Article II（禁止文字敘事）+ H-2（荒謬性三來源）
+
+本清單是 H-2 的具體化實作。
+每個模組都是一個「物理現象描述模板」，
+幽默效果完全來自物理事實本身，不依賴任何情緒詞彙。
+```
+
+---
+
+## MODULE 01：重心崩壞（Center of Gravity Collapse）
+
+**物理定義**：物體或人物因重心偏移超過支撐多邊形邊界，導致不可逆的倒塌過程。
+
+**荒謬性來源**：B（笨拙的動態）
+
+**Veo 指令模板**：
+```
+Two clay figurines facing each other, both simultaneously exceed their center of gravity
+threshold in opposite directions — mirror-image collapse, each falling away from the other
+at identical angles. Their accessories (crowns, hats, scrolls) continue traveling in parabolic
+arcs after the figurines have already landed. Camera fixed. No editorial comment.
+```
+
+**使用情境**：對峙場景、談判破裂、雙方衝突
+**禁止搭配**：任何「好笑」「搞笑」「幽默」等詞彙
+
+---
+
+## MODULE 02：比例失衡（Asymmetric Scale Shock）
+
+**物理定義**：場景中存在兩個物體，其尺寸比例超出正常範圍 10 倍以上。
+
+**荒謬性來源**：A（不對稱比例）
+
+**Veo 指令模板**：
+```
+A [0.8cm] clay figurine standing next to a [object that is 12x its height].
+The figurine does not acknowledge the scale difference.
+It proceeds with its task at normal pace with complete composure.
+Scale label visible: "[actual measurement]:[actual measurement]".
+```
+
+**使用情境**：宏大建築、巨大自然景觀、強烈對比
+**禁止搭配**：「令人震撼」「壯觀」等情緒引導詞
+
+---
+
+## MODULE 03：慣性拒絕（Inertia Refusal）
+
+**物理定義**：施力停止後，物體繼續依原軌跡運動，直到次級碰撞為止。
+
+**荒謬性來源**：B（笨拙的動態）
+
+**Veo 指令模板**：
+```
+Clay figurine pushes [object]. Figurine stops. Object continues at original velocity
+for exactly [distance]cm, then encounters [secondary obstacle] and stops abruptly.
+The figurine watches, maintains posture, does not react. Total elapsed time: [duration]s.
+```
+
+**使用情境**：建造過程、推拉動作、運輸場景
+**禁止搭配**：任何擬人化情緒反應描述
+
+---
+
+## MODULE 04：表面張力戲劇（Surface Tension Drama）
+
+**物理定義**：液體在表面張力支撐下形成超出預期的凸起，直到臨界點破裂。
+
+**荒謬性來源**：A（不對稱比例）+ B（笨拙的動態）
+
+**Veo 指令模板**：
+```
+Liquid [type] accumulating at [surface/edge]. Surface tension membrane visible,
+bulging to [X]mm above rim before rupture. Rupture propagates at [speed].
+Macro lens, fixed camera. No sound design implied.
+```
+
+**使用情境**：洪水、氾濫、豐收場景
+**禁止搭配**：任何象徵性語言（「如同生命」「豐盈的」）
+
+---
+
+## MODULE 05：完美對稱崩潰（Symmetry Betrayal）
+
+**物理定義**：高度對稱的結構因單一節點失效，導致整體非對稱性崩潰。
+
+**荒謬性來源**：B（笨拙的動態）+ C（穿幫質感）
+
+**Veo 指令模板**：
+```
+A perfectly symmetrical [structure] of [N] identical units. One unit at position [X]
+deviates by [Y]° from vertical. Cascade failure initiates. Final state: [description of
+asymmetric ruin]. Camera fixed throughout. No slow-motion implied — real-time.
+```
+
+**使用情境**：建築崩塌、政治統一/分裂、陣形瓦解
+**禁止搭配**：「戲劇性」「震撼人心」等評論詞
+
+---
+
+## MODULE 06：微型自尊（Miniature Dignity Protocol）
+
+**物理定義**：極小比例的物體/人物，以與其體積完全不相稱的莊嚴態度執行任務。
+
+**荒謬性來源**：A（不對稱比例）+ C（穿幫質感）
+
+**Veo 指令模板**：
+```
+A [exact size]cm clay figurine performing [complex task] with [oversized tool/object
+that is Nx the figurine's height]. Movement is deliberate, unhurried, and technically
+precise. The figurine's head-to-body ratio: [N]:1. It does not look up. Camera fixed.
+```
+
+**使用情境**：學術、行政、儀式、技術場景
+**禁止搭配**：「可愛」「萌」「有趣」等主觀評價
+
+---
+
+## MODULE 07：材質穿幫（Material Betrayal）
+
+**物理定義**：微縮模型的材質在某一細節上洩漏真實尺度，與畫面其他部分產生矛盾。
+
+**荒謬性來源**：C（微縮模型穿幫質感）
+
+**Veo 指令模板**：
+```
+Scene: [setting]. Material anomaly detected at [location]: [specific tell —
+e.g., "shadow direction contradicts light source", "grass blades identical height ±0mm",
+"rust pattern repeats with [X]cm periodicity"]. Camera zooms to [X]x on anomaly.
+No correction applied. Anomaly remains in frame until scene end.
+```
+
+**使用情境**：歷史場景重建、任何微縮世界設定
+**禁止搭配**：任何試圖掩蓋穿幫的描述
+
+---
+
+## MODULE 08：多米諾效應（Domino Physics Chain）
+
+**物理定義**：第一個物體倒下觸發連鎖反應，每個後續物體的倒下比前一個更戲劇性。
+
+**荒謬性來源**：B（笨拙的動態）
+
+**Veo 指令模板**：
+```
+Linear arrangement of [N] clay figurines, spacing [X]cm. Unit 1 topples at [Y]°/s.
+Unit 2 contact time: [T]ms. Each successive collision transfers [Z]% more kinetic energy.
+Unit N falls [distance]cm beyond the arrangement boundary. Fixed overhead camera.
+Total elapsed time: [duration]s.
+```
+
+**使用情境**：政治連鎖反應、軍事崩潰、文明傳播
+**禁止搭配**：「如骨牌般」等明顯比喻
+
+---
+
+## MODULE 09：冠軍噴濺協定（Crown Splash Protocol）
+
+**物理定義**：液體衝擊固體表面，形成幾何精確的皇冠型噴濺，持續時間 ≤0.01s。
+
+**荒謬性來源**：A（不對稱比例）+ B（笨拙的動態）
+
+**Veo 指令模板**：
+```
+[Liquid] droplet diameter [X]mm impacts [surface type] at [velocity]m/s.
+Crown splash: [N] symmetric jets, each [height]mm, arc angle [degree]°.
+Total crown duration: [ms]ms. Camera: macro fixed, 1000fps equivalent implied.
+Geometric annotation optional: crown circumference [measurement].
+```
+
+**使用情境**：洪水、尼羅河氾濫、降雨、血液場景
+**禁止搭配**：任何「優美」「震撼」等情緒修飾
+
+---
+
+## MODULE 10：莊嚴崩潰（Solemn Collapse Sequence）
+
+**物理定義**：物體/人物在執行莊重儀式動作的過程中，因物理限制導致完全且安靜的崩潰。
+
+**荒謬性來源**：B（笨拙的動態）+ A（不對稱比例）
+
+**Veo 指令模板**：
+```
+Clay figurine initiating [formal/ceremonial action] — posture upright, movement
+controlled. At t=[timestamp], [single physical variable — weight/friction/inertia]
+exceeds threshold. Collapse is complete and total. Duration from initiation to
+final rest position: [X]s. Figurine maintains neutral expression throughout.
+Camera fixed. No reaction shot.
+```
+
+**使用情境**：法老儀式、宗教場景、官方宣告、開國大典
+**禁止搭配**：「失敗」「挫折」「尷尬」等詮釋詞
+
+---
+
+## 使用規則
+
+### R-1：選用限制
+每個場景最多選用 **1 個模組**。禁止在同一 Veo 提示詞中混用兩個模組。
+
+### R-2：模板填充原則
+用 `[中括號]` 標示的部分必須替換為具體的物理數值或描述。
+保留空洞的模板即為違反本技能的使用規則。
+
+### R-3：Zero Emotion Rule
+所有輸出的 Veo 提示詞中，禁止出現以下類型詞彙：
+```
+情緒詞：funny, hilarious, amusing, cute, adorable, heartwarming
+評價詞：amazing, breathtaking, spectacular, impressive
+引導詞：notice how, watch as, incredibly, surprisingly
+```
+
+### R-4：數值強制
+每個 Veo 提示詞中至少包含 **1 個具體物理數值**（尺寸、時間、速度、角度之一）。
+數值是冷面笑匠語境的錨點。
+
+---
+
+Version: 1.0 | Date: 2026-03-11 | Parent: constitution_honest_observer.md
