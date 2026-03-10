@@ -158,7 +158,7 @@
 | Image | `scene_009.png` |
 | Camera | Shake |
 | SFX | Magic Chime |
-| Veo | Surreal miniature diorama, 3D clay texture figurines, macro lens close-up, tilt-shift bokeh, slapstick physical comedy action: A hyper-detailed close-up of the magnificent Double Crown of ancient Egypt, combining the white bowling-pin shape of the. Scene chapter: 分裂與統一：美尼斯國王與第一王朝的建立. Absurd humorous physical movement, clay stop-motion feel, vibrant studio lighting. | Suggest cutting from 6s raw: 01:00 -> 04:00 |
+| Veo | Surreal miniature diorama, 3D clay texture, macro lens, tilt-shift bokeh, MODULE 10 莊嚴崩潰: A 1.1cm clay figurine initiates crown placement ceremony — posture upright, both arms raised to receive a 1.4cm double crown (127% of figurine head diameter). At t=1.2s crown weight exceeds neck support threshold. Head tilts 34° forward. Crown continues to table surface. Figurine maintains ceremonial arm position throughout. Camera fixed. Scene chapter: 分裂與統一：美尼斯國王與第一王朝的建立. Clay stop-motion feel, vibrant studio lighting. | Suggest cutting from 6s raw: 01:00 -> 04:00 |
 
 
 ### CH10: 金字塔前的技術積累：文字、數學與觀星術的萌芽
@@ -233,7 +233,7 @@
 | Image | `scene_014.png` |
 | Camera | Shake |
 | SFX | Magic Chime |
-| Veo | Surreal miniature diorama, 3D clay texture figurines, macro lens close-up, tilt-shift bokeh, slapstick physical comedy action: The Pharaoh charmingly giving a thumbs-up to a massive crowd of hypnotized citizens, while smoothly pocketing golden coi. Scene chapter: 永恆的秩序：宗教觀念如何塑造埃及人的世界觀. Absurd humorous physical movement, clay stop-motion feel, vibrant studio lighting. | Suggest cutting from 6s raw: 01:00 -> 04:00 |
+| Veo | Surreal miniature diorama, 3D clay texture, macro lens, tilt-shift bokeh, MODULE 10 莊嚴崩潰: A 1.0cm clay pharaoh figurine extends arm holding a 1.8cm scepter (180% body height) in official decree posture. At t=1.4s scepter-to-body torque ratio exceeds base friction threshold. Figurine rotates 90° forward at uniform speed. Scepter lands 5.1cm from figurine. Figurine remains at 90° from vertical. Camera fixed. Scene chapter: 永恆的秩序：宗教觀念如何塑造埃及人的世界觀. Clay stop-motion feel, vibrant studio lighting. | Suggest cutting from 6s raw: 01:00 -> 04:00 |
 
 
 ### CH15: 永恆的秩序：宗教觀念如何塑造埃及人的世界觀
@@ -293,5 +293,5 @@
 | Image | `scene_018.png` |
 | Camera | Whip |
 | SFX | Hammer Impact |
-| Veo | Surreal miniature diorama, 3D clay texture figurines, macro lens close-up, tilt-shift bokeh, slapstick physical comedy action: A massive anthropomorphic representation of the Nile River giving a generous wink and making it rain gold coins over a c. Scene chapter: 結語：埃及文明留給現代世界的遺產. Absurd humorous physical movement, clay stop-motion feel, vibrant studio lighting. | Suggest cutting from 6s raw: 01:00 -> 04:00 |
+| Veo | Surreal miniature diorama, 3D clay texture, macro lens, tilt-shift bokeh, MODULE 09 冠軍噴濺協定: Water droplet 8mm diameter impacts miniature Nile delta surface (22cm × 8cm) at 3.2m/s. Crown splash: 12 symmetric jets each 14mm tall, arc angle 62°. Crown duration 47ms. Two 0.8cm clay figurines visible at delta edge. Camera macro fixed. Scene chapter: 結語：埃及文明留給現代世界的遺產. Clay stop-motion feel, vibrant studio lighting. | Suggest cutting from 6s raw: 01:00 -> 04:00 |
 
