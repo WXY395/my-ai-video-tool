@@ -1,0 +1,110 @@
+{
+  "topic": "秦始皇的樂高兵馬俑",
+  "version": "V35.7",
+  "generated_at": "2026-03-11T17:45:36.241Z",
+  "ssot": {
+    "topic": "秦始皇的樂高兵馬俑：從歷史到積木的工程解密",
+    "one_line_promise": "帶你深入了解如何用數十萬顆樂高積木，精準復刻兩千年前的大秦帝國奇蹟。",
+    "hook_intent": "透過震撼的樂高縮小比例與真實考古發現對比，激發觀眾對當代創意結合古代歷史的好奇心，並解析組裝中的物理挑戰。",
+    "key_claims": [
+      "樂高版的兵馬俑不僅是玩具，而是透過數位建模高度還原了真實秦俑的甲冑與面部細節。",
+      "為了在大規模組裝中維持結構穩定，模型內部採用了複雜的科技組Technic支撐結構。",
+      "透過色彩學的選擇，復刻版呈現了兵馬俑最初剛出土時尚未氧化褪色的鮮豔色彩。"
+    ],
+    "chapter_outline": [
+      "第一章：當顆粒遇上陶俑——計畫緣起與比例設定",
+      "第二章：數位考古學——利用CAD技術重現秦軍陣列",
+      "第三章：結構的極限——如何支撐重達數百公斤的積木地宮",
+      "第四章：消失的色彩——選色邏輯與歷史考究",
+      "第五章：完工與展示——現代工程對古代工藝的致敬"
+    ],
+    "visual_list": [
+      "秦始皇陵兵馬俑與樂高小人仔的特寫對比鏡頭",
+      "電腦螢幕上的數位建模3D旋轉圖示",
+      "大量灰色與棕色積木顆粒傾倒而下的慢動作畫面",
+      "工程人員使用縮時攝影展示內層科技組支撐架的搭建過程",
+      "顯微鏡般的視角切入，展示樂高積木模擬出的秦朝魚鱗甲細節",
+      "全景航拍視角展示成千上萬個樂高俑排開的震撼陣列"
+    ]
+  },
+  "image_prompts": [
+    {
+      "chapter": "第一章：當顆粒遇上陶俑——計畫緣起與比例設定",
+      "filename": "scene_001.png",
+      "prompt": "A dramatic close-up of an ancient Chinese emperor Qin Shi Huang looking shocked, holding a tiny modern plastic building brick. Cinematic dramatic lighting with deep shadows, shot on 50mm lens, highly detailed photorealistic historic style combined with modern surrealism. (No text, no watermarks, no logos)",
+      "vo_text": "秦始皇做夢也想不到"
+    },
+    {
+      "chapter": "第一章：當顆粒遇上陶俑——計畫緣起與比例設定",
+      "filename": "scene_002.png",
+      "prompt": "A magical transformation sequence where a life-sized clay terracotta warrior slowly morphs into a giant figure made entirely of colorful plastic interlocking bricks. Dynamic studio lighting, 35mm lens, hyper-realistic 3D rendering style showcasing intricate plastic textures. (No text, no watermarks, no logos)",
+      "vo_text": "大秦帝國變樂高了！"
+    },
+    {
+      "chapter": "第二章：數位考古學——利用CAD技術重現秦軍陣列",
+      "filename": "scene_003.png",
+      "prompt": "A glowing futuristic computer monitor displaying a complex wireframe CAD 3D model of a plastic brick terracotta warrior in a dark high-tech engineering studio. Neon blue and orange ambient lighting, 85mm macro lens, ultra-detailed cyberpunk workspace style. (No text, no watermarks, no logos)",
+      "vo_text": "用CAD建軍隊超硬核"
+    },
+    {
+      "chapter": "第二章：數位考古學——利用CAD技術重現秦軍陣列",
+      "filename": "scene_004.png",
+      "prompt": "A microscopic macro view of intricate fish-scale armor made entirely of tiny interlocking plastic bricks snapping perfectly into place. Bright surgical studio lighting highlighting the plastic stud details, 100mm macro lens, hyper-realistic engineering simulation visual style. (No text, no watermarks, no logos)",
+      "vo_text": "魚鱗甲細節逼死強迫症"
+    },
+    {
+      "chapter": "第三章：結構的極限——如何支撐重達數百公斤的積木地宮",
+      "filename": "scene_005.png",
+      "prompt": "A massive mountain of grey, brown, and terracotta-colored plastic building bricks piled up inside a giant industrial warehouse. Dramatic overhead volumetric lighting piercing through the dust, 24mm wide-angle lens, cinematic industrial photography style emphasizing the sheer volume. (No text, no watermarks, no logos)",
+      "vo_text": "這幾百公斤的積木堆"
+    },
+    {
+      "chapter": "第三章：結構的極限——如何支撐重達數百公斤的積木地宮",
+      "filename": "scene_006.png",
+      "prompt": "A complex internal support structure made of plastic Technic beams and pins rapidly assembling itself to form the skeleton of a giant warrior. Dramatic high-contrast edge lighting, 50mm standard lens, stop-motion animation aesthetic with crisp mechanical details. (No text, no watermarks, no logos)",
+      "vo_text": "全靠科技組骨架硬扛"
+    },
+    {
+      "chapter": "第四章：消失的色彩——選色邏輯與歷史考究",
+      "filename": "scene_007.png",
+      "prompt": "A half-painted ancient terracotta warrior, showcasing vibrant original colors like bright purple, red, and green on one side, and dull clay on the other. Museum spotlighting with soft ambient fill, 85mm portrait lens, photorealistic historical archaeological documentary style. (No text, no watermarks, no logos)",
+      "vo_text": "秦兵原本可是彩色的"
+    },
+    {
+      "chapter": "第四章：消失的色彩——選色邏輯與歷史考究",
+      "filename": "scene_008.png",
+      "prompt": "Hundreds of tiny colorful plastic bricks swirling and sorting themselves magically by color into neat piles, matching the ancient vibrant paint palette. Bright playful studio lighting, 50mm lens, magical realism commercial aesthetic with vibrant color saturation. (No text, no watermarks, no logos)",
+      "vo_text": "樂高精準備齊了色號"
+    },
+    {
+      "chapter": "第五章：完工與展示——現代工程對古代工藝的致敬",
+      "filename": "scene_009.png",
+      "prompt": "A breathtaking aerial wide shot of an enormous army of thousands of meticulously assembled plastic brick terracotta warriors in perfect battle formation. Grand cinematic sunlight casting long shadows, 14mm ultra-wide lens, epic historical blockbuster visual style. (No text, no watermarks, no logos)",
+      "vo_text": "十萬大軍一次排開"
+    },
+    {
+      "chapter": "第五章：完工與展示——現代工程對古代工藝的致敬",
+      "filename": "scene_010.png",
+      "prompt": "A gigantic plastic brick replica of a Chinese emperor sitting on a majestic throne made of bricks, giving a subtle nod of approval. Warm golden hour lighting streaming through a palace window, 50mm lens, triumphant and majestic cinematic style. (No text, no watermarks, no logos)",
+      "vo_text": "老祖宗看了都想點讚"
+    }
+  ],
+  "saved_files": {
+    "draft_vo.srt": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\秦始皇的樂高兵馬俑\\draft_vo.srt",
+    "subtitles.srt": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\秦始皇的樂高兵馬俑\\subtitles.srt",
+    "seo.txt": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\秦始皇的樂高兵馬俑\\seo.txt",
+    "runbook.md": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\秦始皇的樂高兵馬俑\\runbook.md",
+    "cover.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\秦始皇的樂高兵馬俑\\cover.png",
+    "scene_001.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\秦始皇的樂高兵馬俑\\scene_001.png",
+    "scene_002.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\秦始皇的樂高兵馬俑\\scene_002.png",
+    "scene_003.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\秦始皇的樂高兵馬俑\\scene_003.png",
+    "scene_004.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\秦始皇的樂高兵馬俑\\scene_004.png",
+    "scene_005.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\秦始皇的樂高兵馬俑\\scene_005.png",
+    "scene_006.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\秦始皇的樂高兵馬俑\\scene_006.png",
+    "scene_007.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\秦始皇的樂高兵馬俑\\scene_007.png",
+    "scene_008.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\秦始皇的樂高兵馬俑\\scene_008.png",
+    "scene_009.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\秦始皇的樂高兵馬俑\\scene_009.png",
+    "scene_010.png": "C:\\Projects\\shorts_factory_react\\bridge\\official_core\\outputs\\秦始皇的樂高兵馬俑\\scene_010.png"
+  },
+  "seo_txt": "【YouTube】\n標題：秦始皇看了都嚇呆！數十萬顆樂高積木神還原兵馬俑\n描述：你想過用樂高積木重現兩千年前的秦始皇陵兵馬俑嗎？從CAD數位建模、科技組骨架支撐到精準還原出土色彩，帶你解密這場超硬核的跨時代工程挑戰！點擊觀看古代工藝與現代積木的完美碰撞。\nTags：#樂高兵馬俑 #秦始皇 #歷史解密 #樂高工程 #數位考古 #兵馬俑色彩 #歷史建築復刻 #LEGO奇蹟 #積木挑戰 #科技組 #強迫症福音 #古代歷史 #奇葩工程 #模型製作 #歷史真相\n\n------------------\n【TikTok】\n標題：秦始皇棺材板壓不住啦！兵馬俑變樂高🤯\n描述：當大秦帝國遇上樂高積木，這爆肝程度連老祖宗都要點讚！到底怎麼堆出幾百公斤的地宮？快來看看這超狂還原！\nTags：#樂高 #兵馬俑 #神人 #歷史 #積木 #搞笑 #工程師日常 #開眼界\n\n------------------\n【Instagram】\n標題：跨越兩千年的浪漫：當樂高積木遇上大秦帝國 🧱✨\n描述：把歷史玩出新高度！這可不是普通的玩具模型，而是用數十萬顆樂高精準復刻的兵馬俑大軍🛡️。從還原最初的鮮豔色彩到複雜的魚鱗甲細節，這份致敬老祖宗的工藝絕對讓你大開眼界！\nTags：#LEGOart #兵馬俑 #歷史之美 #樂高創作 #生活靈感 #模型攝影 #展覽 #考古 #歷史文化 #創意設計 #藝術之美 #大秦帝國\n\n------------------\n【Facebook】\n標題：秦始皇做夢都沒想到，他的地下大軍居然被樂高積木完美神還原！\n描述：你知道剛出土的兵馬俑其實是彩色的嗎？這次神人級別的工程師們，不但用CAD數位建模算出了幾百公斤積木的極限承重，更找齊了所有樂高色號，完美還原了兩千年前的歷史奇蹟！快@你身邊那個愛玩樂高的朋友來看看這誇張的十萬大軍！\nTags：#樂高神人 #兵馬俑解密 #歷史新發現 #有趣冷知識 #創意工程 #神還原"
+}
